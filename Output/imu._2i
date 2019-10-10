@@ -1,0 +1,5 @@
+--feedback "..\..\Output\Á÷Ë®µÆ.fed" -c --cpu Cortex-M3 -g -O0 --apcs=interwork -I..\..\Libraries\CMSIS -I..\..\User -I..\..\Libraries\FWlib\inc -I..\..\User\Led -I..\..\User\cpu -I..\..\User\AT24C02 -I..\..\User\MPU6050 -I..\..\User\LCD240x320_ILI9341 -I..\..\User\W25Q16 -I..\..\User\stm32f10x_pwm -I..\..\User\SDIO_SD -I..\..\User\LCD240x320_Touch -I..\..\ff9\src -I..\..\ff9\src\option -I..\..\User\BMP180 -I..\..\User\HMC5883 -I..\..\User\IMU -I..\..\User\IO_IIC -I..\..\User\Kalman_Filter -I..\..\User\NRF_24L01 -I..\..\User\Scope_API -I..\..\User\Seven_Lab_MiniIMU
+-I C:\Keil\ARM\RV31\INC
+-I C:\Keil\ARM\CMSIS\Include
+-I C:\Keil\ARM\Inc\ST\STM32F10x
+-DSTM32F10X_HD -DUSE_STDPERIPH_DRIVER -o ..\..\output\imu.o --omf_browse ..\..\output\imu.crf --depend ..\..\output\imu.d "..\..\User\IMU\IMU.c"
