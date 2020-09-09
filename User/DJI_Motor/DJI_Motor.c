@@ -59,7 +59,6 @@ void DJI_Motor_Init(void)
 	set_spd[0] = set_spd[1] = set_spd[2] = set_spd[3] = 0;//设置四个电机的目标速度
 	
 	motor_upload_counter=0;
-	
 }
 
 // C620电调控制范围-16384~0~16384 对应电调输出 -20A-0-20A 发送频率1KHz
@@ -550,12 +549,22 @@ void DJI_Motor_Clear_Odom(void)
 	unsigned char j=0;
 		for(j=0;j<4;j++)  
 		{
-			moto_chassis[j].speed_rpm=0;  
-			moto_chassis[j].total_angle=0;	
-			moto_chassis[j].round_cnt=0;
+			moto_chassis[j].msg_cnt=0;  
+
 			moto_chassis[j].angle=0;
+			moto_chassis[j].last_angle=0;
+			moto_chassis[j].speed_rpm=0;  
+			moto_chassis[j].real_current=0;  
+			moto_chassis[j].given_current=0;  
+						
 			moto_chassis[j].Temp=0;
+			moto_chassis[j].offset_angle=0;
+			moto_chassis[j].round_cnt=0;
+			moto_chassis[j].total_angle=0;	
+
 		}
+		
+		motor_upload_counter=0;
 		UART_send_string(USART2,"OK");
 }
 

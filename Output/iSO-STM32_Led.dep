@@ -471,7 +471,7 @@ I (..\..\Libraries\FWlib\inc\stm32f10x_spi.h)(0x5455251A)
 I (..\..\Libraries\FWlib\inc\stm32f10x_tim.h)(0x545681F2)
 I (..\..\Libraries\FWlib\inc\stm32f10x_usart.h)(0x5D7BD478)
 I (..\..\Libraries\FWlib\inc\misc.h)(0x4D77CB34)
-F (..\..\User\main.c)(0x5F582CDF)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\AT24C02 -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\ChineseChess -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor-I.\RTE\_Led-I"C:\Users\RuPing Cen\AppData\Local\Arm\Packs\Keil\STM32F1xx_DFP\2.2.0\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="528" -DSTM32F10X_HD -DSTM32F10X_HD -DUSE_STDPERIPH_DRIVER-o ..\..\output\main.o --omf_browse ..\..\output\main.crf --depend ..\..\output\main.d)
+F (..\..\User\main.c)(0x5F588CD9)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\AT24C02 -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\ChineseChess -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor-I.\RTE\_Led-I"C:\Users\RuPing Cen\AppData\Local\Arm\Packs\Keil\STM32F1xx_DFP\2.2.0\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="528" -DSTM32F10X_HD -DSTM32F10X_HD -DUSE_STDPERIPH_DRIVER-o ..\..\output\main.o --omf_browse ..\..\output\main.crf --depend ..\..\output\main.d)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x4D77CC34)
 I (..\..\Libraries\CMSIS\core_cm3.h)(0x4D51CAD8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5CEB79E2)
@@ -497,7 +497,7 @@ I (..\..\User\speed_control\speed_control.h)(0x5D7BD500)
 I (..\..\User\bsp_uart\bsp_uart.h)(0x5D8D4628)
 I (..\..\User\bsp_can\bsp_can.h)(0x5D8876EA)
 I (..\..\User\DBUS\DBUS.h)(0x5F578C61)
-I (..\..\User\DJI_Motor\DJI_Motor.h)(0x5F579B77)
+I (..\..\User\DJI_Motor\DJI_Motor.h)(0x5F5891E6)
 F (..\..\User\stm32f10x_conf.h)(0x549C5114)()
 F (..\..\User\stm32f10x_it.c)(0x5F57A5C5)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\AT24C02 -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\ChineseChess -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor-I.\RTE\_Led-I"C:\Users\RuPing Cen\AppData\Local\Arm\Packs\Keil\STM32F1xx_DFP\2.2.0\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="528" -DSTM32F10X_HD -DSTM32F10X_HD -DUSE_STDPERIPH_DRIVER-o ..\..\output\stm32f10x_it.o --omf_browse ..\..\output\stm32f10x_it.crf --depend ..\..\output\stm32f10x_it.d)
 I (..\..\User\stm32f10x_it.h)(0x5D7D91C6)
@@ -523,7 +523,7 @@ I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x5CEB79E2)
 I (..\..\User\bsp_uart\bsp_uart.h)(0x5D8D4628)
 I (..\..\User\bsp_can\bsp_can.h)(0x5D8876EA)
 I (..\..\User\DBUS\DBUS.h)(0x5F578C61)
-I (..\..\User\DJI_Motor\DJI_Motor.h)(0x5F579B77)
+I (..\..\User\DJI_Motor\DJI_Motor.h)(0x5F5891E6)
 F (..\..\User\stm32f10x_it.h)(0x5D7D91C6)()
 F (..\..\User\cpu\stm32f10x_Delay.c)(0x55BEC76E)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\AT24C02 -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\ChineseChess -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor-I.\RTE\_Led-I"C:\Users\RuPing Cen\AppData\Local\Arm\Packs\Keil\STM32F1xx_DFP\2.2.0\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="528" -DSTM32F10X_HD -DSTM32F10X_HD -DUSE_STDPERIPH_DRIVER-o ..\..\output\stm32f10x_delay.o --omf_browse ..\..\output\stm32f10x_delay.crf --depend ..\..\output\stm32f10x_delay.d)
 I (..\..\User\cpu\stm32f10x_Delay.h)(0x55BE9EC4)
@@ -649,7 +649,7 @@ I (..\..\User\DBUS\DBUS.h)(0x5F578C61)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5CEB79E2)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x5CEB79E2)
 I (..\..\User\bsp_uart\bsp_uart.h)(0x5D8D4628)
-F (..\..\User\DJI_Motor\DJI_Motor.c)(0x5F582C3F)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\AT24C02 -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\ChineseChess -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor-I.\RTE\_Led-I"C:\Users\RuPing Cen\AppData\Local\Arm\Packs\Keil\STM32F1xx_DFP\2.2.0\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="528" -DSTM32F10X_HD -DSTM32F10X_HD -DUSE_STDPERIPH_DRIVER-o ..\..\output\dji_motor.o --omf_browse ..\..\output\dji_motor.crf --depend ..\..\output\dji_motor.d)
+F (..\..\User\DJI_Motor\DJI_Motor.c)(0x5F58922F)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\AT24C02 -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\ChineseChess -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor-I.\RTE\_Led-I"C:\Users\RuPing Cen\AppData\Local\Arm\Packs\Keil\STM32F1xx_DFP\2.2.0\Device\Include"-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="528" -DSTM32F10X_HD -DSTM32F10X_HD -DUSE_STDPERIPH_DRIVER-o ..\..\output\dji_motor.o --omf_browse ..\..\output\dji_motor.crf --depend ..\..\output\dji_motor.d)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x4D77CC34)
 I (..\..\Libraries\CMSIS\core_cm3.h)(0x4D51CAD8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x5CEB79E2)
@@ -671,5 +671,5 @@ I (..\..\Libraries\FWlib\inc\misc.h)(0x4D77CB34)
 I (C:\Keil_v5\ARM\ARMCC\include\math.h)(0x5CEB79D6)
 I (..\..\User\bsp_uart\bsp_uart.h)(0x5D8D4628)
 I (..\..\User\bsp_can\bsp_can.h)(0x5D8876EA)
-I (..\..\User\DJI_Motor\DJI_Motor.h)(0x5F579B77)
+I (..\..\User\DJI_Motor\DJI_Motor.h)(0x5F5891E6)
 F (..\..\Doc\readme.txt)(0x53B9EF4E)()

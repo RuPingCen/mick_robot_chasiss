@@ -46,6 +46,15 @@ typedef enum
 	
 }CAN_Message_ID;
 
+enum{
+    LLAST	= 0,
+    LAST 	= 1,
+    NOW 	= 2,
+	
+    POSITION_PID,
+    DELTA_PID,
+};
+
 #define FILTER_BUF_LEN		5
 /*接收到的云台电机的参数结构体*/
 typedef struct{
@@ -68,14 +77,7 @@ typedef struct{
 		uint32_t	msg_cnt;
 }moto_measure_t;
 
-enum{
-    LLAST	= 0,
-    LAST 	= 1,
-    NOW 	= 2,
-	
-    POSITION_PID,
-    DELTA_PID,
-};
+
 typedef struct __pid_t
 {
     float p;

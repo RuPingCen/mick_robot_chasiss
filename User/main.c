@@ -116,6 +116,7 @@ int main(void)
 						{									
 							UART1_DMA_Flag=0x00;	
 							Timer2_Counter1=0; //清空定时计数器
+							Timer2_Counter2=0;
 							if((dbus_rc.sw1 !=1) && (dbus_rc.available)) //使能遥控器模式
 							{
 								if(dbus_rc.sw2 ==1) //1 档模式 最大1m/s
@@ -124,7 +125,7 @@ int main(void)
 								}
 								else if(dbus_rc.sw2 ==3) //2 档模式 最大2m/s
 								{
-									DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.00252,(dbus_rc.ch1_offset-dbus_rc.ch1)*0.00252);
+									DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.00304,(dbus_rc.ch1_offset-dbus_rc.ch1)*0.00304);
 								}
 								else if(dbus_rc.sw2 ==2) //3 档模式 最大3.5m/s
 								{
@@ -137,7 +138,8 @@ int main(void)
 						}
 						if(UART2_Flag) //上位机指令下发接口
 						{
-							  Timer2_Counter2=0; //清空定时计数器
+							  Timer2_Counter1=0; //清空定时计数器
+							  Timer2_Counter2=0;
 							  UART2_Flag=0x00;
 								if((dbus_rc.sw1 ==1) && (dbus_rc.available))
 								{
@@ -162,7 +164,7 @@ int main(void)
 										else;
 										//Delay_10us(50000);
 										//DJI_Motor_Show_Message();
-										//recived_cmd.flag =0;//使用一次以后丢弃该数据
+										recived_cmd.flag =0;//使用一次以后丢弃该数据
 									}
 									else
 										Mecanum_Wheel_Speed_Model(0,0,0);
@@ -185,11 +187,11 @@ int main(void)
 							}
 						}
 						
-						if((Timer2_Counter2>100*10) ) // 如果定时计数器操作4s还没有被清零，说明通讯出现了中断
+						if((Timer2_Counter2>100*10) ) // 如果定时计数器操作1s还没有被清零，说明通讯出现了中断
 						{			     
 									recived_cmd.flag =0; //标记接收数据不可用
 									Timer2_Counter2=0;
-							    //Mecanum_Wheel_Speed_Model(0,0,0);
+							    Mecanum_Wheel_Rpm_Model(0,0,0,0);
 						}
 						
 						if((Timer2_Counter1>100*10) && (dbus_rc.available == 0x00)) // 如果定时计数器操作4s还没有被清零，说明通讯出现了中断
