@@ -116,9 +116,9 @@ int main(void)
 						if(UART1_DMA_Flag) //遥控器介入控制命令逻辑  7ms 发送一次
 						{									
 							UART1_DMA_Flag=0x00;	
-							Timer2_Counter1=0; //清空定时计数器
 							if((dbus_rc.sw1 !=1) && (dbus_rc.available)) //使能遥控器模式
 							{
+								Timer2_Counter1=0; //清空定时计数器
 								if(dbus_rc.sw2 ==1) //1 档模式 最大1m/s
 								{
 									DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.00152,(dbus_rc.ch1_offset-dbus_rc.ch1)*0.00152);
@@ -136,39 +136,53 @@ int main(void)
 							}
 							LED1_FLIP;
 						}
-						if(UART2_Flag) //上位机指令下发接口
+						
+						if(UART2_Flag && recived_cmd.flag) //上位机指令下发接口
 						{
-							Timer2_Counter1=0; //清空定时计数器
-							Timer2_Counter2=0;
-							UART2_Flag=0x00;
-							if((dbus_rc.sw1 ==1) && (dbus_rc.available) && (recived_cmd.flag))//串口接收有数据过来
-							{
-								if(recived_cmd.cmd == 0xF1)
-								{	
-									Mecanum_Wheel_Rpm_Model(recived_cmd.tag_rpm1,recived_cmd.tag_rpm2,recived_cmd.tag_rpm3,recived_cmd.tag_rpm4);
-								}
-								else if(recived_cmd.cmd == 0xF2)
+								if((dbus_rc.sw1 ==1) && (dbus_rc.available))//串口接收有数据过来
 								{
-									Mecanum_Wheel_Speed_Model(recived_cmd.tag_speed_x,recived_cmd.tag_speed_y,recived_cmd.tag_speed_z);
+									Timer2_Counter1=0; //清空定时计数器
+									if(recived_cmd.cmd == 0xF1)
+									{	
+										Mecanum_Wheel_Rpm_Model(recived_cmd.tag_rpm1,recived_cmd.tag_rpm2,recived_cmd.tag_rpm3,recived_cmd.tag_rpm4);
+									}
+									else if(recived_cmd.cmd == 0xF2)
+									{
+										Mecanum_Wheel_Speed_Model(recived_cmd.tag_speed_x,recived_cmd.tag_speed_y,recived_cmd.tag_speed_z);
+									}
+									else if(recived_cmd.cmd == 0xF3)
+									{
+										DiffX4_Wheel_Speed_Model(recived_cmd.tag_speed_x,recived_cmd.tag_speed_z);
+									}
+									else if(recived_cmd.cmd == 0xE1) //里程计清零
+									{
+										 DJI_Motor_Clear_Odom();
+									}
+									else;
+									//Delay_10us(50000);
+									//DJI_Motor_Show_Message();
 								}
-								else if(recived_cmd.cmd == 0xF3)
-								{
-									DiffX4_Wheel_Speed_Model(recived_cmd.tag_speed_x,recived_cmd.tag_speed_z);
-								}
-								else if(recived_cmd.cmd == 0xE1) //里程计清零
-								{
-									 DJI_Motor_Clear_Odom();
-								}
-								else;
-								//Delay_10us(50000);
-								//DJI_Motor_Show_Message();
-							}
-							else
-								Mecanum_Wheel_Rpm_Model(0,0,0,0);
+								else
+									Mecanum_Wheel_Rpm_Model(0,0,0,0);
+					 
 							recived_cmd.flag =0;//使用一次以后丢弃该数据
+							UART2_Flag=0x00;
 						}
-						 
-					
+						  
+						if((Timer2_Counter1>100*10)) // 如果定时计数器操作4s还没有被清零，说明通讯出现了中断
+						{			
+									if(dbus_rc.available == 0x00)
+									{
+										dbus_rc.sw1 = 5; //标记接收数据不可用
+										Mecanum_Wheel_Rpm_Model(0,0,0,0);
+									}
+									else if(recived_cmd.flag ==0x00)
+									{
+										Mecanum_Wheel_Rpm_Model(0,0,0,0);
+									}
+									Timer2_Counter1=0;
+						}
+						
 						if(CAN1_Flag) //打印CAN中断接收的数据
 						{
 							CAN1_Flag=0x00;  
@@ -183,20 +197,6 @@ int main(void)
 							{
 								 Timer2_Counter3=0;
 							}
-						}
-						
-						if((Timer2_Counter2>100*10) ) // 如果定时计数器操作1s还没有被清零，说明通讯出现了中断
-						{			     
-									recived_cmd.flag =0; //标记接收数据不可用
-									Timer2_Counter2=0;
-							    Mecanum_Wheel_Rpm_Model(0,0,0,0);
-						}
-						
-						if((Timer2_Counter1>100*10) && (dbus_rc.available == 0x00)) // 如果定时计数器操作4s还没有被清零，说明通讯出现了中断
-						{			     
-									dbus_rc.sw1 = 5; //标记接收数据不可用
-							    Timer2_Counter1=0;
-									Mecanum_Wheel_Rpm_Model(0,0,0,0);
 						}
       }
      
