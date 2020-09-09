@@ -4,6 +4,7 @@ MickM4分支为麦克纳姆轮ROS底盘的底盘控制程序，代码适用于ST
 
 
 MickX4分支为四轮差速小车分支
+![Distribute SLAM](https://github.com/RuPingCen/mick_robot_chasiss/raw/master/Reference/mickx4.png)
 
 通讯协议的接口说明请参考链接： 【腾讯文档】ROS底盘数据帧协议v1.1
 https://docs.qq.com/sheet/DV2hmSEdSYVVtclB4
