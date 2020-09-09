@@ -134,7 +134,11 @@ typedef struct __command_t //接收上位机控制命令的结构体数据
 void DJI_Motor_Init(void);
 void DJI_Motor_Control(void);	
 void Mecanum_Wheel_Rpm_Model(int16_t v1,int16_t v2,int16_t v3,int16_t v4); 
+void DiffX4_Wheel_Speed_Model(float speed_x,float speed_w);
 void Mecanum_Wheel_Speed_Model(int16_t speed_x,int16_t speed_y,int16_t speed_w);
+
+
+
 void DJI_Motor_Show_Message(void);
 void DJI_Motor_Upload_Message(void);
 void DJI_Motor_WriteData_In_Buff(uint8_t *DataBuff,uint16_t datalength);

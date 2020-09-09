@@ -13,6 +13,8 @@ extern volatile uint32_t TimingDelay;
 extern volatile uint32_t Timer2_Counter1;
 extern volatile uint32_t Timer2_Counter2;
 extern volatile uint32_t Timer2_Counter3;
+extern volatile uint32_t Timer2_Counter4;
+extern volatile uint32_t Timer2_Counter5;
 
 extern volatile uint8_t UART1_DMA_Flag; //串口1中断标志位
 extern volatile uint8_t UART2_Flag; //串口2中断标志位
@@ -31,7 +33,7 @@ unsigned char Reflag_2=0;
 unsigned char U2dat_value=0;
 unsigned char U2dat_value_last=0;
 
-extern void control(void);
+ 
 //extern void Matrix_Keyscan_Analy(unsigned int interupt_times);//矩阵按键读取
 //extern void Keyscan_Analy(unsigned int interupt_times);//独立按键读取
 
@@ -144,7 +146,9 @@ void TIM2_IRQHandler(void)//定时器2 中断服务函数
 	{	
 	  Timer2_Counter1++;
 		Timer2_Counter2++;
-		Timer2_Counter3++;		
+		Timer2_Counter3++;	
+		Timer2_Counter4++;
+		Timer2_Counter5++;		
 	  //GPIO_Flip_level(GPIOE,GPIO_Pin_1);
 		DJI_Motor_Control(); 
 		TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);   		
@@ -156,7 +160,7 @@ void TIM3_IRQHandler(void)//定时器3 中断服务函数
 	{	
 	   
 	  //GPIO_Flip_level(GPIOE,GPIO_Pin_1);
-		control();
+ 
 		TIM_ClearITPendingBit(TIM3, TIM_FLAG_Update);   		
 	}
 }
@@ -323,7 +327,7 @@ void DMA1_Channel5_IRQHandler(void)
 if(DMA_GetFlagStatus(DMA1_FLAG_TC5)==SET)
    {
         DMA_ClearFlag(DMA1_FLAG_TC5);//清中断标志，否则会一直中断
-		    rc_callback_handler(USART_RX_BUF);
+		    RC_Callback_Handler(USART_RX_BUF);
 			  UART1_DMA_Flag =0x01;
 				GPIO_Flip_level(GPIOF,GPIO_Pin_7) ;		 
    }

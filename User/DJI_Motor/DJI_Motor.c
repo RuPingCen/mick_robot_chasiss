@@ -5,19 +5,33 @@
 #include "DJI_Motor.h"  
 
 
+// C620电调控制范围-16384~0~16384 对应电调输出 -20A-0-20A 发送频率1KHz
+// C620电调反馈 机械转子角度 0-360°  对应0-8191  转子速度为RPM单位  温度单位为℃
+// 3508电机最大空载转速482  最大额定转速469 额定电流10A 最大连续转矩3 N*M
+// 由于M3508电机配备了1:19的减速器 因此转子的最大转速为 482*19(RPM)
+
+//大车四轮车使用的是10英寸的轮子   25.4cm
+// 麦克纳姆轮的直径为 152.5mm
+
+
 
 #define ABS(x)		((x>0)? (x): (-x)) 
-#define WHEEL_RADIUS 1  //定义轮子半径
-#define MAX_WHEEL_SPEED 5000  //电机最大转速单位 RPM
+#define MAX_WHEEL_SPEED 9158  //电机最大转速单位 RPM   482*19=9158
+
 
 int set_v,set_spd[4]; 
+uint32_t motor_upload_counter; //数据上传计数器
+
 moto_measure_t moto_chassis[4] = {0};//4 chassis moto
 moto_measure_t moto_info;
-uint32_t motor_upload_counter; //数据上传计数器
+
+pid_t pid_spd[4]; //四个电机对应的PID结构体
+
+command_t recived_cmd; 
+
+
 // pid_omg;
 //pid_t pid_pos;
-pid_t pid_spd[4]; //四个电机对应四个PID结构体
-command_t recived_cmd;
 //pid_t pid_rol = {0};
 //pid_t pid_pit = {0};
 //pid_t pid_yaw = {0};
@@ -32,8 +46,6 @@ command_t recived_cmd;
 //pid_t pid_x;
 //pid_t pid_cali_bby;
 //pid_t pid_cali_bbp;
-
- 
 
 
  // 初始化PID参数
@@ -50,65 +62,134 @@ void DJI_Motor_Init(void)
 	
 }
 
-
- 
-/*
-* 功能：麦克纳姆轮运动学模型(麦克纳姆轮呈‘米’字形排列)
-*       将小车的速度分解成每个轮子的速度
-*       
-*       传入参数 speed_x speed_y 单位为 M/s     speed_w单位为 弧度每秒
-*20190916  CRP
-*参考： 
+// C620电调控制范围-16384~0~16384 对应电调输出 -20A-0-20A 发送频率1KHz
+// C620电调反馈 机械转子角度 0-360°  对应0-8191  转子速度为RPM单位  温度单位为℃
+//3508电机最大空载转速482  最大额定转速469 额定电流10A 最大连续转矩3 N*M
+/**
+* @funtion			大车四轮差速模型
+* @Brief        根据设定的X方向的速度和航向角速度W 
+*  							计算出四个轮子的速度
+* @Param		speed_x 小车X方向的线速度(m/s)  speed_w小车旋转角速度(rad/s)
+* @Retval		None
+* @Date     2020/8/16
+* @maker    crp
 */
+void DiffX4_Wheel_Speed_Model(float speed_x,float speed_w)
+{
+	float v1=0,v2=0,v3=0,v4=0;
+	float L=0.68;//左右轮子的间距
+	
+  if((speed_x<-5) || (speed_x>5)) 
+		speed_x=0;
+  if((speed_w<-5) || (speed_w>5)) 
+		speed_w=0;
+ 
+	v1 = speed_x+speed_w*L;
+	v4 = -(speed_x-speed_w*L);
+	
+	// 我们使用的是10英寸的轮子 直径为25.4cm 半径为12.7cm
+  //60/(2*PI*R) = 75.191313 
+	//乘以19是由于电机有1:19的减速比
+	
+	v1 =75.191313*v1*19;// from (m/s) to (RPM)
+	v4 =75.191313*v4*19;
+	
+	v2 =v1; 
+	v3 =v4;
+	
+	Mecanum_Wheel_Rpm_Model(v1,v2,v3,v4);
+}
 
+/**
+* @funtion			麦克纳姆轮运动学模型(麦克纳姆轮呈‘米’字形排列)
+* @Brief        将小车的速度分解成每个轮子的速度
+* @Param		speed_x 小车X方向的线速度(m/s)  speed_w小车旋转角速度(rad/s)
+* @Retval		None (该函数修改后还未测试)
+* @Date     20190916
+* @maker    crp
+*/
 void Mecanum_Wheel_Speed_Model(int16_t speed_x,int16_t speed_y,int16_t speed_w)
 {
 	float v1=0,v2=0,v3=0,v4=0;
 	
-	float K =1; // K=abs(Xn)+abs(Yn) Xn Yn表示麦轮的安装坐标
-//	float r_1 = 6.5574;//   6.5574= 1/0.1525 (麦克纳姆轮的直径为 152.5mm)
-	
-	//如果说传入的参数是转速 RPM单位
-	if((speed_x<5) && (speed_x>-5)) speed_x=0;
-	if((speed_y<5) && (speed_y>-5)) speed_y=0;
-  if((speed_w<5) && (speed_w>-5)) speed_w=0;	
+	float K =0.36; // K=abs(Xn)+abs(Yn) Xn Yn表示麦轮的安装坐标
+								//左右轮距 40cm 前后轮距36cm
+//	float r_1 = 6.5574;//   6.5574= 1/0.1525 
+	 
+	if((speed_x<-5) || (speed_x>5)) 
+		speed_x=0;
+	if((speed_y<-5) || (speed_y>5)) 
+		speed_x=0;
+	if((speed_w<-5) || (speed_w>5)) 
+		speed_w=0;	
 	
 	v1 =speed_x-speed_y-K*speed_w;
 	v2 =speed_x+speed_y-K*speed_w;
 	v3 =-(speed_x-speed_y+K*speed_w);
 	v4 =-(speed_x+speed_y+K*speed_w);
 	
+	// 麦克纳姆轮的直径为 152.5mm     60/(2*PI*R) = 125.23668 
+	//乘以19是由于电机有1:19的减速比
+	
+	v1 =125.23668*v1*19;// from (m/s) to (RPM)
+	v2 =125.23668*v2*19;
+	v3 =125.23668*v3*19;
+	v4 =125.23668*v4*19;
+	
 	Mecanum_Wheel_Rpm_Model(v1,v2,v3,v4);
- 
 }
+
+
+
+/**
+* @funtion	 设置每个轮子PID控制器的目标值
+* @Brief     输入参数单位（RPM）   
+* @Param		
+* @Retval		None
+* @Date     2020/8/16
+* @maker    crp
+*/
 void Mecanum_Wheel_Rpm_Model(int16_t v1,int16_t v2,int16_t v3,int16_t v4)
 {	 
-	// 输出限幅 //转速的最大值应该为多少？
 	if(v1>MAX_WHEEL_SPEED) 		v1=MAX_WHEEL_SPEED;
 	else if(v1< -MAX_WHEEL_SPEED)		v1=-MAX_WHEEL_SPEED;
 	else ;
+	
+	if((v1>-5) && (v1<5))  v1=0;
 	
 	if(v2>MAX_WHEEL_SPEED) 		v2=MAX_WHEEL_SPEED;
 	else if(v2< -MAX_WHEEL_SPEED)		v2=-MAX_WHEEL_SPEED;
 	else ;
 	
+	if((v2>-5) && (v2<5))  v2=0;
+	
 	if(v3>MAX_WHEEL_SPEED) 		v3=MAX_WHEEL_SPEED;
 	else if(v3< -MAX_WHEEL_SPEED)		v3=-MAX_WHEEL_SPEED;
 	else ;
 	
+	if((v3>-5) && (v3<5))  v3=0;
+	
 	if(v4>MAX_WHEEL_SPEED) 		v4=MAX_WHEEL_SPEED;
 	else if(v4< -MAX_WHEEL_SPEED)		v4=-MAX_WHEEL_SPEED;
 	else ;	
-	 	
+	
+	if((v4>-5) && (v4<5))  v4=0;
+   
 	set_spd[0] = v1;
 	set_spd[1] = v2;
 	set_spd[2] = v3;
 	set_spd[3] = v4;
 }
 
-
-//计算PID输出，并通过CAN总线发送出去
-//供定时中断函数调用
+/**
+* @funtion			计算PID输出，并通过CAN总线发送出去
+* @Brief        供定时中断函数调用,每调用一次函数，则计算一次PID输出
+*								并将计算结果通过函数 CAN_DJI_C620_DataSend(iq1,iq2,iq3,iq4) 下发到电机
+* @Param		
+* @Retval		None
+* @Date     2020/8/16
+* @maker    crp
+*/
 void DJI_Motor_Control(void)
 {
 	unsigned char i=0;// 电机速度控制
@@ -123,7 +204,14 @@ void DJI_Motor_Control(void)
 	CAN_DJI_C620_DataSend(pid_spd[0].pos_out,pid_spd[1].pos_out,pid_spd[2].pos_out,pid_spd[3].pos_out);				 
 }
 
-// 大疆C620 电调CAN总线数据发送函数
+/**
+* @funtion			大疆C620 电调CAN总线数据发送函数
+* @Brief        
+* @Param		
+* @Retval		None
+* @Date     2020/8/16
+* @maker    crp
+*/
 void CAN_DJI_C620_DataSend( int16_t iq1, int16_t iq2, int16_t iq3, int16_t iq4)
 {
   CanTxMsg TxMessage;
@@ -180,11 +268,9 @@ void CAN_RxCpltCallback(CanRxMsg* RxMessage)
 		case CAN_3510Moto3_ID:
 		case CAN_3510Moto4_ID:
 			{
-				
 				i = RxMessage->StdId - CAN_3510Moto1_ID;
 				moto_chassis[i].msg_cnt++ <= 50	?	get_moto_offset(&moto_chassis[i], RxMessage) : get_moto_measure(&moto_chassis[i], RxMessage);
 				get_moto_measure(&moto_info,RxMessage);
-			
 			}
 			break;
 	   }
@@ -192,7 +278,7 @@ void CAN_RxCpltCallback(CanRxMsg* RxMessage)
 
 /*******************************************************************************************
   * @Func			void get_moto_measure(moto_measure_t *ptr, CAN_HandleTypeDef* hcan)
-  * @Brief    接收云台电机,3510电机通过CAN发过来的信息
+  * @Brief    分析,3510电机通过CAN发过来的信息
   * @Param		
   * @Retval		None
   * @Date     2015/11/24
@@ -200,8 +286,7 @@ void CAN_RxCpltCallback(CanRxMsg* RxMessage)
 void get_moto_measure(moto_measure_t *ptr,CanRxMsg* RxMessage)
 {
 //	u32  sum=0;
-//	u8	 i = FILTER_BUF_LEN;
-	int delta=0;
+//	u8	 i = FILTER_BUF_LEN;	
 	/*BUG!!! dont use this para code*/
 //	ptr->angle_buf[ptr->buf_idx] = (uint16_t)(hcan->pRxMsg->Data[0]<<8 | hcan->pRxMsg->Data[1]) ;
 //	ptr->buf_idx = ptr->buf_idx++ > FILTER_BUF_LEN ? 0 : ptr->buf_idx;
@@ -209,6 +294,10 @@ void get_moto_measure(moto_measure_t *ptr,CanRxMsg* RxMessage)
 //		sum += ptr->angle_buf[--i];
 //	}
 //	ptr->fited_angle = sum / FILTER_BUF_LEN;
+	
+	
+	int delta=0;
+
 	ptr->last_angle = ptr->angle;
 	ptr->angle = (uint16_t)(RxMessage->Data[0]<<8 | RxMessage->Data[1]) ; //电机转角
 	
@@ -352,8 +441,11 @@ void DJI_Motor_WriteData_In_Buff(uint8_t *DataBuff,uint16_t datalength)
 	  UART_send_string(USART2,"  Byte");
 	#endif	
 }
-//void DJI_Motor_RECV_Thread(void)
-// 串口打印调试信息
+/**
+*@funtion   串口打印调试信息
+*@Brief 以文本的方式打印电机的速度信息 调试使用
+*@data 20200816  
+*/
 void DJI_Motor_Show_Message(void)
 {
 	unsigned char i=0;
@@ -391,7 +483,11 @@ void DJI_Motor_Show_Message(void)
  
 }
 
-// 电机上报信息到PC上
+/**
+*@funtion   电机上报信息到PC上
+*@Brief 按照预定的协议格式上传四个电机的转速、位置、温度到工控机 
+*@data 20200816  
+*/
 void DJI_Motor_Upload_Message(void)
 {
 		unsigned char senddat[70];
@@ -442,39 +538,12 @@ void DJI_Motor_Upload_Message(void)
 		UART_send_buffer(USART2,senddat,i);
 		motor_upload_counter++;
 }
-//void motor_upload_message(void)
-//{
-//	unsigned char senddata[50];
-//	unsigned char i=0,j=0;	
-//	unsigned char cmd=0x03;	
-//	unsigned int sum=0x00;	
-//	senddata[i++]=0xAE;
-//	senddata[i++]=0xEA;
-//	senddata[i++]=0x00;
-//	senddata[i++]=cmd;
-//	senddata[i++]=dbus_rc.ch1>>8;
-//	senddata[i++]=dbus_rc.ch1;
-//	senddata[i++]=dbus_rc.ch2>>8;
-//	senddata[i++]=dbus_rc.ch2;
-//	senddata[i++]=dbus_rc.ch3>>8;
-//	senddata[i++]=dbus_rc.ch3;
-//	senddata[i++]=dbus_rc.ch4>>8;
-//	senddata[i++]=dbus_rc.ch4;
-//	senddata[i++]=dbus_rc.sw1;
-//	senddata[i++]=dbus_rc.sw1;
-//	for(j=2;j<i;j++)
-//		sum+=senddata[j];
-//	senddata[i++]=sum;
-//	senddata[2]=i-2; //数据长度
-//	senddata[i++]=0xEF;
-//	senddata[i++]=0xFE;
-//	senddata[i++]='\0';
-//	UART_send_string(USART2,senddata);
-//}
 
-/*
-*在ROS节点启动时候清除里程计，使之从零开始计数
-*
+
+/**
+*@funtion   在ROS节点启动时候清除里程计，使之从零开始计数
+*@Brief 当上位机按照固定指令下发时候，启动该函数 清楚里程计的累计值
+*@data 20200816 
 */
 void DJI_Motor_Clear_Odom(void)
 {
@@ -527,10 +596,11 @@ float pid_calc(pid_t* pid, float get, float set)
     pid->get[NOW] = get;
     pid->set[NOW] = set;
     pid->err[NOW] = set - get;	//set - measure
-  if (pid->max_err != 0 && ABS(pid->err[NOW]) >  pid->max_err  )
-		return 0;
-	if (pid->deadband != 0 && ABS(pid->err[NOW]) < pid->deadband)
-		return 0;
+	
+		if (pid->max_err != 0 && ABS(pid->err[NOW]) >  pid->max_err  )
+			return 0;
+		if (pid->deadband != 0 && ABS(pid->err[NOW]) < pid->deadband)
+			return 0;
     
     if(pid->pid_mode == POSITION_PID) //位置式p
     {
@@ -561,8 +631,8 @@ float pid_calc(pid_t* pid, float get, float set)
     pid->get[LAST] = pid->get[NOW];
     pid->set[LLAST] = pid->set[LAST];
     pid->set[LAST] = pid->set[NOW];
+		
     return pid->pid_mode==POSITION_PID ? pid->pos_out : pid->delta_out;
-//	
 }
 
 /**

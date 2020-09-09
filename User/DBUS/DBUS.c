@@ -7,7 +7,7 @@
 
 
 unsigned char DBUS_flag=0;
-//uint32_t ch1_offset_sum=0,ch2_offset_sum=0,ch3_offset_sum=0,ch4_offset_sum=0;
+uint32_t ch1_offset_sum=0,ch2_offset_sum=0,ch3_offset_sum=0,ch4_offset_sum=0;
 uint32_t rc_counter=0;
 
 rc_info_t dbus_rc;
@@ -17,14 +17,16 @@ rc_info_t dbus_rc;
   * @param[out]  rc:   转换为每个通道的数据
   * @param[in]   pData: 输入长度为18字节的数据
   * @retval 
+  * @maker    crp
+	* @data 2019-9-8
   */
-void rc_callback_handler(uint8_t *pData)
+void RC_Callback_Handler(uint8_t *pData)
 {
 	if(pData == NULL)
 	{
 		return;
 	}
-	 
+	
 	dbus_rc.ch1 = ((int16_t)pData[0] | ((int16_t)pData[1] << 8)) & 0x07FF;
 	dbus_rc.ch2 = (((int16_t)pData[1] >> 3) | ((int16_t)pData[2] << 5))	& 0x07FF;
 	dbus_rc.ch3 = (((int16_t)pData[2] >> 6) | ((int16_t)pData[3] << 2) |((int16_t)pData[4] << 10)) & 0x07FF;
@@ -38,53 +40,97 @@ void rc_callback_handler(uint8_t *pData)
 	dbus_rc.press_r = pData[13];
 	dbus_rc.v = ((int16_t)pData[14]);// | ((int16_t)pData[15] << 8);
 	
-	if(DBUS_flag == DBUS_INIT) //初始化中间位置
+	if(DBUS_flag == DBUS_INIT) 
 	{
-	  rc_offset_init();
-		DBUS_flag = DBUS_RUN;
+		dbus_rc.available =0x00;
+		if(RC_Offset_Init())
+			DBUS_flag = DBUS_RUN;
+		else
+			DBUS_flag = DBUS_INIT;
 	}
 	else
 	{
+		if((dbus_rc.ch1 > 2000) || (dbus_rc.ch1<100) 
+			|| (dbus_rc.ch3 > 2000) || (dbus_rc.ch3<100)
+		  || (dbus_rc.sw1 > 3) || (dbus_rc.sw1<1)
+		  || (dbus_rc.sw2 > 3) || (dbus_rc.sw2<1))
+		{
+			dbus_rc.available =0x00;
+		}
+		else
+		{
+			dbus_rc.available =0x01;
+		}
 		dbus_rc.cnt =dbus_rc.v +1;	
-		dbus_rc.available =0x01;
+	}
+}
+/**
+  * @brief       遥控器初始化函数 采集10次数据求取平均值
+  * @param[out]  校准完成返回1 否则返回0
+  * @param[in]    
+  * @retval 
+  * @maker    crp
+	* @data 2019-9-8
+  */
+char RC_Offset_Init(void)
+{
+	if((dbus_rc.ch1>1000) && (dbus_rc.ch1<1050))
+		if((dbus_rc.ch2>1000) && (dbus_rc.ch2<1050))
+			if((dbus_rc.ch3>1000) && (dbus_rc.ch3<1050))
+				if((dbus_rc.ch4>1000) && (dbus_rc.ch4<1050))
+				{
+						ch1_offset_sum+=dbus_rc.ch1;
+						ch2_offset_sum+=dbus_rc.ch2;
+						ch3_offset_sum+=dbus_rc.ch3;
+						ch4_offset_sum+=dbus_rc.ch4;
+						rc_counter++;
+				}
+
+	if(rc_counter>10)
+	{
+	  ch1_offset_sum = ch1_offset_sum/rc_counter;
+		ch2_offset_sum = ch2_offset_sum/rc_counter;
+		ch3_offset_sum = ch3_offset_sum/rc_counter;
+		ch4_offset_sum = ch4_offset_sum/rc_counter;
+		
+		dbus_rc.ch1_offset =ch1_offset_sum;
+		dbus_rc.ch2_offset =ch2_offset_sum;
+		dbus_rc.ch3_offset =ch3_offset_sum;
+		dbus_rc.ch4_offset =ch4_offset_sum;
+		
+		//calibration failed 
+		if((dbus_rc.ch1_offset ==0) || (dbus_rc.ch2_offset ==0) || (dbus_rc.ch3_offset ==0) || (dbus_rc.ch4_offset ==0))
+		{
+			dbus_rc.available =0x00; 
+		  rc_counter=0;
+			ch1_offset_sum = 0;
+			ch2_offset_sum = 0;
+			ch3_offset_sum = 0;
+			ch4_offset_sum = 0;
+			
+			return 0;
+		}
+		else
+		{
+			dbus_rc.available =0x01; 
+			dbus_rc.cnt =rc_counter;
+			
+			return 1;
+		}
 	}
 	
+	dbus_rc.available =0x00;
+	dbus_rc.cnt =rc_counter;
 	
+	return 0;
 }
-void rc_offset_init(void)
-{
-//  ch1_offset_sum+=dbus_rc.ch1;
-//	ch2_offset_sum+=dbus_rc.ch2;
-//	ch3_offset_sum+=dbus_rc.ch3;
-//	ch4_offset_sum+=dbus_rc.ch4;
-//	rc_counter++;
-//	if(rc_counter>3)
-//	{
-//	  ch1_offset_sum = ch1_offset_sum/rc_counter;
-//		ch2_offset_sum = ch2_offset_sum/rc_counter;
-//		ch3_offset_sum = ch3_offset_sum/rc_counter;
-//		ch4_offset_sum = ch4_offset_sum/rc_counter;
-//		
-//		dbus_rc.ch1_offset =ch1_offset_sum;
-//		dbus_rc.ch2_offset =ch2_offset_sum;
-//		dbus_rc.ch3_offset =ch3_offset_sum;
-//		dbus_rc.ch4_offset =ch4_offset_sum;
-//		
-//		dbus_rc.available =0x01;
-//		dbus_rc.cnt =rc_counter;
-//		
-//	}
-		dbus_rc.ch1_offset =dbus_rc.ch1;
-		dbus_rc.ch2_offset =dbus_rc.ch2;
-		dbus_rc.ch3_offset =dbus_rc.ch3;
-		dbus_rc.ch4_offset =dbus_rc.ch4;
-		
-		dbus_rc.available =0x00;
-		dbus_rc.cnt =rc_counter;
-
-
-}
-void rc_show_message(void)
+/**
+  * @brief       调试遥控器，打印数据
+  * @retval 
+  * @maker    crp
+	* @data 2019-9-8
+  */
+void RC_Debug_Message(void)
 {
 	UART_send_string(USART2,"SBUS:  ch1:");UART_send_data(USART2,dbus_rc.ch1);UART_send_char(USART2,'\t');		
 	UART_send_string(USART2,"ch2:");UART_send_data(USART2,dbus_rc.ch2);UART_send_char(USART2,'\t');	
@@ -100,11 +146,15 @@ void rc_show_message(void)
 	
 	UART_send_char(USART2,'\n');	
 }
-
-// DBUS上传信息到PC上
-void rc_upload_message(void)
+/**
+  * @brief DBUS上传信息到PC上
+  * @retval 
+  * @maker    crp
+	* @data 2019-9-8
+  */
+void RC_Upload_Message(void)
 {
-		unsigned char senddata[50];
+		char senddata[50];
 		unsigned char i=0,j=0;	
 		unsigned char cmd=0x03;	
 		unsigned int sum=0x00;	

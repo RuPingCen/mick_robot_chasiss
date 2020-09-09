@@ -664,21 +664,44 @@ void USART1_DMA_Rec_Config(unsigned int u32_Baud)
   ****************************************************************/
 void UART_send_floatdat(USART_TypeDef* USARTx,float floatempdat)
 { 
-      int m,n;
-      float R;
-	    char chartemp[5];
-      R=floatempdat;
-      m=R/1;
-      n=(R-m)*1000; if(n<0) n=-n;
-	
-      UART_send_intdata(USARTx,m);
-      UART_send_char (USARTx,'.');
-	    chartemp[0]=n/100+48;
-	    chartemp[1]=n/10%10+48;
-	    chartemp[2]=n%10+48;
-	    chartemp[3]=' ';
-	    chartemp[4]='\0';
-      UART_send_string(USARTx,chartemp);
+//      int m,n;
+//      float R;
+//	    char chartemp[5];
+//      R=floatempdat;
+//      m=R/1;
+//      n=(R-m)*1000; if(n<0) n=-n;
+//	
+//      UART_send_intdata(USARTx,m);
+//      UART_send_char (USARTx,'.');
+//	    chartemp[0]=n/100+48;
+//	    chartemp[1]=n/10%10+48;
+//	    chartemp[2]=n%10+48;
+//	    chartemp[3]=' ';
+//	    chartemp[4]='\0';
+//      UART_send_string(USARTx,chartemp);
+//	
+			int n,m;
+			float dat=floatempdat;
+			m=dat/1;
+			UART_send_intdata(USARTx,m);
+			UART_send_char(USARTx, '.');
+			n=((dat-m)*1000)/1;
+			if(n<0) n=-n;
+			if(n<10)
+			{
+				UART_send_char(USARTx, '0');
+				UART_send_char(USARTx, '0');
+				UART_send_data(USARTx,n);
+			}
+			else if(n<100)
+			{
+				UART_send_char(USARTx, '0');
+				UART_send_data(USARTx,n);
+			}
+			else if(n<1000)
+			{
+					UART_send_data(USARTx,n);
+			}
  
 }
 

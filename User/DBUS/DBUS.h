@@ -46,10 +46,10 @@ typedef __packed struct
 } rc_info_t;
 
 
-void rc_callback_handler(uint8_t *buff);
-void rc_offset_init(void);
-void rc_show_message(void);
-void rc_upload_message(void);
+void RC_Callback_Handler(uint8_t *buff);
+char RC_Offset_Init(void);
+void RC_Debug_Message(void);
+void RC_Upload_Message(void);
 
 
 
