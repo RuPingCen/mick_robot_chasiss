@@ -121,15 +121,15 @@ int main(void)
 								Timer2_Counter1=0; //清空定时计数器
 								if(dbus_rc.sw2 ==1) //1 档模式 最大1m/s
 								{
-									DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.00152,(dbus_rc.ch1_offset-dbus_rc.ch1)*0.00152);
+									DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.00152,(dbus_rc.ch1-dbus_rc.ch1_offset)*0.00152);
 								}
 								else if(dbus_rc.sw2 ==3) //2 档模式 最大2m/s
 								{
-									DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.00304,(dbus_rc.ch1_offset-dbus_rc.ch1)*0.00304);
+									DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.00304,(dbus_rc.ch1-dbus_rc.ch1_offset)*0.00304);
 								}
 								else if(dbus_rc.sw2 ==2) //3 档模式 最大3.5m/s
 								{
-									DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.0053,(dbus_rc.ch1_offset-dbus_rc.ch1)*0.0053);
+									DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.0053,(dbus_rc.ch1-dbus_rc.ch1_offset)*0.0053);
 								}
 								else
 									DiffX4_Wheel_Speed_Model(0,0);
