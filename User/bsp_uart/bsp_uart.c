@@ -361,7 +361,7 @@ void USART4_NVIC_Configuration(void)///
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);//选着中断组
 	
 	/* Enable the USARTy Interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel = UART4_IRQn;	 //中断源
+//	NVIC_InitStructure.NVIC_IRQChannel = UART4_IRQn;	 //中断源
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;//抢占式优先级
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 4;//相应优先级
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -429,7 +429,7 @@ void USART5_NVIC_Configuration(void)///
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);//选着中断组
 	
 	/* Enable the USARTy Interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel = UART5_IRQn;	 //中断源
+//	NVIC_InitStructure.NVIC_IRQChannel = UART5_IRQn;	 //中断源
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;//抢占式优先级
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 5;//相应优先级
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;

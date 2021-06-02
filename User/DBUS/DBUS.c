@@ -1,10 +1,10 @@
- 
 #include "stm32f10x.h"
-#include "DBUS.h" 
 #include "string.h"
 #include "stdlib.h"
 #include "bsp_uart.h"
 
+#include "DBUS.h" 
+#include "DJI_Motor.h"
 
 unsigned char DBUS_flag=0;
 uint32_t ch1_offset_sum=0,ch2_offset_sum=0,ch3_offset_sum=0,ch4_offset_sum=0;
@@ -12,19 +12,19 @@ uint32_t rc_counter=0;
 
 rc_info_t dbus_rc;
 
-/**
-  * @brief       DBUS串口接收回调函数 
-  * @param[out]  rc:   转换为每个通道的数据
-  * @param[in]   pData: 输入长度为18字节的数据
-  * @retval 
-  * @maker    crp
-	* @data 2019-9-8
-  */
-void RC_Callback_Handler(uint8_t *pData)
+/***************************************************************************
+* @brief       DBUS串口接收回调函数 
+* @param[out]  rc:   转换为每个通道的数据
+* @param[in]   pData: 输入长度为18字节的数据
+* @retval 
+* @maker    crp
+* @data 2019-9-8
+***************************************************************************/
+char RC_Callback_Handler(uint8_t *pData)
 {
 	if(pData == NULL)
 	{
-		return;
+		return 0;
 	}
 	
 	dbus_rc.ch1 = ((int16_t)pData[0] | ((int16_t)pData[1] << 8)) & 0x07FF;
@@ -56,22 +56,55 @@ void RC_Callback_Handler(uint8_t *pData)
 		  || (dbus_rc.sw2 > 3) || (dbus_rc.sw2<1))
 		{
 			dbus_rc.available =0x00;
+			return 0;
 		}
 		else
 		{
 			dbus_rc.available =0x01;
+			DBUS_Routing();
 		}
 		dbus_rc.cnt =dbus_rc.v +1;	
 	}
+	
+	return 1;
 }
-/**
-  * @brief       遥控器初始化函数 采集10次数据求取平均值
-  * @param[out]  校准完成返回1 否则返回0
-  * @param[in]    
-  * @retval 
-  * @maker    crp
-	* @data 2019-9-8
-  */
+/***************************************************************************
+* @brief       成功接收到一帧DBUS数据以后调用该函数设定PID控制的目标值
+* @retval 
+* @maker    crp
+* @data 2019-9-8
+****************************************************************************/
+void DBUS_Routing(void)
+{
+	if((dbus_rc.sw1 !=1) && (dbus_rc.available)) //使能遥控器模式
+	{
+		if(dbus_rc.sw2 ==1) //1 档模式 最大1m/s
+		{
+			DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.00152,(dbus_rc.ch1-dbus_rc.ch1_offset)*0.00152);
+		}
+		else if(dbus_rc.sw2 ==3) //2 档模式 最大2m/s
+		{
+			DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.00304,(dbus_rc.ch1-dbus_rc.ch1_offset)*0.00304);
+		}
+		else if(dbus_rc.sw2 ==2) //3 档模式 最大3.5m/s
+		{
+			DiffX4_Wheel_Speed_Model((dbus_rc.ch2-dbus_rc.ch2_offset)*0.0053,(dbus_rc.ch1-dbus_rc.ch1_offset)*0.0053);
+		}
+		else
+			DiffX4_Wheel_Speed_Model(0,0);
+	}
+}
+
+
+
+/***************************************************************************
+* @brief       遥控器初始化函数 采集10次数据求取平均值
+* @param[out]  校准完成返回1 否则返回0
+* @param[in]    
+* @retval 
+* @maker    crp
+* @data 2019-9-8
+****************************************************************************/
 char RC_Offset_Init(void)
 {
 	if((dbus_rc.ch1>1000) && (dbus_rc.ch1<1050))
@@ -124,12 +157,13 @@ char RC_Offset_Init(void)
 	
 	return 0;
 }
-/**
-  * @brief       调试遥控器，打印数据
-  * @retval 
-  * @maker    crp
-	* @data 2019-9-8
-  */
+
+/***************************************************************************
+* @brief       试遥控器，打印数据
+* @retval 
+* @maker    crp
+* @data 2019-9-8
+****************************************************************************/
 void RC_Debug_Message(void)
 {
 	UART_send_string(USART2,"SBUS:  ch1:");UART_send_data(USART2,dbus_rc.ch1);UART_send_char(USART2,'\t');		
@@ -146,12 +180,14 @@ void RC_Debug_Message(void)
 	
 	UART_send_char(USART2,'\n');	
 }
-/**
-  * @brief DBUS上传信息到PC上
-  * @retval 
-  * @maker    crp
-	* @data 2019-9-8
-  */
+
+/***************************************************************************
+* @brief       DBUS上传信息到PC上
+* @retval 
+* @maker    crp
+* @data 2019-9-8
+****************************************************************************/
+
 void RC_Upload_Message(void)
 {
 		char senddata[50];

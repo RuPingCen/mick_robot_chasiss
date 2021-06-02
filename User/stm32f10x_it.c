@@ -3,11 +3,12 @@
 #include "stm32f10x_gpio.h"
 #include <stdio.h>
  
-
+#include "IMU.h"
 #include "bsp_uart.h"
 #include "bsp_can.h"
 #include "DBUS.h"
 #include "DJI_Motor.h"
+#include "Mick_IO.h"
 
 extern volatile uint32_t TimingDelay;
 extern volatile uint32_t Timer2_Counter1;
@@ -22,11 +23,13 @@ extern volatile uint8_t CAN1_Flag;  //CAN×ÜÏß½ÓÊÕÖÐ¶Ï±êÖ¾
 
 extern uint8_t USART_RX_BUF[USART_REC_LEN];     //½ÓÊÕ»º³å,×î´óUSART_REC_LEN¸ö×Ö½Ú
 
-
+extern rc_info_t dbus_rc;   
+extern command_t recived_cmd; //µ×ÅÌ½ÓÊÕÉÏÎ»»úÃüÁî½á¹¹Ìå
 
 extern volatile uint8_t UART2_ReBuff[100];  
 extern volatile uint16_t UART2_ReCont;  
 extern volatile unsigned char UART2_Reflag; 
+extern volatile uint8_t TIM3_Flag;
 
 uint16_t ReCont_2=0;  
 unsigned char Reflag_2=0;  
@@ -149,6 +152,21 @@ void TIM2_IRQHandler(void)//¶¨Ê±Æ÷2 ÖÐ¶Ï·þÎñº¯Êý
 		Timer2_Counter3++;	
 		Timer2_Counter4++;
 		Timer2_Counter5++;		
+		
+		if((Timer2_Counter1>100*10)) // Èç¹û¶¨Ê±¼ÆÊýÆ÷²Ù×÷4s»¹Ã»ÓÐ±»ÇåÁã£¬ËµÃ÷Í¨Ñ¶³öÏÖÁËÖÐ¶Ï
+		{			
+			if(dbus_rc.available == 0x00)
+			{
+				dbus_rc.sw1 = 5; //±ê¼Ç½ÓÊÕÊý¾Ý²»¿ÉÓÃ
+				Mecanum_Wheel_Rpm_Model(0,0,0,0);
+			}
+			else if(recived_cmd.flag ==0x00)
+			{
+				Mecanum_Wheel_Rpm_Model(0,0,0,0);
+			}
+			Timer2_Counter1=0;
+		}
+		
 	  //GPIO_Flip_level(GPIOE,GPIO_Pin_1);
 		DJI_Motor_Control(); 
 		TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);   		
@@ -158,9 +176,8 @@ void TIM3_IRQHandler(void)//¶¨Ê±Æ÷3 ÖÐ¶Ï·þÎñº¯Êý
 {
 	if ( TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET ) 
 	{	
-	   
-	  //GPIO_Flip_level(GPIOE,GPIO_Pin_1);
- 
+	  IMU_Routing();
+		TIM3_Flag=0x01;
 		TIM_ClearITPendingBit(TIM3, TIM_FLAG_Update);   		
 	}
 }
@@ -172,13 +189,13 @@ void TIM3_IRQHandler(void)//¶¨Ê±Æ÷3 ÖÐ¶Ï·þÎñº¯Êý
 void USART1_IRQHandler(void)
 {
 	uint8_t ch;
-	
+
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
 	{ 	
-	    //ch = USART1->DR;
-			ch = USART_ReceiveData(USART1);	  	 
-		  UART_send_char(USART1,ch);
-		  
+		//ch = USART1->DR;
+		ch = USART_ReceiveData(USART1);	  	 
+		UART_send_char(USART1,ch);
+		
 	} 
 	USART_ClearITPendingBit(USART1,USART_IT_RXNE);
 }
@@ -187,13 +204,13 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
 	uint8_t dat_value;
- U2dat_value_last = U2dat_value;
+	U2dat_value_last = U2dat_value;
 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
 	{ 	
-			USART_ClearFlag(USART2, USART_FLAG_RXNE);
-			USART_ClearITPendingBit(USART2,USART_IT_RXNE);
-			dat_value = USART_ReceiveData(USART2);	
-			 
+		USART_ClearFlag(USART2, USART_FLAG_RXNE);
+		USART_ClearITPendingBit(USART2,USART_IT_RXNE);
+		dat_value = USART_ReceiveData(USART2);	
+		 
 	}
 
 		//Êý¾Ý°ü½âÎöÐ­Òé
@@ -228,9 +245,11 @@ void USART2_IRQHandler(void)
 				UART2_ReBuff[ReCont_2++] = U2dat_value;
 				UART2_ReCont=ReCont_2;  
         UART2_Reflag=01; 				
-				DJI_Motor_WriteData_In_Buff(UART2_ReBuff,ReCont_2);
+				if(DJI_Motor_WriteData_In_Buff(UART2_ReBuff,ReCont_2))
+				{
+					Timer2_Counter1=0; //Çå¿Õ¶¨Ê±¼ÆÊýÆ÷	  
+				}
 				Reflag_2 =0x00; 	
-				
 			}
 			else
 			{
@@ -324,12 +343,12 @@ void SDIO_IRQHandler(void) //ÔÚSDIO_ITConfig(£©Õâ¸öº¯Êý¿ªÆôÁËsdioÖÐ¶Ï	£¬ Êý¾Ý´«Ê
 	
 void DMA1_Channel5_IRQHandler(void)
 {
-if(DMA_GetFlagStatus(DMA1_FLAG_TC5)==SET)
+	if(DMA_GetFlagStatus(DMA1_FLAG_TC5)==SET)
    {
-        DMA_ClearFlag(DMA1_FLAG_TC5);//ÇåÖÐ¶Ï±êÖ¾£¬·ñÔò»áÒ»Ö±ÖÐ¶Ï
-		    RC_Callback_Handler(USART_RX_BUF);
-			  UART1_DMA_Flag =0x01;
-				GPIO_Flip_level(GPIOF,GPIO_Pin_7) ;		 
+			DMA_ClearFlag(DMA1_FLAG_TC5);//ÇåÖÐ¶Ï±êÖ¾£¬·ñÔò»áÒ»Ö±ÖÐ¶Ï
+			if(RC_Callback_Handler(USART_RX_BUF))
+				UART1_DMA_Flag =0x01;
+			LED2_FLIP;
    }
 }
 // CAN1 ÖÐ¶Ïº¯Êý
@@ -338,12 +357,11 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
   CanRxMsg RxMessage;				 //CAN½ÓÊÕ»º³åÇø
 	CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
 	CAN_RxCpltCallback(&RxMessage);
-	GPIO_Flip_level(GPIOF,GPIO_Pin_8);
 	CAN1_Flag=0x01;	
  //if((RxMessage.ExtId==0x1234) && (RxMessage.IDE==CAN_ID_EXT)
  //&& (RxMessage.DLC==2) && ((RxMessage.Data[1]|RxMessage.Data[0]<<8)==0xDECA))
 
- 
+	LED3_FLIP;
 }
 	
 /******************************************************************************/

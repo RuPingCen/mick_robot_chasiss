@@ -46,7 +46,10 @@ typedef __packed struct
 } rc_info_t;
 
 
-void RC_Callback_Handler(uint8_t *buff);
+
+
+char RC_Callback_Handler(uint8_t *buff);
+void DBUS_Routing(void);
 char RC_Offset_Init(void);
 void RC_Debug_Message(void);
 void RC_Upload_Message(void);

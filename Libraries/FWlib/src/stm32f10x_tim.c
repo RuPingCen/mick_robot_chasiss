@@ -187,7 +187,7 @@ void Timer_2to7_counter_Generalfuncation(TIM_TypeDef* TIMx,u16 u16counter)
 	else if(TIMx == TIM5)
 	{
       NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);  													
-			NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;	  
+	//		NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;	  
 			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 			NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;	
 			NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -210,7 +210,7 @@ void Timer_2to7_counter_Generalfuncation(TIM_TypeDef* TIMx,u16 u16counter)
 	else if(TIMx == TIM6)
 	{
       NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);  													
-			NVIC_InitStructure.NVIC_IRQChannel = TIM6_IRQn;	  
+//			NVIC_InitStructure.NVIC_IRQChannel = TIM6_IRQn;	  
 			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 			NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;	
 			NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -233,7 +233,7 @@ void Timer_2to7_counter_Generalfuncation(TIM_TypeDef* TIMx,u16 u16counter)
 	else if(TIMx == TIM7)
 	{
       NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);  													
-			NVIC_InitStructure.NVIC_IRQChannel = TIM7_IRQn;	  
+//			NVIC_InitStructure.NVIC_IRQChannel = TIM7_IRQn;	  
 			NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 			NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;	
 			NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;

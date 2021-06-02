@@ -23,7 +23,13 @@ typedef struct IMU_DAT
 }imu_Dat;
 float invSqrt(float x); 
 void IMU_Preper_Data(void);
+void IMU_update_6Axis(float gx, float gy, float gz, float ax, float ay, float az);
 void IMU_update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
-void IMU_Routing(void);
 
+void MPU6050_Routing(void);
+void MPU9250_Routing(void);
+
+
+void IMU_Routing(void);
+void IMU_Upload_Message(void);
 #endif

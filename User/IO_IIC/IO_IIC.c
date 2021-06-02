@@ -28,7 +28,8 @@ void IO_IIC_GPIO_Init(void)
 	
 		My_GPIO_Init(GPIOB,GPIO_Pin_6,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//自定义初始化函数
 		My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//自定义初始化函数
-
+//		My_GPIO_Init(GPIOB,GPIO_Pin_10,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//自定义初始化函数
+//		My_GPIO_Init(GPIOB,GPIO_Pin_11,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//自定义初始化函数
 		IO_IIC_Delay();IO_IIC_Delay();
 		IO_IIC_Delay();IO_IIC_Delay();
 	
@@ -47,6 +48,7 @@ void SDA_DIR_OUT(void)//这里使用函数改变IO方向
 //			GPIO_Init(GPIOB, &GPIO_InitStruct);
     
 				My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//自定义初始化函数
+			//	My_GPIO_Init(GPIOB,GPIO_Pin_11,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//自定义初始化函数
 }
 void SDA_DIR_IN(void)
 {		
@@ -60,14 +62,14 @@ void SDA_DIR_IN(void)
 //			GPIO_InitStruct.GPIO_Speed=GPIO_Speed_100MHz;   
 //			GPIO_Init(GPIOB, &GPIO_InitStruct);
 				My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_IPU, GPIO_Speed_50MHz);//自定义初始化函数
-			
+			//My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_IPU, GPIO_Speed_50MHz);//自定义初始化函数
 }
 
 //----------------------------------------------------------------------------------------------------------//
  
 void IO_IIC_Delay(void) //通信频率 375 hz
 {
-	 unsigned char tem_IIC=39;
+	 unsigned char tem_IIC=10;//默认39
 	 
 	 while(tem_IIC-- >0);
 	  

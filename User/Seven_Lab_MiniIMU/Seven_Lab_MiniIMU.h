@@ -30,7 +30,9 @@ typedef struct IMU_REPORT
 }Imu_Report;
 
 
-void AHRS_Data_Preper(void);
+void AHRS_Data_Preper_NRF24l01(void);
+void AHRS_Data_Preper_MPU9250(void);
+
 void IMU_Report_AHRSdata(void);
 void IMU_Report_AHRS_BasicData(void);//上传原始参数
 void UART1_ReportAHRS(void);
