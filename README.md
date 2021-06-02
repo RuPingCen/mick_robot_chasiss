@@ -1,9 +1,16 @@
-# 1 mick_robot_chasiss
-代码默认的分支master分支适用于四轮差速小车，与MickX4分支相同
+# mick_robot_chasiss
+代码默认的分支master分支适用于四轮差速小车，MickX4分支为第一版小车代码分支。 MickM4分支为麦克纳姆轮第一版小车代码分支。
 
-## 更新日志
+新开源的电源板和控制板仅供大家自己打样学习用，切勿用于商业用途。
+
+两块板子，我们可以帮忙焊接制作，可以在
+[Mick机器人工作室](https://item.taobao.com/item.htm?ft=t&id=645849745246)
+这个地址购买。
+
+## 1 更新日志
 2021-4-18
-	1、开源了电源板和控制板文件
+
+	1、开源了小车的电源板和小车控制板
 	2、将DBUS、上位机发送的命令移到中断函数中进行处理
 	3、将PID相关计算函数移到PID.c中
 	4、添加MPU9250 读取和姿态计算函数 
@@ -49,10 +56,12 @@ MickM4分支为麦克纳姆轮ROS底盘的底盘控制程序，代码适用于ST
 ## 4.1 小车控制板接口
 控制板输入20-36V DC直流，对外提供1路DC 5V 2A 、1路DC 12V 2A 对车载传感器供电。
 
+![control_fig0](https://github.com/RuPingCen/mick_robot_chasiss/raw/master/Reference/control_fig0.png)
+
 提供1路DBUS接口、1路232接口、1路CAN总线、1路485接口、1路UART3接口（与485复用）、1路IIC。其中DBUS被用来接收遥航模遥控器的数据，232接口负责与上位机ROS通讯。CAN总线连接4个M3508电机。IIC连接板子上安装的MPU9250。485接口和UART3接口复用，可扩展其他传感器模块。
 3路LED指示灯用于显示程序状态。2路按键、4路拨码开关用于调试和选择程序功能。4路隔离输入（输入电压范围12-24V）。4路隔离输出（输出高阻态和GND，承受电流2A）。
-![control_fig1](https://github.com/RuPingCen/mick_robot_chasiss/raw/master/Reference/control_fig1.png)
 
+![control_fig1](https://github.com/RuPingCen/mick_robot_chasiss/raw/master/Reference/control_fig1.png)
 ## 4.2 小车控制板外形尺寸
 板子外形为99*99 mm 安装孔位于四周呈轴对称分布，孔中心间距为93mm,孔直径为φ3.1 mm。如图5所示。
 ![control_fig4](https://github.com/RuPingCen/mick_robot_chasiss/raw/master/Reference/control_fig4.png)
@@ -62,12 +71,13 @@ MickM4分支为麦克纳姆轮ROS底盘的底盘控制程序，代码适用于ST
 如下图所示，电源板输入20-36V DC直流，输出1路DC 5V 2A 、1路DC 3.3-19V 2A 可调电源 、1路DC 12V 3.5A、1路DC 19V 3.5A，可满足对工控机和自主导航小车车载传感器供电需求。
 ![pwr_fig1](https://github.com/RuPingCen/mick_robot_chasiss/raw/master/Reference/pwr_fig1.png)
 
-### 5.1 外形尺寸
-经过电子负载实际测试，5V和3.3V-19V 采用LM2596S方案,每一路可实现2A的稳定输出，加装散热片以后可实现2.5A长时间输出，如图2所示。
+### 5.1 电源板参数
 
-12V 在电子负载实测中可以达到长时间稳定输出3.5A 输出，加装扇热片以后可以实现4A长时间输出，短时可达4.5A，如图3所示。
+![pwr_fig1](https://github.com/RuPingCen/mick_robot_chasiss/raw/master/Reference/pwr_fig3.png)
 
-19V在电子负载实测中可以达到长时间稳定输出3.5A 输出，加装扇热片以后可以实现4A长时间输出，短时可达4.5A，如图4所示。
+经过电子负载实际测试，5V和3.3V-19V 采用LM2596S方案,每一路可实现2A的稳定输出，加装散热片以后可实现2.5A长时间输出。
+12V 在电子负载实测中可以达到长时间稳定输出3.5A 输出，加装扇热片以后可以实现4A长时间输出，短时可达4.5A。
+19V在电子负载实测中可以达到长时间稳定输出3.5A 输出，加装扇热片以后可以实现4A长时间输出，短时可达4.5A，如下图所示。
 ![pwr_fig2](https://github.com/RuPingCen/mick_robot_chasiss/raw/master/Reference/pwr_fig2.png)
 
 ### 5.2 外形尺寸
