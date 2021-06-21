@@ -153,14 +153,14 @@ void TIM2_IRQHandler(void)//定时器2 中断服务函数
 		Timer2_Counter4++;
 		Timer2_Counter5++;		
 		
-		if((Timer2_Counter1>100*10)) // 如果定时计数器操作4s还没有被清零，说明通讯出现了中断
+		if((Timer2_Counter1>100*10)) // 如果定时计数器操作1s还没有被清零，说明通讯出现了中断
 		{			
 			if(dbus_rc.available == 0x00)
 			{
 				dbus_rc.sw1 = 5; //标记接收数据不可用
 				Mecanum_Wheel_Rpm_Model(0,0,0,0);
 			}
-			else if(recived_cmd.flag ==0x00)
+			else if(recived_cmd.flag ==0x00) //上位机没有持续发送数据超过1s则触发通讯丢失
 			{
 				Mecanum_Wheel_Rpm_Model(0,0,0,0);
 			}
@@ -172,7 +172,7 @@ void TIM2_IRQHandler(void)//定时器2 中断服务函数
 		TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);   		
 	}
 }
-void TIM3_IRQHandler(void)//定时器3 中断服务函数
+void TIM3_IRQHandler(void)//定时器3 中断服务函数   目前未使用
 {
 	if ( TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET ) 
 	{	
@@ -247,7 +247,7 @@ void USART2_IRQHandler(void)
         UART2_Reflag=01; 				
 				if(DJI_Motor_WriteData_In_Buff(UART2_ReBuff,ReCont_2))
 				{
-					Timer2_Counter1=0; //清空定时计数器	  
+					Timer2_Counter1=0; //清空命令超时计数器	  
 				}
 				Reflag_2 =0x00; 	
 			}
@@ -284,7 +284,38 @@ void USART2_IRQHandler(void)
 	USART_ClearITPendingBit(USART2,USART_IT_RXNE);
 }
 
- 
+ void USART3_IRQHandler(void)
+{
+	uint8_t ch;
+	LED1_FLIP;
+	if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
+	{ 	
+		//ch = USART3->DR;
+		ch = USART_ReceiveData(USART3);	  	 
+		USART_ClearITPendingBit(USART3,USART_IT_RXNE);
+		UART_send_char(USART3,ch);
+		
+	} 
+	if(USART_GetITStatus(USART3, USART_FLAG_PE) != RESET)
+	{   
+		USART_ReceiveData(USART3);
+		USART_ClearFlag(USART3, USART_FLAG_PE);
+	}
+
+	if(USART_GetITStatus(USART3, USART_FLAG_ORE) != RESET)
+	{   
+		USART_ReceiveData(USART3);
+		USART_ClearFlag(USART3, USART_FLAG_ORE);
+	}
+
+	if(USART_GetITStatus(USART3, USART_FLAG_FE) != RESET)
+	{   
+		USART_ReceiveData(USART3);
+		USART_ClearFlag(USART3, USART_FLAG_FE);
+	}
+
+	USART_ClearITPendingBit(USART3,USART_IT_RXNE);
+}
 void SysTick_Handler(void)//系统精确延时中断服务函数
 {
 		if (TimingDelay != 0x00)
@@ -347,7 +378,11 @@ void DMA1_Channel5_IRQHandler(void)
    {
 			DMA_ClearFlag(DMA1_FLAG_TC5);//清中断标志，否则会一直中断
 			if(RC_Callback_Handler(USART_RX_BUF))
-				UART1_DMA_Flag =0x01;
+			{
+				UART1_DMA_Flag = 0x01;
+				Timer2_Counter1 =0;  //清除通讯异常计数值
+			}
+
 			LED2_FLIP;
    }
 }

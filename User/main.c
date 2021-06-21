@@ -65,7 +65,7 @@ volatile uint8_t UART2_Flag=0x00;
 volatile uint8_t CAN1_Flag=0x00;
 volatile uint8_t TIM3_Flag=0x00;
 
-volatile uint32_t Timer2_Counter1=0; //分别用来标记接收命令是否超过了限制范围
+volatile uint32_t Timer2_Counter1=0; //分别用来标记接收命令是否超过了时间限制范围
 volatile uint32_t Timer2_Counter2=0;
 volatile uint32_t Timer2_Counter3=0; 
 volatile uint32_t Timer2_Counter4=0;
@@ -94,9 +94,10 @@ int main(void)
 	Init_Mick_GPIO();
 
 	USART_DMA_Rec_Config(USART1,100000); //开启串口1 DMA接收方式
-	My_Config_USART_Init(USART2,115200,1);	    
+	My_Config_USART_Init(USART2,115200,1);	
+ 	My_Config_USART_Init(USART3,115200,1);	
 	UART_send_string(USART2,"MickX4 ROS Car \n");//字符串函数
- 
+	UART_send_string(USART3,"MickX4 ROS Car \n");//字符串函数	
 	UART_send_string(USART2,"Start Init MPU9250 ... \n");//字符串函数
 	MPU9250_Init();//MPU6050初始化 ± 2000 °/s ± 4g  5hz
 	UART_send_string(USART2,"Successed Init MPU9250 !\n"); 

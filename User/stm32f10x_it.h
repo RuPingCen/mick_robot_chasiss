@@ -43,7 +43,8 @@ void UsageFault_Handler(void);
 	 
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);
-	 
+void USART3_IRQHandler(void);
+
 void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);

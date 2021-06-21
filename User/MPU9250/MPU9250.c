@@ -28,6 +28,7 @@ unsigned char BUF[10];
  
 void MPU9250_Init(void) 
 {
+	uint8_t wait_times = 200;
 	#ifdef  MPU9250_Hadware_IIC 
 		I2C_STM32_Config_Init(I2C1,400000);
 		Delay_10us(200);// nTime*10us 延时函数
@@ -69,10 +70,11 @@ void MPU9250_Init(void)
 
 		IO_IIC_write_Command(MPU9250_MAG_ADDRESS,MAG_CNTL1,0x16);		//设置AK8963为单次测量模式
 
-		while(IO_IIC_read_Data(MPU9250_GYRO_ADDRESS,MPU9250_WHO_AM_I)!= 0x71)
+		while(IO_IIC_read_Data(MPU9250_GYRO_ADDRESS,MPU9250_WHO_AM_I)!= 0x71 && wait_times>0)
 		{
 			UART_send_string(USART2,".");//检测MPU9250 是否已经连接
 			Delay_10us(200);// nTime*10us 延时函数
+			wait_times--;
 		}
  
 #endif
