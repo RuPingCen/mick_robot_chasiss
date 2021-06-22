@@ -24,4 +24,7 @@ uint8_t Read_Isolated_Input(uint8_t ch);
 
 //设置隔离输出的状态
 void Set_Isolated_Output(uint8_t ch, uint8_t out_value);
+
+//读取4个IO状态上传到PC
+void Isolated_IO_Upload_Message(void);
 #endif

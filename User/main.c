@@ -179,6 +179,12 @@ int main(void)
 			//IMU_Report_AHRSdata();
 			Timer2_Counter4=0;
 		}
+		if(Timer2_Counter5 > 100) //1ms*100  10HZ ´òÓ¡ÆµÂÊ
+		{			 
+			Isolated_IO_Upload_Message(); 
+			Timer2_Counter5=0;
+		}
+		
 	}
  // exit from main() function
 }

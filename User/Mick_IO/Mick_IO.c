@@ -4,7 +4,8 @@
 #include "stm32f10x_Delay.h"
  
 #include "Mick_IO.h"
- 
+#include "bsp_uart.h" 
+
 uint8_t Code_Switch_Value = 0x00;
 
 /***************************************************************************
@@ -197,4 +198,54 @@ void Set_Isolated_Output(uint8_t ch, uint8_t out_value)
 	else
 		;
 
+}
+ 
+/***************************************************************************
+* @brief       读取4个IO状态上传到PC
+* @param[out]    
+* @param[in]     
+* @retval 
+* @maker    crp
+* @data 2020-6-1
+***************************************************************************/
+void Isolated_IO_Upload_Message(void)
+{
+		static  uint32_t IO_upload_counter=0;
+		unsigned char senddat[35];
+		unsigned char i=0,j=0;	
+		unsigned int sum=0x00;	
+		uint8_t ch1,ch2,ch3,ch4;
+
+		senddat[i++]=0xAE;
+		senddat[i++]=0xEA;
+		senddat[i++]=0x01;//数据长度在后面赋值
+		senddat[i++]=0x11; //命令位 0x11
+
+		//上传数据帧计数
+		senddat[i++]=(IO_upload_counter>>24);
+		senddat[i++]=(IO_upload_counter>>16);
+		senddat[i++]=(IO_upload_counter>>8);
+		senddat[i++]=(IO_upload_counter);
+			
+		ch1 = Read_Isolated_Input(1);
+		ch2 = Read_Isolated_Input(2);
+		ch3 = Read_Isolated_Input(3);
+		ch4 = Read_Isolated_Input(4);
+	
+		senddat[i++] = ch1; 
+		senddat[i++] = ch2;
+		senddat[i++] = ch3; 
+		senddat[i++] = ch4;
+
+		senddat[2]=i-1; //数据长度
+		for(j=2;j<i;j++)
+			sum+=senddat[j];
+    senddat[i++]=sum;
+		
+		senddat[i++]=0xEF;
+		senddat[i++]=0xFE;
+		 
+		//UART_send_string(USART2,senddat);
+		UART_send_buffer(USART2,senddat,i);
+		IO_upload_counter++;
 }

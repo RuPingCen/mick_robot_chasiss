@@ -6,7 +6,7 @@
 #include "DBUS.h" 
 #include "PID.h" 
 #include "DJI_Motor.h"  
-
+#include "Mick_IO.h"
 
 // C620电调控制范围-16384~0~16384 对应电调输出 -20A-0-20A 发送频率1KHz
 // C620电调反馈 机械转子角度 0-360°  对应0-8191  转子速度为RPM单位  温度单位为℃
@@ -366,6 +366,17 @@ char DJI_Motor_WriteData_In_Buff(uint8_t *DataBuff,uint16_t datalength)
 		recived_cmd.rpm_available=0x00;
 		recived_cmd.speed_available=0x01;
 	}
+	else if(recived_cmd.cmd == 0xE1) //里程计清零
+	{
+		 DJI_Motor_Clear_Odom();
+	}
+	else if(recived_cmd.cmd == 0xE2) //设置隔离输出IO
+	{
+		Set_Isolated_Output(1,UART2_ReBuff[4]);
+		Set_Isolated_Output(2,UART2_ReBuff[5]);
+		Set_Isolated_Output(3,UART2_ReBuff[6]);
+		Set_Isolated_Output(4,UART2_ReBuff[7]);
+	}
 	else
 	{
 		//recived_cmd.rpm_available=0x00;
@@ -388,11 +399,7 @@ char DJI_Motor_WriteData_In_Buff(uint8_t *DataBuff,uint16_t datalength)
 		else if(recived_cmd.cmd == 0xF3)
 		{
 			DiffX4_Wheel_Speed_Model(recived_cmd.tag_speed_x,recived_cmd.tag_speed_z);
-		}
-		else if(recived_cmd.cmd == 0xE1) //里程计清零
-		{
-			 DJI_Motor_Clear_Odom();
-		}
+		}		
 		else;
 		//Delay_10us(50000);
 		//DJI_Motor_Show_Message();
