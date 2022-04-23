@@ -1,0 +1,296 @@
+#include "stm32f10x.h"
+#include "stdio.h"//～邦o?∩??迆﹞⊿?赤米?FILE那?D?
+
+
+#include "stm32f10x_Delay.h"
+#include "MPU6050.h" 
+#include "LCD240x320_ILI9341.h"
+#include "AT24C02.h"
+#include "W25Q16.h"
+#include "stm32f10x_pwm.h"
+#include "SDIO_SD.H"
+/*********************************************************/
+/**********************o那?“辰?****************************/
+#define EnableInterrupt 	__set_PRIMASK(0) //℅邦?D?? D∩??0?? ?a℅邦?D??   ?‘1??1?℅邦?D??
+#define DisableInterrupt 	__set_PRIMASK(1) //℅邦?D?? D∩??0?? ?a℅邦?D??   ?‘1??1?℅邦?D??
+
+typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
+#define BLOCK_SIZE            512 /* Block Size in Bytes */
+#define NUMBER_OF_BLOCKS      32  /* For Multi Blocks operation (Read/Write) */
+#define MULTI_BUFFER_SIZE    (BLOCK_SIZE * NUMBER_OF_BLOCKS)   //?o3???∩車D?	 
+
+ 
+unsigned char tex_dat[2];
+/*********************************************************/
+/******************豕???㊣?芍?谷迄?¯***************************/
+uint32_t TimingDelay; //車?車迆delay????米???豕﹞?車那㊣
+uint16_t ADC_ConvertedValue; 
+
+
+uint8_t Buffer_Block_Tx[BLOCK_SIZE], Buffer_Block_Rx[BLOCK_SIZE];
+uint8_t readbuff[BLOCK_SIZE];
+uint8_t Buffer_MultiBlock_Tx[MULTI_BUFFER_SIZE], Buffer_MultiBlock_Rx[MULTI_BUFFER_SIZE];
+volatile TestStatus EraseStatus = FAILED, TransferStatus1 = FAILED, TransferStatus2 = FAILED;
+SD_Error Status = SD_OK;
+extern SD_CardInfo SDCardInfo;	
+int i;
+
+/*********************************************************/
+/**********************o‘那y谷迄?¯***************************/
+ 
+ void SD_EraseTest(void);
+void SD_SingleBlockTest(void);
+void SD_MultiBlockTest(void);
+void Fill_Buffer(uint8_t *pBuffer, uint32_t BufferLength, uint32_t Offset);
+TestStatus Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint32_t BufferLength);
+TestStatus eBuffercmp(uint8_t* pBuffer, uint32_t BufferLength);
+
+ 
+/*********************************************************/
+/*****************?¯o‘那y**********************************/
+int main(void)
+{	
+   
+	   unsigned int Idx=0;
+		 SysTick_Init();  
+     /* ?D??3?那??‘ */
+	NVIC_Configuration();
+
+	/* ∩??迆3?那??‘ */
+	My_Config_USART_Init(USART1,115200,1);
+  UART_send_string(USART1,"\n ?a那?辰???SD?“ 4bit dma 那米?谷\n ");//℅?﹞?∩?o‘那y
+	/* SD ?“3?那??‘ */
+	Status = SD_Init();
+	
+	if(Status == SD_OK) 
+	{    
+ 
+		  UART_send_string(USART1," \r\n SD_Init 3?那??‘3谷1| \r\n ");//℅?﹞?∩?o‘那y
+	}
+	else
+	{
+		UART_send_string(USART1,"\r\n SD_Init 3?那??‘那∫～邦 \r\n");//℅?﹞?∩?o‘那y
+		UART_send_string(USART1,"\r\n ﹞米??米?Status米??米?a㏒o ");//℅?﹞?∩?o‘那y
+		UART_send_data(USART1,Status);  // 0~4294967296
+		
+		
+	}			  	
+    UART_send_string(USART1," \r\n CardType is ㏒o");//℅?﹞?∩?o‘那y
+		UART_send_data(USART1,SDCardInfo.CardType);  // 0~4294967296
+    UART_send_string(USART1," \r\n CardCapacity is ㏒o");//℅?﹞?∩?o‘那y
+		UART_send_data(USART1,SDCardInfo.CardCapacity);  // 0~4294967296
+	  UART_send_string(USART1," \r\n CardBlockSize is ㏒o");//℅?﹞?∩?o‘那y
+		UART_send_data(USART1,SDCardInfo.CardBlockSize);  // 0~4294967296
+	  UART_send_string(USART1," \r\n RCA is ㏒o");//℅?﹞?∩?o‘那y
+		UART_send_data(USART1,SDCardInfo.RCA);  // 0~4294967296
+	  UART_send_string(USART1," \r\n ManufacturerID is ㏒o");//℅?﹞?∩?o‘那y
+		UART_send_data(USART1,SDCardInfo.SD_cid.ManufacturerID);  // 0~4294967296
+ 
+
+	/* 2芍3y2a那? */
+	SD_EraseTest();
+	
+  /* 米ㄓ?谷?芍D∩2a那? */
+	SD_SingleBlockTest(); 
+	
+	/* ?角?谷?芍D∩2a那? */	
+	SD_MultiBlockTest();  
+   UART_send_string(USART1,"2a那??芍那?");//℅?﹞?∩?o‘那y
+	 
+	 while (1);
+ 
+}
+  
+
+/*
+ * o‘那y??㏒oSD_EraseTest
+ * ?豕那?  ㏒o2芍3y那y?Y2a那?
+ * 那?豕?  ㏒o?T
+ * 那?3?  ㏒o?T
+ */
+void SD_EraseTest(void)
+{
+  if (Status == SD_OK)
+  {    
+		/* 米迆辰???2?那y?a2芍3y?e那?米??﹞㏒?米迆?t??2?那y?a2芍3y?芍那?米??﹞ */
+    Status = SD_Erase(0x00, (BLOCK_SIZE * NUMBER_OF_BLOCKS));
+  }
+
+  if (Status == SD_OK)
+  {	/* ?芍豕?????2芍3y米???車辰 */
+    Status = SD_ReadMultiBlocks(Buffer_MultiBlock_Rx, 0x00, BLOCK_SIZE, NUMBER_OF_BLOCKS);
+
+    /* 2谷?‘∩?那?那?﹞??芍那? */
+    Status = SD_WaitReadOperation(); 
+    while(SD_GetStatus() != SD_TRANSFER_OK);
+  }
+ 
+  if (Status == SD_OK)
+  {	/* ～?2芍3y??車辰?芍3?角∩??㊣豕 */
+    EraseStatus = eBuffercmp(Buffer_MultiBlock_Rx, MULTI_BUFFER_SIZE);
+  }
+  
+  if(EraseStatus == PASSED)  	 
+	    UART_send_string(USART1," \r\n 2芍3y2a那?3谷1|㏒? ");//℅?﹞?∩?o‘那y
+ 
+  else	  
+	   UART_send_string(USART1,"\r\n 2芍3y2a那?那∫～邦㏒? ");//℅?﹞?∩?o‘那y
+}
+
+/*
+ * o‘那y??㏒oSD_SingleBlockTest
+ * ?豕那?  ㏒o	米ㄓ??那y?Y?谷?芍D∩2a那?
+ * 那?豕?  ㏒o?T
+ * 那?3?  ㏒o?T
+ */
+void SD_SingleBlockTest(void)
+{  
+  /* Fill the buffer to send */
+  Fill_Buffer(Buffer_Block_Tx, BLOCK_SIZE, 0x320F);
+
+  if (Status == SD_OK)
+  {
+    /* Write block of 512 bytes on address 0 */
+    Status = SD_WriteBlock(Buffer_Block_Tx, 0x00, BLOCK_SIZE);
+		
+    /* Check if the Transfer is finished */
+    Status = SD_WaitWriteOperation();	  
+    while(SD_GetStatus() != SD_TRANSFER_OK); 
+  }
+
+  if (Status == SD_OK)
+  {
+    /* Read block of 512 bytes from address 0 */
+    Status = SD_ReadBlock(Buffer_Block_Rx, 0x00, BLOCK_SIZE);//?芍豕?那y?Y
+    /* Check if the Transfer is finished */
+    Status = SD_WaitReadOperation();
+    while(SD_GetStatus() != SD_TRANSFER_OK);
+  }
+
+  /* Check the correctness of written data */
+  if (Status == SD_OK)
+  {
+    TransferStatus1 = Buffercmp(Buffer_Block_Tx, Buffer_Block_Rx, BLOCK_SIZE);	//㊣豕??
+  }
+  
+  if(TransferStatus1 == PASSED) 
+    UART_send_string(USART1,"\r\n 米ㄓ?谷?芍D∩2a那?3谷1|㏒?");//℅?﹞?∩?o‘那y
+  else    
+	  UART_send_string(USART1,"\r\n 米ㄓ?谷?芍D∩2a那?那∫～邦㏒? ");//℅?﹞?∩?o‘那y
+}
+
+/*
+ * o‘那y??㏒oSD_MultiBlockTest
+ * ?豕那?  ㏒o	?角那y?Y?谷?芍D∩2a那?
+ * 那?豕?  ㏒o?T
+ * 那?3?  ㏒o?T
+ */
+void SD_MultiBlockTest(void)
+{
+  /* Fill the buffer to send */
+  Fill_Buffer(Buffer_MultiBlock_Tx, MULTI_BUFFER_SIZE, 0x0);
+
+  if (Status == SD_OK)
+  {
+    /* Write multiple block of many bytes on address 0 */
+    Status = SD_WriteMultiBlocks(Buffer_MultiBlock_Tx, 0x00, BLOCK_SIZE, NUMBER_OF_BLOCKS);
+    /* Check if the Transfer is finished */
+    Status = SD_WaitWriteOperation();
+    while(SD_GetStatus() != SD_TRANSFER_OK);
+  }
+
+  if (Status == SD_OK)
+  {
+    /* Read block of many bytes from address 0 */
+    Status = SD_ReadMultiBlocks(Buffer_MultiBlock_Rx, 0x00, BLOCK_SIZE, NUMBER_OF_BLOCKS);
+    /* Check if the Transfer is finished */
+    Status = SD_WaitReadOperation();
+    while(SD_GetStatus() != SD_TRANSFER_OK);
+  }
+
+  /* Check the correctness of written data */
+  if (Status == SD_OK)
+  {
+    TransferStatus2 = Buffercmp(Buffer_MultiBlock_Tx, Buffer_MultiBlock_Rx, MULTI_BUFFER_SIZE);
+  }
+  
+  if(TransferStatus2 == PASSED)	  
+ 
+    UART_send_string(USART1,"\r\n ?角?谷?芍D∩2a那?3谷1|㏒? ");//℅?﹞?∩?o‘那y
+  else 
+	  UART_send_string(USART1,"\r\n ?角?谷?芍D∩2a那?那∫～邦㏒? ");//℅?﹞?∩?o‘那y
+
+}
+
+
+
+
+/*
+ * o‘那y??㏒oBuffercmp
+ * ?豕那?  ㏒o㊣豕??芍????o3????D米?那y?Y那?﹞??角米豕
+ * 那?豕?  ㏒o-pBuffer1, -pBuffer2 : 辰a㊣豕??米??o3???米?????
+ *         -BufferLength ?o3???3∟?豕
+ * 那?3?  ㏒o-PASSED ?角米豕
+ *         -FAILED 2?米豕
+ */
+TestStatus Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint32_t BufferLength)
+{
+  while (BufferLength--)
+  {
+    if (*pBuffer1 != *pBuffer2)
+    {
+      return FAILED;
+    }
+
+    pBuffer1++;
+    pBuffer2++;
+  }
+
+  return PASSED;
+}
+
+
+/*
+ * o‘那y??㏒oFill_Buffer
+ * ?豕那?  ㏒o?迆?o3????D足?D∩那y?Y
+ * 那?豕?  ㏒o-pBuffer 辰a足?3?米??o3???
+ *         -BufferLength 辰a足?3?米?∩車D?
+ *         -Offset 足??迆?o3???米?米迆辰????米
+ * 那?3?  ㏒o?T 
+ */
+void Fill_Buffer(uint8_t *pBuffer, uint32_t BufferLength, uint32_t Offset)
+{
+  uint16_t index = 0;
+
+  /* Put in global buffer same values */
+  for (index = 0; index < BufferLength; index++ )
+  {
+    pBuffer[index] = index + Offset;
+  }
+}
+
+/*
+ * o‘那y??㏒oeBuffercmp
+ * ?豕那?  ㏒o?足2谷?o3???米?那y?Y那?﹞??a0
+ * 那?豕?  ㏒o-pBuffer 辰a㊣豕??米??o3???
+ *         -BufferLength ?o3???3∟?豕        
+ * 那?3?  ㏒oPASSED ?o3???米?那y?Y豕??a0
+ *         FAILED ?o3???米?那y?Y?芍谷迄車D辰???2??a0 
+ */
+TestStatus eBuffercmp(uint8_t* pBuffer, uint32_t BufferLength)
+{
+  while (BufferLength--)
+  {
+    /* In some SD Cards the erased state is 0xFF, in others it's 0x00 */
+    if ((*pBuffer != 0xFF) && (*pBuffer != 0x00))//2芍3yo車那?0xff?辰0x00
+    {
+      return FAILED;
+    }
+
+    pBuffer++;
+  }
+
+  return PASSED;
+}
+ 
+/***************************END OF FILE**********************/
