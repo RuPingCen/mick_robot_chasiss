@@ -91,6 +91,7 @@ void Test_Mick_GPIO(void);
 /*****************主函数**********************************/
 int main(void)
 {	
+	unsigned char dma_lendat = 18;
 	SysTick_Init();//初始化滴答定时器
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable,ENABLE);
@@ -144,13 +145,15 @@ int main(void)
 	{
 		UART_send_string(USART2,"DBUS model is used. \n"); 
 		rc.type =1; // 默认为DBUS模型
+		dma_lendat = 18;
 	}
 	else
 	{
 		UART_send_string(USART2,"SBUS model is used. \n"); 
 		rc.type =2; // SBUS模型
+		dma_lendat = 25;
 	}
-	USART_DMA_Rec_Config(USART1,100000); //开启串口1 DMA接收方式  用于接收遥控器信号
+	USART_DMA_Rec_Config(USART1,100000,dma_lendat); //开启串口1 DMA接收方式  用于接收遥控器信号
 	
 	//step7 初始化定时器 -------------------------------------	
 	Timer_2to7_counter_Generalfuncation(TIM2,1000);//1ms

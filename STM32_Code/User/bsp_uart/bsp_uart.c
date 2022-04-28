@@ -563,7 +563,7 @@ void USART_DMA_Send_Config(USART_TypeDef* USARTx,unsigned char DMA_send_data[],u
   *        串口1接收，应该用DMA1的通道5  DMA1_Channel5_IRQn。
   ****************************************************************/
  
-void USART_DMA_Rec_Config(USART_TypeDef* USARTx,unsigned int u32_Baud)
+void USART_DMA_Rec_Config(USART_TypeDef* USARTx,unsigned int u32_Baud,unsigned char lendat)
 {
 	  DMA_InitTypeDef DMA_InitStructure;
 	  NVIC_InitTypeDef NVIC_InitStructure;
@@ -582,7 +582,7 @@ void USART_DMA_Rec_Config(USART_TypeDef* USARTx,unsigned int u32_Baud)
 	  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)&USART1->DR;//DMA外设UASRT1->DR基地址
     DMA_InitStructure.DMA_MemoryBaseAddr = (u32)USART_RX_BUF;//DMA内存基地址
     DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;//DMA方向  外设->内存
-    DMA_InitStructure.DMA_BufferSize = sizeof(USART_RX_BUF);//DMA通道的DMA缓存的大小
+    DMA_InitStructure.DMA_BufferSize = lendat;//sizeof(USART_RX_BUF);//DMA通道的DMA缓存的大小
     DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;//外设地址不增加
     DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;//内存地址自增1
     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;//数据宽度为8位

@@ -39,7 +39,7 @@
  void USART_DMA_Send_Config(USART_TypeDef* USARTx,unsigned char DMA_send_data[],unsigned int u32DMA_size,unsigned char DMA_send_priority);
 
  
- void USART_DMA_Rec_Config(USART_TypeDef* USARTx,unsigned int u32_Baud);
+ void USART_DMA_Rec_Config(USART_TypeDef* USARTx,unsigned int u32_Baud,unsigned char lendat);
  void USART1_DMA_Rec_Config(unsigned int u32_Baud);
 
  void UART_send_string(USART_TypeDef* USARTx,char *buf);//×Ö·û´®·¢ËÍº¯Êý
