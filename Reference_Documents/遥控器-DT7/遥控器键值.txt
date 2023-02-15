@@ -1,0 +1,17 @@
+
+Bit0-----W
+Bit1-----S
+Bit2-----A
+Bit3-----D
+Bit4-----Shift
+Bit5-----Ctrl
+Bit6-----Q
+Bit7-----E
+Bit8-----R
+Bit9-----F
+Bit10-----G
+Bit11-----Z
+Bit12-----X
+Bit13-----C
+Bit14-----V
+Bit15-----B

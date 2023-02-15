@@ -201,7 +201,7 @@ void USART1_IRQHandler(void)
 	USART_ClearITPendingBit(USART1,USART_IT_RXNE);
 }
 
-// USRT2 转发接收到的数据到UART3
+// USRT2 转发接收到的数据到 
 void USART2_IRQHandler(void)
 {
 	uint8_t dat_value;
@@ -245,7 +245,7 @@ void USART2_IRQHandler(void)
 			{			
 				UART2_ReBuff[ReCont_2++] = U2dat_value;
 				UART2_ReCont=ReCont_2;  
-        UART2_Reflag=01; 				
+				UART2_Reflag=01; 				
 				if(DJI_Motor_WriteData_In_Buff(UART2_ReBuff,ReCont_2))
 				{
 					Timer2_Counter1=0; //清空命令超时计数器	  
@@ -377,15 +377,15 @@ void DMA1_Channel5_IRQHandler(void)
 {
 	if(DMA_GetFlagStatus(DMA1_FLAG_TC5)==SET)
    {
-		  DMA_Cmd(DMA1_Channel5, DISABLE); 
-			DMA_ClearFlag(DMA1_FLAG_TC5);//清中断标志，否则会一直中断
-		  U1dat_value = RC_Callback_Handler(USART_RX_BUF);
-			if(U1dat_value == 1)
-			{
-				UART1_DMA_Flag = 0x01;
-				Timer2_Counter1 =0;  //清除通讯异常计数值
-			}
-			DMA_Cmd(DMA1_Channel5, ENABLE);  //启动DMA传输
+		DMA_Cmd(DMA1_Channel5, DISABLE); 
+		DMA_ClearFlag(DMA1_FLAG_TC5);//清中断标志，否则会一直中断
+		U1dat_value = RC_Callback_Handler(USART_RX_BUF);
+		if(U1dat_value == 1)
+		{
+			UART1_DMA_Flag = 0x01;
+			Timer2_Counter1 =0;  //清除通讯异常计数值
+		}
+		DMA_Cmd(DMA1_Channel5, ENABLE);  //启动DMA传输
    }
 }
 // CAN1 中断函数

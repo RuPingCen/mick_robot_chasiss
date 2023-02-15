@@ -11,7 +11,7 @@ uint32_t ch1_offset_sum=0,ch2_offset_sum=0,ch3_offset_sum=0,ch4_offset_sum=0;
 uint32_t rc_counter=0;
 
 rc_info_t rc; // 这里将DBUS和SBUS共用一个结构体
-
+extern uint8_t Code_Switch_Value;
 extern uint8_t USART_RX_BUF[USART_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节
 /***************************************************************************
 * @brief       DBUS串口接收回调函数 
@@ -86,14 +86,20 @@ char RC_Callback_Handler(uint8_t *pData)
 		rc.ch14 = (((int16_t)pData[(i+18)%USART_REC_LEN] >> 7) | ((int16_t)pData[(i+19)%USART_REC_LEN] << 1) |((int16_t)pData[(i+20)%USART_REC_LEN] << 9))	& 0x07FF;
 		rc.ch15 = (((int16_t)pData[(i+20)%USART_REC_LEN] >> 2) | ((int16_t)pData[(i+21)%USART_REC_LEN] << 6)) & 0x07FF;
 		rc.ch16 = (((int16_t)pData[(i+21)%USART_REC_LEN] >> 5) | ((int16_t)pData[(i+22)%USART_REC_LEN]<<3)) &0x07FF;
+
+		if(rc.ch7>1500) 		rc.sw1 = 3; //把通道5-6进行量化到 1-3
+		else if(rc.ch7<500)  	rc.sw1 = 1;
+		else            		rc.sw1 = 2;
 		
-		rc.sw1 = rc.ch5/682; //把通道5-6进行量化到 1-3
-		rc.sw2 = rc.ch6/682;
+		if(rc.ch5>1500) 		rc.sw2 = 2;  // 与DJI遥控器保持一致
+		else if(rc.ch5<500)		rc.sw2 = 1;
+		else 					rc.sw2 = 3;
 	}
 	 
 	
 	if(DBUS_flag == DBUS_INIT) 
 	{
+		UART_send_string(USART2,"RC Init ...\n");
 		rc.available =0x00;
 		if(RC_Offset_Init())
 			DBUS_flag = DBUS_RUN;
@@ -102,12 +108,13 @@ char RC_Callback_Handler(uint8_t *pData)
 	}
 	else
 	{
-		if((rc.ch1 > 2000) || (rc.ch1<100) 
-			|| (rc.ch3 > 2000) || (rc.ch3<100)
-		  || (rc.sw1 > 3) || (rc.sw1<1)
-		  || (rc.sw2 > 3) || (rc.sw2<1))
+		if((rc.ch1 > 2500) || (rc.ch1<100) 
+			|| (rc.ch2 > 2500) || (rc.ch2<100)
+			|| (rc.ch3 > 2500) || (rc.ch3<100)
+			|| (rc.sw1 > 3) || (rc.sw1<1)
+			|| (rc.sw2 > 3) || (rc.sw2<1))
 		{
-			UART_send_string(USART2,"C\n");
+			UART_send_string(USART2,"ERROR\n");
 			rc.available =0x00;
 			return 0;
 		}
@@ -129,22 +136,57 @@ char RC_Callback_Handler(uint8_t *pData)
 ****************************************************************************/
 void RC_Routing(void)
 {
+	float RC_K = 0;
+	int err_ch1 = 0;
+	int err_ch2 = 0;
+	int err_ch3 = 0;
 	if((rc.sw1 !=1) && (rc.available)) //使能遥控器模式
 	{
 		if(rc.sw2 ==1) //1 档模式 最大1m/s
 		{
-			DiffX4_Wheel_Speed_Model((rc.ch2-rc.ch2_offset)*0.00152,(rc.ch1-rc.ch1_offset)*0.00152);
+			RC_K=0.00152;
 		}
 		else if(rc.sw2 ==3) //2 档模式 最大2m/s
 		{
-			DiffX4_Wheel_Speed_Model((rc.ch2-rc.ch2_offset)*0.00304,(rc.ch1-rc.ch1_offset)*0.00304);
+			RC_K = 0.00304;
 		}
 		else if(rc.sw2 ==2) //3 档模式 最大3.5m/s
 		{
-			DiffX4_Wheel_Speed_Model((rc.ch2-rc.ch2_offset)*0.0053,(rc.ch1-rc.ch1_offset)*0.0053);
+			RC_K = 0.0053;
 		}
 		else
-			DiffX4_Wheel_Speed_Model(0,0);
+			RC_K = 0.0;
+		
+		// 设置死区
+		err_ch1 = rc.ch1-rc.ch1_offset;
+		err_ch2 = rc.ch2-rc.ch2_offset;
+		err_ch3 = rc.ch3-rc.ch3_offset;
+		
+		if(abs(err_ch1) < 50)
+				err_ch1 =0;
+		if(abs(err_ch2) < 50)
+				err_ch2 = 0;
+		if(abs(err_ch3) < 50)
+				err_ch3 = 0;
+		
+		if((Code_Switch_Value & 0x03) == 0x00) // 差速模型
+		{
+			DiffX4_Wheel_Speed_Model(err_ch2*RC_K,err_ch1*RC_K);
+		}
+		else if((Code_Switch_Value & 0x03) == 0x01) // 麦克纳姆轮模型
+		{
+			Mecanum_Wheel_Speed_Model(err_ch2*RC_K,err_ch1*RC_K,err_ch3*RC_K);
+		}
+		else if((Code_Switch_Value & 0x03) == 0x02)// 4WS4WD模型
+		{
+			; 
+		}
+		else if((Code_Switch_Value & 0x03) == 0x03)// 阿卡曼模型
+		{
+			; 
+		}
+		else ;
+		
 	}
 }
 
@@ -158,10 +200,10 @@ void RC_Routing(void)
 ****************************************************************************/
 char RC_Offset_Init(void)
 {
-	if((rc.ch1>1000) && (rc.ch1<1050))
-		if((rc.ch2>1000) && (rc.ch2<1050))
-			if((rc.ch3>1000) && (rc.ch3<1050))
-				if((rc.ch4>1000) && (rc.ch4<1050))
+	if((rc.ch1>900) && (rc.ch1<1100))
+		if((rc.ch2>900) && (rc.ch2<1100))
+			if((rc.ch3>900) && (rc.ch3<1100))
+				if((rc.ch4>900) && (rc.ch4<1100))
 				{
 						ch1_offset_sum+=rc.ch1;
 						ch2_offset_sum+=rc.ch2;
@@ -169,7 +211,7 @@ char RC_Offset_Init(void)
 						ch4_offset_sum+=rc.ch4;
 						rc_counter++;
 				}
-
+	// 求10次数据的平均值
 	if(rc_counter>10)
 	{
 	  ch1_offset_sum = ch1_offset_sum/rc_counter;
@@ -182,7 +224,7 @@ char RC_Offset_Init(void)
 		rc.ch3_offset =ch3_offset_sum;
 		rc.ch4_offset =ch4_offset_sum;
 		
-		//calibration failed 
+		//calibration failed 通常情况这个零位值不会是0
 		if((rc.ch1_offset ==0) || (rc.ch2_offset ==0) || (rc.ch3_offset ==0) || (rc.ch4_offset ==0))
 		{
 			rc.available =0x00; 
@@ -191,14 +233,12 @@ char RC_Offset_Init(void)
 			ch2_offset_sum = 0;
 			ch3_offset_sum = 0;
 			ch4_offset_sum = 0;
-			
 			return 0;
 		}
 		else
 		{
 			rc.available =0x01; 
 			rc.cnt =rc_counter;
-			
 			return 1;
 		}
 	}
@@ -210,13 +250,14 @@ char RC_Offset_Init(void)
 }
 
 /***************************************************************************
-* @brief       试遥控器，打印数据
+* @brief       调试遥控器，打印数据
 * @retval 
 * @maker    crp
 * @date 2019-9-8
 ****************************************************************************/
 void RC_Debug_Message(void)
 {
+//	unsigned char i=0;
 	if(rc.type == 1) // 大疆DBUS协议
 	{
 		UART_send_string(USART2,"DBUS:  ch1:");UART_send_data(USART2,rc.ch1);UART_send_char(USART2,'\t');		
@@ -236,22 +277,26 @@ void RC_Debug_Message(void)
 		UART_send_data(USART2,rc.ch6);UART_send_char(USART2,'\t');	
 		UART_send_data(USART2,rc.ch7);UART_send_char(USART2,'\t');	
 		UART_send_data(USART2,rc.ch8);UART_send_char(USART2,'\t');	
-		UART_send_data(USART2,rc.ch9);UART_send_char(USART2,'\t');	
-		UART_send_data(USART2,rc.ch10);UART_send_char(USART2,'\t');	
-		UART_send_data(USART2,rc.ch11);UART_send_char(USART2,'\t');	
-		UART_send_data(USART2,rc.ch12);UART_send_char(USART2,'\t');	
-		UART_send_data(USART2,rc.ch13);UART_send_char(USART2,'\t');	
-		UART_send_data(USART2,rc.ch14);UART_send_char(USART2,'\t');	
-		UART_send_data(USART2,rc.ch15);UART_send_char(USART2,'\t');	
-		UART_send_data(USART2,rc.ch16);UART_send_char(USART2,'\n');	
+		UART_send_string(USART2,"sw1:");UART_send_data(USART2,rc.sw1);UART_send_char(USART2,'\t');	
+		UART_send_string(USART2,"sw2:");UART_send_data(USART2,rc.sw2);UART_send_char(USART2,'\n');	
+//		UART_send_data(USART2,rc.ch9);UART_send_char(USART2,'\t');	
+//		UART_send_data(USART2,rc.ch10);UART_send_char(USART2,'\t');	
+//		UART_send_data(USART2,rc.ch11);UART_send_char(USART2,'\t');	
+//		UART_send_data(USART2,rc.ch12);UART_send_char(USART2,'\t');	
+//		UART_send_data(USART2,rc.ch13);UART_send_char(USART2,'\t');	
+//		UART_send_data(USART2,rc.ch14);UART_send_char(USART2,'\t');	
+//		UART_send_data(USART2,rc.ch15);UART_send_char(USART2,'\t');	
+//		UART_send_data(USART2,rc.ch16);
+		UART_send_char(USART2,'\n');	
+		
 	}
  
-	UART_send_string(USART2,"cnt:");UART_send_data(USART2,rc.cnt);UART_send_char(USART2,'\t');
-	UART_send_string(USART2,"available:");UART_send_data(USART2,rc.available);UART_send_char(USART2,'\t');
-	UART_send_string(USART2,"ch1_offset:");UART_send_data(USART2,rc.ch1_offset);UART_send_char(USART2,'\t');		
-	UART_send_string(USART2,"ch2_offset:");UART_send_data(USART2,rc.ch2_offset);UART_send_char(USART2,'\t');	
-	UART_send_string(USART2,"ch3_offset:");UART_send_data(USART2,rc.ch3_offset);UART_send_char(USART2,'\t');	
-	UART_send_string(USART2,"ch4_offset:");UART_send_data(USART2,rc.ch4_offset);UART_send_char(USART2,'\n');	
+//	UART_send_string(USART2,"cnt:");UART_send_data(USART2,rc.cnt);UART_send_char(USART2,'\t');
+//	UART_send_string(USART2,"available:");UART_send_data(USART2,rc.available);UART_send_char(USART2,'\t');
+//	UART_send_string(USART2,"ch1_offset:");UART_send_data(USART2,rc.ch1_offset);UART_send_char(USART2,'\t');		
+//	UART_send_string(USART2,"ch2_offset:");UART_send_data(USART2,rc.ch2_offset);UART_send_char(USART2,'\t');	
+//	UART_send_string(USART2,"ch3_offset:");UART_send_data(USART2,rc.ch3_offset);UART_send_char(USART2,'\t');	
+//	UART_send_string(USART2,"ch4_offset:");UART_send_data(USART2,rc.ch4_offset);UART_send_char(USART2,'\n');	
 }
 
 /***************************************************************************

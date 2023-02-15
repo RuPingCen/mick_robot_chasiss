@@ -143,15 +143,15 @@ int main(void)
 	Code_Switch_Value = Read_Code_Switch(); 
 	if((Code_Switch_Value & 0x04) == 0x00) // 获取第3位开关状态
 	{
-		UART_send_string(USART2,"DBUS model is used. \n"); 
-		rc.type =1; // 默认为DBUS模型
-		dma_lendat = 18;
+		UART_send_string(USART2,"SBUS (for T8FB)model is used. \n"); 
+		rc.type =2; // SBUS模型     乐迪协议
+		dma_lendat = 25;
 	}
 	else
 	{
-		UART_send_string(USART2,"SBUS model is used. \n"); 
-		rc.type =2; // SBUS模型
-		dma_lendat = 25;
+		UART_send_string(USART2,"DBUS (for DJI DT7) model is used. \n"); 
+		rc.type =1; // 默认为DBUS模型  大疆协议
+		dma_lendat = 18;
 	}
 	USART_DMA_Rec_Config(USART1,100000,dma_lendat); //开启串口1 DMA接收方式  用于接收遥控器信号
 	
@@ -206,14 +206,14 @@ int main(void)
 		}
 		if(Timer2_Counter4 > 10) //1ms*10  100HZ 打印频率
 		{			 
-			IMU_Routing();
-			IMU_Upload_Message();
+			//IMU_Routing();
+			//IMU_Upload_Message();
 			//IMU_Report_AHRSdata();
 			Timer2_Counter4=0;
 		}
 		if(Timer2_Counter5 > 100) //1ms*100  10HZ 打印频率
 		{			 
-		 Isolated_IO_Upload_Message(); 
+		  Isolated_IO_Upload_Message(); 
 			Timer2_Counter5=0;
 		}
 		
