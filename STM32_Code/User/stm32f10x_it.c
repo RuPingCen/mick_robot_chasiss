@@ -148,7 +148,7 @@ void TIM2_IRQHandler(void)//定时器2 中断服务函数
 {
 	if ( TIM_GetITStatus(TIM2 , TIM_IT_Update) != RESET ) 
 	{	
-	  Timer2_Counter1++;
+		Timer2_Counter1++;
 		Timer2_Counter2++;
 		Timer2_Counter3++;	
 		Timer2_Counter4++;

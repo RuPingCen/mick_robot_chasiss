@@ -106,13 +106,13 @@ int main(void)
 	//step2 初始化串口2/3 -----------------------------------------
 	My_Config_USART_Init(USART2,115200,1);// 串口初始化函数 波特率115200	 与工控机通讯
  	My_Config_USART_Init(USART3,115200,1);	
-	UART_send_string(USART2,"MickX4 ROS Car \n");//字符串函数
-	UART_send_string(USART3,"MickX4 ROS Car \n");//字符串函数	
+	UART_send_string(USART2,"\n\n MickX4 ROS Car \n");//字符串函数
+	UART_send_string(USART3,"\n\n MickX4 ROS Car \n");//字符串函数	
 	
 	//step3 初始化IMU ---------------------------------------------
-	UART_send_string(USART2,"Start Init MPU9250 ... \n");//字符串函数
-	MPU9250_Init();//MPU6050初始化 ± 2000 °/s ± 4g  5hz
-	UART_send_string(USART2,"Successed Init MPU9250 !\n"); 
+	//UART_send_string(USART2,"Start Init MPU9250 ... \n");//字符串函数
+	//MPU9250_Init();//MPU6050初始化 ± 2000 °/s ± 4g  5hz
+	//UART_send_string(USART2,"Successed Init MPU9250 !\n"); 
 	
 	//step4 初始化CAN ---------------------------------------------
 	CAN_Config();//初始化can模块
@@ -135,7 +135,7 @@ int main(void)
 	}
 	else if((Code_Switch_Value & 0x03) == 0x03)
 	{
-		UART_send_string(USART2,"The car model is error. \n"); 
+		UART_send_string(USART2,"The Ackermann model is used. \n"); 
 	}
 	
 	//step6 设置遥控器类型 -------------------------------------
@@ -161,7 +161,7 @@ int main(void)
 	
 	//Timer_2to7_counter_Generalfuncation(TIM3,5000);//5ms
 	//Timer_2to7_Generalfuncation_start(TIM3);
-	UART_send_string(USART2,"Init Successful ....\n");//字符串函数
+	UART_send_string(USART2,"Init Successful ....\n\n\n");//字符串函数
 		   
 	while(1)
 	{
