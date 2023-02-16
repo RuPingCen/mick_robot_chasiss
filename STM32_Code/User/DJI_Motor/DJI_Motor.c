@@ -117,11 +117,11 @@ void DiffX4__Wheel_Rpm_Model(int16_t v1,int16_t v2,int16_t v3,int16_t v4)
 * @Date     20190916
 * @maker    crp
 */
-void Mecanum_Wheel_Speed_Model(int16_t speed_x,int16_t speed_y,int16_t speed_w)
+void Mecanum_Wheel_Speed_Model(float speed_x,float speed_y,float speed_w)
 {
 	float v1=0,v2=0,v3=0,v4=0;
 	
-	float K =0.36; // K=abs(Xn)+abs(Yn) Xn Yn表示麦轮的安装坐标
+	float K =0.76; // K=abs(Xn)+abs(Yn) Xn Yn表示麦轮的安装坐标
 								//左右轮距 40cm 前后轮距36cm
 //	float r_1 = 6.5574;//   6.5574= 1/0.1525 
 	 

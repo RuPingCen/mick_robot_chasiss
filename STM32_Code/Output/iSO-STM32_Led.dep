@@ -497,7 +497,7 @@ I (..\..\User\speed_control\speed_control.h)(0x6279DDA7)
 I (..\..\User\bsp_uart\bsp_uart.h)(0x6279DDA7)
 I (..\..\User\bsp_can\bsp_can.h)(0x6279DDA7)
 I (..\..\User\DBUS\DBUS.h)(0x6279DDA7)
-I (..\..\User\DJI_Motor\DJI_Motor.h)(0x6279DDA7)
+I (..\..\User\DJI_Motor\DJI_Motor.h)(0x63EDFFED)
 I (..\..\User\MPU9250\MPU9250.h)(0x6279DDA7)
 I (..\..\User\IMU\IMU.h)(0x6279DDA7)
 I (..\..\User\Mick_IO\Mick_IO.h)(0x6279DDA7)
@@ -528,7 +528,7 @@ I (..\..\User\IMU\IMU.h)(0x6279DDA7)
 I (..\..\User\bsp_uart\bsp_uart.h)(0x6279DDA7)
 I (..\..\User\bsp_can\bsp_can.h)(0x6279DDA7)
 I (..\..\User\DBUS\DBUS.h)(0x6279DDA7)
-I (..\..\User\DJI_Motor\DJI_Motor.h)(0x6279DDA7)
+I (..\..\User\DJI_Motor\DJI_Motor.h)(0x63EDFFED)
 I (..\..\User\Mick_IO\Mick_IO.h)(0x6279DDA7)
 F (..\..\User\stm32f10x_it.h)(0x6279DDA7)()
 F (..\..\User\cpu\stm32f10x_Delay.c)(0x6279DDA7)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\PID -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\Mick_IO -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor -I ..\..\User\MPU9250-I.\RTE\_Led-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\stm32f10x_delay.o --omf_browse ..\..\output\stm32f10x_delay.crf --depend ..\..\output\stm32f10x_delay.d)
@@ -632,7 +632,7 @@ I (..\..\Libraries\FWlib\inc\stm32f10x_tim.h)(0x6279DDA5)
 I (..\..\Libraries\FWlib\inc\stm32f10x_usart.h)(0x6279DDA5)
 I (..\..\Libraries\FWlib\inc\misc.h)(0x6279DDA5)
 I (..\..\User\bsp_can\bsp_can.h)(0x6279DDA7)
-F (..\..\User\DBUS\DBUS.c)(0x63ECFA76)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\PID -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\Mick_IO -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor -I ..\..\User\MPU9250-I.\RTE\_Led-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\dbus.o --omf_browse ..\..\output\dbus.crf --depend ..\..\output\dbus.d)
+F (..\..\User\DBUS\DBUS.c)(0x63EDFF71)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\PID -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\Mick_IO -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor -I ..\..\User\MPU9250-I.\RTE\_Led-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\dbus.o --omf_browse ..\..\output\dbus.crf --depend ..\..\output\dbus.d)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x6279DDA5)
 I (..\..\Libraries\CMSIS\core_cm3.h)(0x6279DDA5)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599EDB3E)
@@ -655,8 +655,8 @@ I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x599EDB3C)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x599EDB3C)
 I (..\..\User\bsp_uart\bsp_uart.h)(0x6279DDA7)
 I (..\..\User\DBUS\DBUS.h)(0x6279DDA7)
-I (..\..\User\DJI_Motor\DJI_Motor.h)(0x6279DDA7)
-F (..\..\User\DJI_Motor\DJI_Motor.c)(0x63ECFAF7)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\PID -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\Mick_IO -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor -I ..\..\User\MPU9250-I.\RTE\_Led-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\dji_motor.o --omf_browse ..\..\output\dji_motor.crf --depend ..\..\output\dji_motor.d)
+I (..\..\User\DJI_Motor\DJI_Motor.h)(0x63EDFFED)
+F (..\..\User\DJI_Motor\DJI_Motor.c)(0x63EE0015)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\PID -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\Mick_IO -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor -I ..\..\User\MPU9250-I.\RTE\_Led-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\dji_motor.o --omf_browse ..\..\output\dji_motor.crf --depend ..\..\output\dji_motor.d)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x6279DDA5)
 I (..\..\Libraries\CMSIS\core_cm3.h)(0x6279DDA5)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599EDB3E)
@@ -680,7 +680,7 @@ I (..\..\User\bsp_uart\bsp_uart.h)(0x6279DDA7)
 I (..\..\User\bsp_can\bsp_can.h)(0x6279DDA7)
 I (..\..\User\DBUS\DBUS.h)(0x6279DDA7)
 I (..\..\User\PID\PID.h)(0x6279DDA7)
-I (..\..\User\DJI_Motor\DJI_Motor.h)(0x6279DDA7)
+I (..\..\User\DJI_Motor\DJI_Motor.h)(0x63EDFFED)
 I (..\..\User\Mick_IO\Mick_IO.h)(0x6279DDA7)
 F (..\..\User\PID\PID.c)(0x6279DDA7)(-c --cpu Cortex-M3 -g -O0 --apcs=interwork -I ..\..\Libraries\CMSIS -I ..\..\User -I ..\..\Libraries\FWlib\inc -I ..\..\User\Led -I ..\..\User\cpu -I ..\..\User\PID -I ..\..\User\MPU6050 -I ..\..\User\LCD240x320_ILI9341 -I ..\..\User\W25Q16 -I ..\..\User\stm32f10x_pwm -I ..\..\User\SDIO_SD -I ..\..\User\LCD240x320_Touch -I ..\..\ff9\src -I ..\..\ff9\src\option -I ..\..\User\BMP180 -I ..\..\User\HMC5883 -I ..\..\User\IMU -I ..\..\User\IO_IIC -I ..\..\User\Kalman_Filter -I ..\..\User\NRF_24L01 -I ..\..\User\Scope_API -I ..\..\User\Seven_Lab_MiniIMU -I ..\..\User\WS2812 -I ..\..\User\Mick_IO -I ..\..\User\speed_control -I ..\..\User\bsp_can -I ..\..\User\bsp_uart -I ..\..\User\DBUS -I ..\..\User\DJI_Motor -I ..\..\User\MPU9250-I.\RTE\_Led-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DSTM32F10X_MD -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER-o ..\..\output\pid.o --omf_browse ..\..\output\pid.crf --depend ..\..\output\pid.d)
 I (..\..\Libraries\CMSIS\stm32f10x.h)(0x6279DDA5)

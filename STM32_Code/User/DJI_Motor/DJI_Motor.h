@@ -97,7 +97,7 @@ void DJI_Motor_Control(void);
 
 void DiffX4_Wheel_Speed_Model(float speed_x,float speed_w);
 void DiffX4__Wheel_Rpm_Model(int16_t v1,int16_t v2,int16_t v3,int16_t v4);
-void Mecanum_Wheel_Speed_Model(int16_t speed_x,int16_t speed_y,int16_t speed_w);
+void Mecanum_Wheel_Speed_Model(float speed_x,float speed_y,float speed_w);
 void Mecanum_Wheel_Rpm_Model(int16_t v1,int16_t v2,int16_t v3,int16_t v4); 
 
 
