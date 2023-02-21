@@ -175,7 +175,7 @@ void RC_Routing(void)
 		}
 		else if((Code_Switch_Value & 0x03) == 0x01) // 麦克纳姆轮模型
 		{
-			Mecanum_Wheel_Speed_Model(err_ch2*RC_K,err_ch1*RC_K,err_ch3*RC_K);
+			Mecanum_Wheel_Speed_Model(err_ch2*RC_K,-err_ch1*RC_K,-err_ch3*RC_K);
 		}
 		else if((Code_Switch_Value & 0x03) == 0x02)// 4WS4WD模型
 		{

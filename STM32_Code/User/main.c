@@ -179,7 +179,7 @@ int main(void)
 		if(UART1_DMA_Flag) //Ò£¿ØÆ÷½éÈë¿ØÖÆÃüÁîÂß¼­  3*7ms ·¢ËÍÒ»´Î
 		{	
 			UART1_DMA_Flag2++;
-			if(UART1_DMA_Flag2>3)
+			if(UART1_DMA_Flag2>5)
 			{
 				LED2_FLIP;
 				//RC_Debug_Message();

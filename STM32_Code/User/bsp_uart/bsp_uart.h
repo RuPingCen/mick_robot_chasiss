@@ -11,7 +11,7 @@
 #include "stm32f10x_dma.h" 
 
 
-#define USART_REC_LEN  			25// 18  	//定义最大字节数 100
+#define USART_REC_LEN  			25// 25/18  	//定义最大字节数 100
 
 
 
