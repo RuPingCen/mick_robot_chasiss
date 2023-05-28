@@ -1,20 +1,20 @@
  /*******************************************************************************
-  * 参数说明：  USARTx: USART1, USART2, USART3, UART4 or UART5. 
-  *    					u32_Baud: 串口波特率（9600 、115200  等）    					 
-	*             UART_IT_EN： 串口中断使能位 0：禁止串口接收中断
-  *                                         1：允许串口接收中断 
-	*
-  *    					DMA_send_data： DMA数据发送的首地址 
-	*             u32DMA_size : 单次发送数据的个数 （也就是数组的长度）
-  *             DMA_send_priority ：DMA优先级（0、1、2、3）  0的优先级最高    
-  *             USART_DMAReq ： USART_DMAReq_Tx （发送） 或  USART_DMAReq_Rx （接收）
-	*
-	* 备注：     	    " PA9 - USART1(Tx)    PA10 - USART1(Rx) "
-	*                 " PA2 - USART2_TX     PA3 - USART2_RX   "
-	*									" PB10 - USART3_TX    PB11 - USART3_RX  "
-	*								  " PC10 - UART4_TX     PC11 - UART4_RX   "
-	*									" PC12 - UART5_TX     PD2  - UART5_RX   "
-  *  串口1的最大传输速率可达到4.5Mbit/s  串口2~5最大传送速率为 2.25Mbit/s
+* 参数说明：  USARTx: USART1, USART2, USART3, UART4 or UART5. 
+*    					u32_Baud: 串口波特率（9600 、115200  等）    					 
+*             UART_IT_EN： 串口中断使能位 0：禁止串口接收中断
+*                                         1：允许串口接收中断 
+*
+*    					DMA_send_data： DMA数据发送的首地址 
+*             u32DMA_size : 单次发送数据的个数 （也就是数组的长度）
+*             DMA_send_priority ：DMA优先级（0、1、2、3）  0的优先级最高    
+*             USART_DMAReq ： USART_DMAReq_Tx （发送） 或  USART_DMAReq_Rx （接收）
+*
+* 备注：     	  " PA9 - USART1(Tx)    PA10 - USART1(Rx) "
+*                 " PA2 - USART2_TX     PA3 - USART2_RX   "
+*				  " PB10 - USART3_TX    PB11 - USART3_RX  "
+*				  " PC10 - UART4_TX     PC11 - UART4_RX   "
+*				  " PC12 - UART5_TX     PD2  - UART5_RX   "
+*  串口1的最大传输速率可达到4.5Mbit/s  串口2~5最大传送速率为 2.25Mbit/s
 
 
  void My_Config_USART_Init(USART_TypeDef* USARTx,unsigned int u32_Baud , unsigned char UART_IT_EN);//串口初始化函数

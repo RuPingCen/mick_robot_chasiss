@@ -110,25 +110,25 @@ void MPU6050_Data_Process(int16_t *int16t_MPU6050dat)//MPU6050 ˝æ›∂¡»° º∞¥¶¿Ì∫Ø 
 //			int16t_MPU6050dat[4]=MPU6050_GetData(MPU6050_RA_GYRO_YOUT_H)-GYRO_OFFSET[1];
 //			int16t_MPU6050dat[5]=MPU6050_GetData(MPU6050_RA_GYRO_ZOUT_H)-GYRO_OFFSET[2];  
 	
-	
-	   	int16t_MPU6050dat[0]=MPU6050_GetData(MPU6050_RA_ACCEL_XOUT_H);// π”√Àƒ‘™Àÿ º”ÀŸ∂» ˝æ› ≤ª–Ë“™ºı»•OFFSET 
-			int16t_MPU6050dat[1]=MPU6050_GetData(MPU6050_RA_ACCEL_YOUT_H); 
-			int16t_MPU6050dat[2]=MPU6050_GetData(MPU6050_RA_ACCEL_ZOUT_H); 
-			int16t_MPU6050dat[3]=MPU6050_GetData(MPU6050_RA_GYRO_XOUT_H);//Õ”¬›“« ˝æ›‘⁄IMU ¿Ô√Êºı»•¡ÀOFFSET 
-			int16t_MPU6050dat[4]=MPU6050_GetData(MPU6050_RA_GYRO_YOUT_H);
-			int16t_MPU6050dat[5]=MPU6050_GetData(MPU6050_RA_GYRO_ZOUT_H); 
+
+	int16t_MPU6050dat[0]=MPU6050_GetData(MPU6050_RA_ACCEL_XOUT_H);// π”√Àƒ‘™Àÿ º”ÀŸ∂» ˝æ› ≤ª–Ë“™ºı»•OFFSET 
+	int16t_MPU6050dat[1]=MPU6050_GetData(MPU6050_RA_ACCEL_YOUT_H); 
+	int16t_MPU6050dat[2]=MPU6050_GetData(MPU6050_RA_ACCEL_ZOUT_H); 
+	int16t_MPU6050dat[3]=MPU6050_GetData(MPU6050_RA_GYRO_XOUT_H);//Õ”¬›“« ˝æ›‘⁄IMU ¿Ô√Êºı»•¡ÀOFFSET 
+	int16t_MPU6050dat[4]=MPU6050_GetData(MPU6050_RA_GYRO_YOUT_H);
+	int16t_MPU6050dat[5]=MPU6050_GetData(MPU6050_RA_GYRO_ZOUT_H); 
 
 
-			MPU6050_newValues(int16t_MPU6050dat[0],int16t_MPU6050dat[1],int16t_MPU6050dat[2],//ª¨∂Ø¥∞ø⁄¬À≤®
-											  int16t_MPU6050dat[3],int16t_MPU6050dat[4],int16t_MPU6050dat[5]);
+	MPU6050_newValues(int16t_MPU6050dat[0],int16t_MPU6050dat[1],int16t_MPU6050dat[2],//ª¨∂Ø¥∞ø⁄¬À≤®
+									  int16t_MPU6050dat[3],int16t_MPU6050dat[4],int16t_MPU6050dat[5]);
 
 
-			int16t_MPU6050dat[0]=MPU6050_FIFO[0][FIFO_Length];
-			int16t_MPU6050dat[1]=MPU6050_FIFO[1][FIFO_Length];
-			int16t_MPU6050dat[2]=MPU6050_FIFO[2][FIFO_Length];
-			int16t_MPU6050dat[3]=MPU6050_FIFO[3][FIFO_Length];
-			int16t_MPU6050dat[4]=MPU6050_FIFO[4][FIFO_Length];
-			int16t_MPU6050dat[5]=MPU6050_FIFO[5][FIFO_Length];
+	int16t_MPU6050dat[0]=MPU6050_FIFO[0][FIFO_Length];
+	int16t_MPU6050dat[1]=MPU6050_FIFO[1][FIFO_Length];
+	int16t_MPU6050dat[2]=MPU6050_FIFO[2][FIFO_Length];
+	int16t_MPU6050dat[3]=MPU6050_FIFO[3][FIFO_Length];
+	int16t_MPU6050dat[4]=MPU6050_FIFO[4][FIFO_Length];
+	int16t_MPU6050dat[5]=MPU6050_FIFO[5][FIFO_Length];
 
 	
 //			UART_send_intdata(USART1,int16t_MPU6050dat[0]);UART_send_char(USART1,'\t'); 
@@ -287,63 +287,63 @@ short int READ_temp(I2C_TypeDef* I2Cx)//œ‘ æŒ¬∂»
 *******************************************************************************/
 void  MPU6050_newValues(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,int16_t gz)
 {
-		unsigned char i ;
-		int64_t sum=0;
-		for(i=1;i<FIFO_Length;i++)
-		{	//FIFO ≤Ÿ◊˜
-				MPU6050_FIFO[0][i-1]=MPU6050_FIFO[0][i];
-				MPU6050_FIFO[1][i-1]=MPU6050_FIFO[1][i];
-				MPU6050_FIFO[2][i-1]=MPU6050_FIFO[2][i];
-				MPU6050_FIFO[3][i-1]=MPU6050_FIFO[3][i];
-				MPU6050_FIFO[4][i-1]=MPU6050_FIFO[4][i];
-				MPU6050_FIFO[5][i-1]=MPU6050_FIFO[5][i];
-		}
-		MPU6050_FIFO[0][FIFO_Length-1]=ax;//Ω´–¬µƒ ˝æ›∑≈÷√µΩ  ˝æ›µƒ◊Ó∫Û√Ê
-		MPU6050_FIFO[1][FIFO_Length-1]=ay;
-		MPU6050_FIFO[2][FIFO_Length-1]=az;
-		MPU6050_FIFO[3][FIFO_Length-1]=gx;
-		MPU6050_FIFO[4][FIFO_Length-1]=gy;
-		MPU6050_FIFO[5][FIFO_Length-1]=gz;
+	unsigned char i ;
+	int64_t sum=0;
+	for(i=1;i<FIFO_Length;i++)
+	{	//FIFO ≤Ÿ◊˜
+		MPU6050_FIFO[0][i-1]=MPU6050_FIFO[0][i];
+		MPU6050_FIFO[1][i-1]=MPU6050_FIFO[1][i];
+		MPU6050_FIFO[2][i-1]=MPU6050_FIFO[2][i];
+		MPU6050_FIFO[3][i-1]=MPU6050_FIFO[3][i];
+		MPU6050_FIFO[4][i-1]=MPU6050_FIFO[4][i];
+		MPU6050_FIFO[5][i-1]=MPU6050_FIFO[5][i];
+	}
+	MPU6050_FIFO[0][FIFO_Length-1]=ax;//Ω´–¬µƒ ˝æ›∑≈÷√µΩ  ˝æ›µƒ◊Ó∫Û√Ê
+	MPU6050_FIFO[1][FIFO_Length-1]=ay;
+	MPU6050_FIFO[2][FIFO_Length-1]=az;
+	MPU6050_FIFO[3][FIFO_Length-1]=gx;
+	MPU6050_FIFO[4][FIFO_Length-1]=gy;
+	MPU6050_FIFO[5][FIFO_Length-1]=gz;
 
-		sum=0;
-		for(i=0;i<FIFO_Length;i++)
-		{	//«Ûµ±«∞ ˝◊Èµƒ∫œ£¨‘Ÿ»°∆Ωæ˘÷µ
-			 sum+=MPU6050_FIFO[0][i];
-		}
-		MPU6050_FIFO[0][FIFO_Length]=sum/FIFO_Length;
+	sum=0;
+	for(i=0;i<FIFO_Length;i++)
+	{	//«Ûµ±«∞ ˝◊Èµƒ∫œ£¨‘Ÿ»°∆Ωæ˘÷µ
+		 sum+=MPU6050_FIFO[0][i];
+	}
+	MPU6050_FIFO[0][FIFO_Length]=sum/FIFO_Length;
 
-		sum=0;
-		for(i=0;i<FIFO_Length;i++)
-		{
-			 sum+=MPU6050_FIFO[1][i];
-		}
-		MPU6050_FIFO[1][FIFO_Length]=sum/FIFO_Length;
+	sum=0;
+	for(i=0;i<FIFO_Length;i++)
+	{
+		 sum+=MPU6050_FIFO[1][i];
+	}
+	MPU6050_FIFO[1][FIFO_Length]=sum/FIFO_Length;
 
-		sum=0;
-		for(i=0;i<FIFO_Length;i++)
-		{
-			 sum+=MPU6050_FIFO[2][i];
-		}
-		MPU6050_FIFO[2][FIFO_Length]=sum/FIFO_Length;
+	sum=0;
+	for(i=0;i<FIFO_Length;i++)
+	{
+		 sum+=MPU6050_FIFO[2][i];
+	}
+	MPU6050_FIFO[2][FIFO_Length]=sum/FIFO_Length;
 
-		sum=0;
-		for(i=0;i<FIFO_Length;i++)
-		{
-			 sum+=MPU6050_FIFO[3][i];
-		}
-		MPU6050_FIFO[3][FIFO_Length]=sum/FIFO_Length;
+	sum=0;
+	for(i=0;i<FIFO_Length;i++)
+	{
+		 sum+=MPU6050_FIFO[3][i];
+	}
+	MPU6050_FIFO[3][FIFO_Length]=sum/FIFO_Length;
 
-		sum=0;
-		for(i=0;i<FIFO_Length;i++)
-		{
-			 sum+=MPU6050_FIFO[4][i];
-		}
-		MPU6050_FIFO[4][FIFO_Length]=sum/FIFO_Length;
+	sum=0;
+	for(i=0;i<FIFO_Length;i++)
+	{
+		 sum+=MPU6050_FIFO[4][i];
+	}
+	MPU6050_FIFO[4][FIFO_Length]=sum/FIFO_Length;
 
-		sum=0;
-		for(i=0;i<FIFO_Length;i++)
-		{
-			 sum+=MPU6050_FIFO[5][i];
-		}
-		MPU6050_FIFO[5][FIFO_Length]=sum/FIFO_Length;
+	sum=0;
+	for(i=0;i<FIFO_Length;i++)
+	{
+		 sum+=MPU6050_FIFO[5][i];
+	}
+	MPU6050_FIFO[5][FIFO_Length]=sum/FIFO_Length;
 }

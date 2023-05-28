@@ -6,7 +6,7 @@
 #include "DBUS.h" 
 #include "DJI_Motor.h"
 
-unsigned char DBUS_flag=0;
+ 
 uint32_t ch1_offset_sum=0,ch2_offset_sum=0,ch3_offset_sum=0,ch4_offset_sum=0;
 uint32_t rc_counter=0;
 
@@ -46,29 +46,31 @@ char RC_Callback_Handler(uint8_t *pData)
 	}
 	else if(rc.type == 2) // 航模SBUS协议
 	{
-		// SBUS解码
+				// SBUS解码
 		if(pData[0] == 0x0f && pData[USART_REC_LEN-1]==0 && pData[USART_REC_LEN-2]==0)
 		{
 			i=0;
 		}
-		else if(pData[0] == 0x00 && pData[1] == 0x0f && pData[USART_REC_LEN-1]==0)
-		{
-			i=1;
+		else //DMA是固定长度接收，如果第一个数据不是0x0f那么，后面所有的数据都会错位，因此在这个地方复位
+		{	
+			UART_send_string(USART2,"SBUS fram head != 0x0f, reset MCU.\n");			
+			__set_FAULTMASK(1); // 关闭所有中断
+			NVIC_SystemReset();// 复位
 		}
-		else  
-		{
-			for(i=2;i<USART_REC_LEN;i++)
-			{
-				if(pData[i-2] == 0x00 &&pData[i-1] == 0x00 && pData[i] == 0x0f)
-				{
-					break;
-				}
-			}
-		}
-		if(i==USART_REC_LEN)
-		{
-				return 0;
-		}
+//		else  
+//		{
+//			for(i=2;i<USART_REC_LEN;i++)
+//			{
+//				if(pData[i-2] == 0x00 &&pData[i-1] == 0x00 && pData[i] == 0x0f)
+//				{
+//					break;
+//				}
+//			}
+//		}
+//		if(i==USART_REC_LEN)
+//		{
+//				return 0;
+//		}
 		rc.ch1 = ((int16_t)pData[(i+1)%USART_REC_LEN] | ((int16_t)pData[(i+2)%USART_REC_LEN] << 8)) & 0x07FF;
 		rc.ch2 = (((int16_t)pData[(i+2)%USART_REC_LEN] >> 3) | ((int16_t)pData[(i+3)%USART_REC_LEN] << 5))	& 0x07FF;
 		rc.ch3 = (((int16_t)pData[(i+3)%USART_REC_LEN] >> 6) | ((int16_t)pData[(i+4)%USART_REC_LEN] << 2) |((int16_t)pData[(i+5)%USART_REC_LEN] << 10)) & 0x07FF;
@@ -94,17 +96,32 @@ char RC_Callback_Handler(uint8_t *pData)
 		if(rc.ch5>1500) 		rc.sw2 = 2;  // 与DJI遥控器保持一致
 		else if(rc.ch5<500)		rc.sw2 = 1;
 		else 					rc.sw2 = 3;
+		
+		rc.update =0x01;
+	}
+	else
+	{
+		rc.update =0x01;
+		rc.available =0x00;
 	}
 	 
 	
-	if(DBUS_flag == DBUS_INIT) 
+	if(rc.rc_state == DBUS_INIT) 
 	{
-		UART_send_string(USART2,"RC Init ...\n");
+		UART_send_string(USART2,"RC Init ");
 		rc.available =0x00;
 		if(RC_Offset_Init())
-			DBUS_flag = DBUS_RUN;
+		{
+			rc.available =0x02; //初始化成功
+			rc.rc_state = DBUS_RUN;
+			UART_send_string(USART2,"successful!\n");
+		}
 		else
-			DBUS_flag = DBUS_INIT;
+		{
+			rc.available =0x01; //计算offset中
+			rc.rc_state = DBUS_INIT; //初始化失败
+			UART_send_string(USART2,"failed..\n");
+		}
 	}
 	else
 	{
@@ -115,12 +132,12 @@ char RC_Callback_Handler(uint8_t *pData)
 			|| (rc.sw2 > 3) || (rc.sw2<1))
 		{
 			UART_send_string(USART2,"ERROR\n");
-			rc.available =0x00;
+			rc.available =0x03; // 初始化以后出现了异常数据
 			return 0;
 		}
 		else
 		{
-			rc.available =0x01;
+			rc.available =0x0f;
 			RC_Routing();
 		}
 		rc.cnt =rc.cnt +1;	
@@ -228,7 +245,7 @@ char RC_Offset_Init(void)
 		if((rc.ch1_offset ==0) || (rc.ch2_offset ==0) || (rc.ch3_offset ==0) || (rc.ch4_offset ==0))
 		{
 			rc.available =0x00; 
-		  rc_counter=0;
+			rc_counter=0;
 			ch1_offset_sum = 0;
 			ch2_offset_sum = 0;
 			ch3_offset_sum = 0;
@@ -308,30 +325,38 @@ void RC_Debug_Message(void)
 
 void RC_Upload_Message(void)
 {
-		char senddata[50];
-		unsigned char i=0,j=0;	
-		unsigned char cmd=0x03;	
-		unsigned int sum=0x00;	
-		senddata[i++]=0xAE;
-		senddata[i++]=0xEA;
-		senddata[i++]=0x00;
-		senddata[i++]=cmd;
-		senddata[i++]=rc.ch1>>8;
-		senddata[i++]=rc.ch1;
-		senddata[i++]=rc.ch2>>8;
-		senddata[i++]=rc.ch2;
-		senddata[i++]=rc.ch3>>8;
-		senddata[i++]=rc.ch3;
-		senddata[i++]=rc.ch4>>8;
-		senddata[i++]=rc.ch4;
-		senddata[i++]=rc.sw1;
-		senddata[i++]=rc.sw1;
-		for(j=2;j<i;j++)
-			sum+=senddata[j];
-		senddata[i++]=sum;
-		senddata[2]=i-2; //数据长度
-		senddata[i++]=0xEF;
-		senddata[i++]=0xFE;
-		senddata[i++]='\0';
-		UART_send_string(USART2,senddata);
+	unsigned char senddata[50];
+	unsigned char i=0,j=0;	
+	unsigned char cmd=0x03;	
+	unsigned int sum=0x00;	
+	senddata[i++]=0xAE;
+	senddata[i++]=0xEA;
+	senddata[i++]=0x00;
+	senddata[i++]=cmd;
+	senddata[i++]=(rc.cnt>>24);
+	senddata[i++]=(rc.cnt>>16);
+	senddata[i++]=(rc.cnt>>8);
+	senddata[i++]=(rc.cnt);
+	senddata[i++]=rc.ch1>>8;
+	senddata[i++]=rc.ch1;
+	senddata[i++]=rc.ch2>>8;
+	senddata[i++]=rc.ch2;
+	senddata[i++]=rc.ch3>>8;
+	senddata[i++]=rc.ch3;
+	senddata[i++]=rc.ch4>>8;
+	senddata[i++]=rc.ch4;
+	senddata[i++]=rc.sw1;
+	senddata[i++]=rc.sw2;
+	senddata[i++]=rc.type;
+	senddata[i++]=rc.rc_state;
+	senddata[i++]=0x00; //保留字
+	for(j=2;j<i;j++)
+		sum+=senddata[j];
+	senddata[i++]=sum;
+	senddata[2]=i-2; //数据长度
+	senddata[i++]=0xEF;
+	senddata[i++]=0xFE;
+	senddata[i++]='\0';
+	UART_send_buffer(USART2,senddata,i);
+ 
 }

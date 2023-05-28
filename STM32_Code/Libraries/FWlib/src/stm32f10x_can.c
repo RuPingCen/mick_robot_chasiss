@@ -97,78 +97,78 @@ static ITStatus CheckITStatus(uint32_t CAN_Reg, uint32_t It_Bit);
 *************************************************************************/
 void STM32_CAN_Commun_Config(u32 Our_Dvice_ID)
 {
-   	GPIO_InitTypeDef GPIO_InitStructure;
-   	NVIC_InitTypeDef NVIC_InitStructure;
-	  CAN_InitTypeDef  CAN_InitStructure;
-	  CAN_FilterInitTypeDef  CAN_FilterInitStructure;
-	
-	 
-     /*RCC_APB2Periph_AFIO  启用引脚重映射功能 */
-	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOB, ENABLE);
-	  RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);//开启can1 通道
-	  GPIO_PinRemapConfig(GPIO_Remap1_CAN1, ENABLE);//引脚重映射
-  	 
+	GPIO_InitTypeDef GPIO_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
+	CAN_InitTypeDef  CAN_InitStructure;
+	CAN_FilterInitTypeDef  CAN_FilterInitStructure;
+
+
+	/*RCC_APB2Periph_AFIO  启用引脚重映射功能 */
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOB, ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);//开启can1 通道
+	GPIO_PinRemapConfig(GPIO_Remap1_CAN1, ENABLE);//引脚重映射
+
 	/* Configure CAN pin: RX */									               // PB8
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;	             // 上拉输入
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	  GPIO_Init(GPIOB, &GPIO_InitStructure);	
-    /* Configure CAN pin: TX */									               // PB9
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;		         // 复用推挽输出
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;    
-	  GPIO_Init(GPIOB, &GPIO_InitStructure);
-	
-     
-		/*中断设置*/
-	  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);/* Configure one bit for preemption priority */	 	
-	  NVIC_InitStructure.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;	   //CAN1 RX0中断
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;		   //抢占优先级0
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 4;			   //子优先级为7
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;	             // 上拉输入
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);	
+	/* Configure CAN pin: TX */									               // PB9
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;		         // 复用推挽输出
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;    
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+
+	/*中断设置*/
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);/* Configure one bit for preemption priority */	 	
+	NVIC_InitStructure.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;	   //CAN1 RX0中断
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;		   //抢占优先级0
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 4;			   //子优先级为7
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
 		
 		
-	 	/************************CAN通信参数设置**********************************/
-	  /*CAN寄存器初始化*/
-	  CAN_DeInit(CAN1);
-	  CAN_StructInit(&CAN_InitStructure);
-	
-	   /*CAN单元初始化*/
-	  CAN_InitStructure.CAN_TTCM=DISABLE;			   //MCR-TTCM  关闭时间触发通信模式使能
-    CAN_InitStructure.CAN_ABOM=ENABLE;			   //MCR-ABOM  自动离线管理 
-    CAN_InitStructure.CAN_AWUM=ENABLE;			   //MCR-AWUM  使用自动唤醒模式  当检测到CAN总线活动的时候，会自动进入正常模式
-    
-	  CAN_InitStructure.CAN_NART=DISABLE;			   //MCR-NART  禁止报文自动重传	  DISABLE-自动重传
-    
-	  CAN_InitStructure.CAN_RFLM=DISABLE;			   //MCR-RFLM  接收FIFO 锁定模式  DISABLE-溢出时新报文会覆盖原有报文  
-    CAN_InitStructure.CAN_TXFP=DISABLE;			   //MCR-TXFP  发送FIFO优先级 DISABLE-优先级取决于报文标示符 
-    
-	  CAN_InitStructure.CAN_Mode = CAN_Mode_Normal;  //正常工作模式 CAN_Mode_Normal  CAN_Mode_LoopBack
-	
-    CAN_InitStructure.CAN_SJW=CAN_SJW_2tq;		   //BTR-SJW 重新同步跳跃宽度 2个时间单元
-    CAN_InitStructure.CAN_BS1=CAN_BS1_6tq;		   //BTR-TS1 时间段1 占用了6个时间单元
-    CAN_InitStructure.CAN_BS2=CAN_BS2_3tq;		   //BTR-TS1 时间段2 占用了3个时间单元
-    CAN_InitStructure.CAN_Prescaler =4;		   ////BTR-BRP 波特率分频器  定义了时间单元的时间长度 36/(1+6+3)/4=0.9Mbps
-	  CAN_Init(CAN1, &CAN_InitStructure);
+	/************************CAN通信参数设置**********************************/
+	/*CAN寄存器初始化*/
+	CAN_DeInit(CAN1);
+	CAN_StructInit(&CAN_InitStructure);
+
+	/*CAN单元初始化*/
+	CAN_InitStructure.CAN_TTCM=DISABLE;			   //MCR-TTCM  关闭时间触发通信模式使能
+	CAN_InitStructure.CAN_ABOM=ENABLE;			   //MCR-ABOM  自动离线管理 
+	CAN_InitStructure.CAN_AWUM=ENABLE;			   //MCR-AWUM  使用自动唤醒模式  当检测到CAN总线活动的时候，会自动进入正常模式
+
+	CAN_InitStructure.CAN_NART=DISABLE;			   //MCR-NART  禁止报文自动重传	  DISABLE-自动重传
+
+	CAN_InitStructure.CAN_RFLM=DISABLE;			   //MCR-RFLM  接收FIFO 锁定模式  DISABLE-溢出时新报文会覆盖原有报文  
+	CAN_InitStructure.CAN_TXFP=DISABLE;			   //MCR-TXFP  发送FIFO优先级 DISABLE-优先级取决于报文标示符 
+
+	CAN_InitStructure.CAN_Mode = CAN_Mode_Normal;  //正常工作模式 CAN_Mode_Normal  CAN_Mode_LoopBack
+
+	CAN_InitStructure.CAN_SJW=CAN_SJW_2tq;		   //BTR-SJW 重新同步跳跃宽度 2个时间单元
+	CAN_InitStructure.CAN_BS1=CAN_BS1_6tq;		   //BTR-TS1 时间段1 占用了6个时间单元
+	CAN_InitStructure.CAN_BS2=CAN_BS2_3tq;		   //BTR-TS1 时间段2 占用了3个时间单元
+	CAN_InitStructure.CAN_Prescaler =4;		   ////BTR-BRP 波特率分频器  定义了时间单元的时间长度 36/(1+6+3)/4=0.9Mbps
+	CAN_Init(CAN1, &CAN_InitStructure);
 		
 
 
-	  /*CAN过滤器初始化*/
-	  CAN_FilterInitStructure.CAN_FilterNumber=0;						//过滤器组0
-    CAN_FilterInitStructure.CAN_FilterMode=CAN_FilterMode_IdMask;	//工作在标识符屏蔽位模式
-	  CAN_FilterInitStructure.CAN_FilterScale=CAN_FilterScale_32bit;	//过滤器位宽为单个32位。
-	  /* 使能报文标示符过滤器按照标示符的内容进行比对过滤，扩展ID不是如下的就抛弃掉，是的话，会存入FIFO0。 */
+	/*CAN过滤器初始化*/
+	CAN_FilterInitStructure.CAN_FilterNumber=0;						//过滤器组0
+	CAN_FilterInitStructure.CAN_FilterMode=CAN_FilterMode_IdMask;	//工作在标识符屏蔽位模式
+	CAN_FilterInitStructure.CAN_FilterScale=CAN_FilterScale_32bit;	//过滤器位宽为单个32位。
+	/* 使能报文标示符过滤器按照标示符的内容进行比对过滤，扩展ID不是如下的就抛弃掉，是的话，会存入FIFO0。 */
 
-    CAN_FilterInitStructure.CAN_FilterIdHigh= (((u32)Our_Dvice_ID<<3)&0xFFFF0000)>>16;				//要过滤的ID高位 
-    CAN_FilterInitStructure.CAN_FilterIdLow= (((u32)Our_Dvice_ID<<3)|CAN_ID_EXT|CAN_RTR_DATA)&0xFFFF; //要过滤的ID低位 
-    CAN_FilterInitStructure.CAN_FilterMaskIdHigh= 0xFFFF;			//过滤器高16位每位必须匹配
-    CAN_FilterInitStructure.CAN_FilterMaskIdLow= 0xFFFF;			//过滤器低16位每位必须匹配
-	  CAN_FilterInitStructure.CAN_FilterFIFOAssignment=CAN_Filter_FIFO0 ;				//过滤器被关联到FIFO0
-	  CAN_FilterInitStructure.CAN_FilterActivation=ENABLE;			//使能过滤器
-	  CAN_FilterInit(&CAN_FilterInitStructure);
-	   /*CAN通信中断使能*/
-	  CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
+	CAN_FilterInitStructure.CAN_FilterIdHigh= (((u32)Our_Dvice_ID<<3)&0xFFFF0000)>>16;				//要过滤的ID高位 
+	CAN_FilterInitStructure.CAN_FilterIdLow= (((u32)Our_Dvice_ID<<3)|CAN_ID_EXT|CAN_RTR_DATA)&0xFFFF; //要过滤的ID低位 
+	CAN_FilterInitStructure.CAN_FilterMaskIdHigh= 0xFFFF;			//过滤器高16位每位必须匹配
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow= 0xFFFF;			//过滤器低16位每位必须匹配
+	CAN_FilterInitStructure.CAN_FilterFIFOAssignment=CAN_Filter_FIFO0 ;				//过滤器被关联到FIFO0
+	CAN_FilterInitStructure.CAN_FilterActivation=ENABLE;			//使能过滤器
+	CAN_FilterInit(&CAN_FilterInitStructure);
+	/*CAN通信中断使能*/
+	CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
  
 }
 /*************************************************************************

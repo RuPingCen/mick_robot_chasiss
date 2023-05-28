@@ -36,6 +36,7 @@ void Delay_10us(uint32_t nTime) // nTime*10us 延时函数
 	SysTick->CTRL |=  SysTick_CTRL_ENABLE_Msk;	// 使能滴答定时器  
 
 	while(TimingDelay != 0);
+	SysTick->CTRL &= ~ SysTick_CTRL_ENABLE_Msk;// 关闭滴答定时器  
 	
 }
 

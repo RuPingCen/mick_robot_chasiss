@@ -43,7 +43,9 @@ typedef __packed struct
 	
 	uint32_t cnt; //标记接收帧的编号
 	uint8_t available;
+	uint8_t update; //数据更新
 	uint8_t type; // 1表示大疆DBUS 2表示SBUS
+	uint8_t rc_state;
 } rc_info_t;
 
 
