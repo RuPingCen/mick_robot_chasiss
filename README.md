@@ -8,6 +8,12 @@
 
 项目合作请联系（cenruping@vip.qq.com）可以代为开发线控底盘或针对已有的小车底盘设计**工业版控制器**及**大功率电源模块**。
 
+- 小功率电源板-[淘宝链接](https://item.taobao.com/item.htm?spm=2013.1.w4023-18698948782.10.3cd752e6AWcwLT&id=702856225631)
+
+- 控制板-[淘宝链接](https://item.taobao.com/item.htm?spm=2013.1.w4023-18698948782.7.5ec21803wgmf68&id=649231129557)
+
+- 大功率电源模块-[淘宝链接](https://item.taobao.com/item.htm?spm=a213gs.success.result.1.5ac34831gMQFX4&id=746778756080)
+
 **目录说明**
 
 STM32_Code：存放小车上嵌入式控制板的代码文件
