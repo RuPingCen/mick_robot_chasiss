@@ -835,3 +835,24 @@ void UART_send_char(USART_TypeDef* USARTx,char buf)
 	   while (USART_GetFlagStatus(USARTx,USART_FLAG_TXE) == RESET); 
 	 
 }
+//重定向c库函数printf到串口，重定向后可使用printf函数
+int fputc(int ch, FILE *f)
+{
+		/* 发送一个字节数据到串口 */
+		USART_SendData(USART2, (uint8_t) ch);
+		
+		/* 等待发送完毕 */
+		while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);		
+	
+		return (ch);
+}
+
+//重定向c库函数scanf到串口，重写向后可使用scanf、getchar等函数
+int fgetc(FILE *f)
+{
+		/* 等待串口输入数据 */
+		while (USART_GetFlagStatus(USART2, USART_FLAG_RXNE) == RESET);
+
+		return (int)USART_ReceiveData(USART2);
+}
+

@@ -361,17 +361,17 @@ void MPU9250_DebugShowMessage(void)
 	my=tem[1];  
 	mz=tem[2];
 
-// 	UART_send_intdata(USART1,ax); UART_send_char(USART1,'\t');
-// 	UART_send_intdata(USART1,ay); UART_send_char(USART1,'\t');
-// 	UART_send_intdata(USART1,az); UART_send_char(USART1,'\t');
+ 	UART_send_intdata(USART1,ax); UART_send_char(USART1,'\t');
+ 	UART_send_intdata(USART1,ay); UART_send_char(USART1,'\t');
+ 	UART_send_intdata(USART1,az); UART_send_char(USART1,'\t');
 
-// 	UART_send_intdata(USART1,gx); UART_send_char(USART1,'\t');
-// 	UART_send_intdata(USART1,gy); UART_send_char(USART1,'\t');
-// 	UART_send_intdata(USART1,gz); UART_send_char(USART1,'\t');
+ 	UART_send_intdata(USART1,gx); UART_send_char(USART1,'\t');
+ 	UART_send_intdata(USART1,gy); UART_send_char(USART1,'\t');
+ 	UART_send_intdata(USART1,gz); UART_send_char(USART1,'\t');
 
-// 	UART_send_intdata(USART1,mx); UART_send_char(USART1,'\t');
-// 	UART_send_intdata(USART1,my); UART_send_char(USART1,'\t');
-// 	UART_send_intdata(USART1,mz); UART_send_char(USART1,'\n');
+ 	UART_send_intdata(USART1,mx); UART_send_char(USART1,'\t');
+ 	UART_send_intdata(USART1,my); UART_send_char(USART1,'\t');
+ 	UART_send_intdata(USART1,mz); UART_send_char(USART1,'\n');
 
 } 	
 void MPU9250_Delay(unsigned int cnt)

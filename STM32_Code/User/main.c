@@ -1,12 +1,22 @@
 /******************************************************************************************************
+#2023-11-04
+	1、增加mpu6050 DMP解算，在while循环中读取IMU数据
+		// 在mpu6050.h中增加函数
+			extern uint8_t MPU6050_Write_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);//写多字节
+			extern uint8_t MPU6050_IIC_Wait_Ack(void);//等待ACK信号
+			extern uint8_t MPU6050_Read_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);//读多字节
+		// IO_IIC.h中增加函数
+			unsigned char IO_IIC_read_byte(unsigned char ack);//read a byte//从I2C总线接收一个字节数据
+			void SDA_DIR_IN(void);//设置SDA方向为输入
+			void SDA_DIR_OUT(void);//设置SDA方向为输出
 #2022-4-22
-  1、增加 SBUS 函数遥控器解码功能 
+	1、增加 SBUS 函数遥控器解码功能 
 	2、增加 SBUS 部分代码注释
 
 #2021-4-18
 	1、将DBUS、上位机发送的命令移到中断函数中进行处理
 	2、将PID相关计算函数移到PID.c中
-  3、添加MPU9250 读取和姿态计算函数 (由于中断资源不能长时间被占用，因此暂时放在了while中)
+	3、添加MPU9250 读取和姿态计算函数 (由于中断资源不能长时间被占用，因此暂时放在了while中)
 	4、在mick robot controller V1.0.0板子上测试通过
 	5、LED1 指示程序是否正常运行（20HZ闪烁） 
 		 LED2指示遥控器是否有数据
@@ -15,7 +25,7 @@
 #2020-9-21 
 	1、添加了MPU9250的数据读取 姿态解算函数
 	2、目前MPU9250使用的端口为PB10  PB11
-  3、在小车1.0的板子上测试通过了，可正确读取数据。2.0的通讯板串口有问题
+	3、在小车1.0的板子上测试通过了，可正确读取数据。2.0的通讯板串口有问题
 	
 #2020-9-8
 	1、更新了DBUS中的函数名称
@@ -42,12 +52,13 @@
 #include "bsp_can.h"
 #include "DBUS.h"
 #include "DJI_Motor.h"
-#include "MPU9250.h"
-#include "IMU.h"
-
 #include "Mick_IO.h"
-#include "Seven_Lab_MiniIMU.h"
 
+
+#include "IMU.h"
+//#include "Seven_Lab_MiniIMU.h"
+//#include "MPU9250.h"
+//#include "mpu6050.h"
 /*********************************************************/
 /**********************宏定义****************************/
 #define EnableInterrupt 	__set_PRIMASK(0) //总中断 写‘0‘ 开总中断   ’1‘关总中断
@@ -85,14 +96,17 @@ extern rc_info_t rc;  // remote command
 void Main_Delay(unsigned int delayvalue);
 void Main_Delay_us(unsigned int delayvalue);
 void Test_Mick_GPIO(void);
-
+void Test_MPU6050(void);
 
 /*********************************************************/
 /*****************主函数**********************************/
 int main(void)
 {	
+
+	uint8_t main_counter = 0;
 	unsigned char dma_lendat = 18;
 	SysTick_Init();//初始化滴答定时器
+	 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
 	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable,ENABLE);
 	
@@ -106,14 +120,24 @@ int main(void)
 	//step2 初始化串口2/3 -----------------------------------------
 	My_Config_USART_Init(USART2,115200,1);// 串口初始化函数 波特率115200	 与工控机通讯
  	My_Config_USART_Init(USART3,115200,1);	
+	Delay_10us(200);
 	UART_send_string(USART2,"\n\n MickX4 ROS Car \n");//字符串函数
 	UART_send_string(USART3,"\n\n MickX4 ROS Car \n");//字符串函数	
-	
+
 	//step3 初始化IMU ---------------------------------------------
-	//UART_send_string(USART2,"Start Init MPU9250 ... \n");//字符串函数
-	//MPU9250_Init();//MPU6050初始化 ± 2000 °/s ± 4g  5hz
-	//UART_send_string(USART2,"Successed Init MPU9250 !\n"); 
-	
+	UART_send_string(USART2,"Start Init MPU6050 ... \n");
+ 
+	while (mpu_dmp_init() && main_counter<10)
+	{
+		UART_send_string(USART2,"MPU6050 ReInit... \r\n");
+		Delay_10us(2000);
+		main_counter++;
+	}
+	if(main_counter<10)
+		UART_send_string(USART2,"MPU6050 Start Success   \r\n");
+	else
+		UART_send_string(USART2,"MPU6050 Init Failed   \r\n");
+	 
 	//step4 初始化CAN ---------------------------------------------
 	CAN_Config();//初始化can模块
 	DJI_Motor_Init();//初始化3508模块
@@ -161,7 +185,7 @@ int main(void)
 	
 	//Timer_2to7_counter_Generalfuncation(TIM3,5000);//5ms
 	//Timer_2to7_Generalfuncation_start(TIM3);
-	UART_send_string(USART2,"Init Successful ....\n\n\n");//字符串函数
+	UART_send_string(USART2,"Init Successful !!! \n\n");//字符串函数
 		   
 	while(1)
 	{
@@ -206,8 +230,8 @@ int main(void)
 		}
 		if(Timer2_Counter4 > 10) //1ms*10  100HZ 打印频率
 		{			 
-			//IMU_Routing();
-			//IMU_Upload_Message();
+			IMU_Routing();
+			IMU_Upload_Message();
 			//IMU_Report_AHRSdata();
 			Timer2_Counter4=0;
 		}
@@ -239,7 +263,26 @@ void Main_Delay_us(unsigned int delayvalue)
 		;
 	}
 }
-
+void Test_MPU6050(void)
+{
+	float pitch,roll,yaw; 		//欧拉角
+	while (1)
+	{
+		mpu_dmp_get_data(&pitch,&roll,&yaw);
+		UART_send_string(USART2,"\npitch:");
+		UART_send_floatdat(USART2,pitch);
+	 
+		
+		UART_send_string(USART2,"\t roll:");
+		UART_send_floatdat(USART2,roll);
+	 		
+		UART_send_string(USART2,"\t yaw:");
+		UART_send_floatdat(USART2,yaw);
+	 
+		LED1_FLIP;
+		Delay_10us(20000);
+	}
+}
 void Test_Mick_GPIO(void)
 {
 	uint8_t code_switch_value=0;

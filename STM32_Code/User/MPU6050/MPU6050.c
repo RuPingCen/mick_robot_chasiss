@@ -110,25 +110,25 @@ void MPU6050_Data_Process(int16_t *int16t_MPU6050dat)//MPU6050 ˝æ›∂¡»° º∞¥¶¿Ì∫Ø 
 //			int16t_MPU6050dat[4]=MPU6050_GetData(MPU6050_RA_GYRO_YOUT_H)-GYRO_OFFSET[1];
 //			int16t_MPU6050dat[5]=MPU6050_GetData(MPU6050_RA_GYRO_ZOUT_H)-GYRO_OFFSET[2];  
 	
-
-	int16t_MPU6050dat[0]=MPU6050_GetData(MPU6050_RA_ACCEL_XOUT_H);// π”√Àƒ‘™Àÿ º”ÀŸ∂» ˝æ› ≤ª–Ë“™ºı»•OFFSET 
-	int16t_MPU6050dat[1]=MPU6050_GetData(MPU6050_RA_ACCEL_YOUT_H); 
-	int16t_MPU6050dat[2]=MPU6050_GetData(MPU6050_RA_ACCEL_ZOUT_H); 
-	int16t_MPU6050dat[3]=MPU6050_GetData(MPU6050_RA_GYRO_XOUT_H);//Õ”¬›“« ˝æ›‘⁄IMU ¿Ô√Êºı»•¡ÀOFFSET 
-	int16t_MPU6050dat[4]=MPU6050_GetData(MPU6050_RA_GYRO_YOUT_H);
-	int16t_MPU6050dat[5]=MPU6050_GetData(MPU6050_RA_GYRO_ZOUT_H); 
-
-
-	MPU6050_newValues(int16t_MPU6050dat[0],int16t_MPU6050dat[1],int16t_MPU6050dat[2],//ª¨∂Ø¥∞ø⁄¬À≤®
-									  int16t_MPU6050dat[3],int16t_MPU6050dat[4],int16t_MPU6050dat[5]);
+	
+	   	int16t_MPU6050dat[0]=MPU6050_GetData(MPU6050_RA_ACCEL_XOUT_H);// π”√Àƒ‘™Àÿ º”ÀŸ∂» ˝æ› ≤ª–Ë“™ºı»•OFFSET 
+			int16t_MPU6050dat[1]=MPU6050_GetData(MPU6050_RA_ACCEL_YOUT_H); 
+			int16t_MPU6050dat[2]=MPU6050_GetData(MPU6050_RA_ACCEL_ZOUT_H); 
+			int16t_MPU6050dat[3]=MPU6050_GetData(MPU6050_RA_GYRO_XOUT_H);//Õ”¬›“« ˝æ›‘⁄IMU ¿Ô√Êºı»•¡ÀOFFSET 
+			int16t_MPU6050dat[4]=MPU6050_GetData(MPU6050_RA_GYRO_YOUT_H);
+			int16t_MPU6050dat[5]=MPU6050_GetData(MPU6050_RA_GYRO_ZOUT_H); 
 
 
-	int16t_MPU6050dat[0]=MPU6050_FIFO[0][FIFO_Length];
-	int16t_MPU6050dat[1]=MPU6050_FIFO[1][FIFO_Length];
-	int16t_MPU6050dat[2]=MPU6050_FIFO[2][FIFO_Length];
-	int16t_MPU6050dat[3]=MPU6050_FIFO[3][FIFO_Length];
-	int16t_MPU6050dat[4]=MPU6050_FIFO[4][FIFO_Length];
-	int16t_MPU6050dat[5]=MPU6050_FIFO[5][FIFO_Length];
+			MPU6050_newValues(int16t_MPU6050dat[0],int16t_MPU6050dat[1],int16t_MPU6050dat[2],//ª¨∂Ø¥∞ø⁄¬À≤®
+											  int16t_MPU6050dat[3],int16t_MPU6050dat[4],int16t_MPU6050dat[5]);
+
+
+			int16t_MPU6050dat[0]=MPU6050_FIFO[0][FIFO_Length];
+			int16t_MPU6050dat[1]=MPU6050_FIFO[1][FIFO_Length];
+			int16t_MPU6050dat[2]=MPU6050_FIFO[2][FIFO_Length];
+			int16t_MPU6050dat[3]=MPU6050_FIFO[3][FIFO_Length];
+			int16t_MPU6050dat[4]=MPU6050_FIFO[4][FIFO_Length];
+			int16t_MPU6050dat[5]=MPU6050_FIFO[5][FIFO_Length];
 
 	
 //			UART_send_intdata(USART1,int16t_MPU6050dat[0]);UART_send_char(USART1,'\t'); 
@@ -287,63 +287,136 @@ short int READ_temp(I2C_TypeDef* I2Cx)//œ‘ æŒ¬∂»
 *******************************************************************************/
 void  MPU6050_newValues(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,int16_t gz)
 {
-	unsigned char i ;
-	int64_t sum=0;
-	for(i=1;i<FIFO_Length;i++)
-	{	//FIFO ≤Ÿ◊˜
-		MPU6050_FIFO[0][i-1]=MPU6050_FIFO[0][i];
-		MPU6050_FIFO[1][i-1]=MPU6050_FIFO[1][i];
-		MPU6050_FIFO[2][i-1]=MPU6050_FIFO[2][i];
-		MPU6050_FIFO[3][i-1]=MPU6050_FIFO[3][i];
-		MPU6050_FIFO[4][i-1]=MPU6050_FIFO[4][i];
-		MPU6050_FIFO[5][i-1]=MPU6050_FIFO[5][i];
-	}
-	MPU6050_FIFO[0][FIFO_Length-1]=ax;//Ω´–¬µƒ ˝æ›∑≈÷√µΩ  ˝æ›µƒ◊Ó∫Û√Ê
-	MPU6050_FIFO[1][FIFO_Length-1]=ay;
-	MPU6050_FIFO[2][FIFO_Length-1]=az;
-	MPU6050_FIFO[3][FIFO_Length-1]=gx;
-	MPU6050_FIFO[4][FIFO_Length-1]=gy;
-	MPU6050_FIFO[5][FIFO_Length-1]=gz;
+		unsigned char i ;
+		int64_t sum=0;
+		for(i=1;i<FIFO_Length;i++)
+		{	//FIFO ≤Ÿ◊˜
+				MPU6050_FIFO[0][i-1]=MPU6050_FIFO[0][i];
+				MPU6050_FIFO[1][i-1]=MPU6050_FIFO[1][i];
+				MPU6050_FIFO[2][i-1]=MPU6050_FIFO[2][i];
+				MPU6050_FIFO[3][i-1]=MPU6050_FIFO[3][i];
+				MPU6050_FIFO[4][i-1]=MPU6050_FIFO[4][i];
+				MPU6050_FIFO[5][i-1]=MPU6050_FIFO[5][i];
+		}
+		MPU6050_FIFO[0][FIFO_Length-1]=ax;//Ω´–¬µƒ ˝æ›∑≈÷√µΩ  ˝æ›µƒ◊Ó∫Û√Ê
+		MPU6050_FIFO[1][FIFO_Length-1]=ay;
+		MPU6050_FIFO[2][FIFO_Length-1]=az;
+		MPU6050_FIFO[3][FIFO_Length-1]=gx;
+		MPU6050_FIFO[4][FIFO_Length-1]=gy;
+		MPU6050_FIFO[5][FIFO_Length-1]=gz;
 
-	sum=0;
-	for(i=0;i<FIFO_Length;i++)
-	{	//«Ûµ±«∞ ˝◊Èµƒ∫œ£¨‘Ÿ»°∆Ωæ˘÷µ
-		 sum+=MPU6050_FIFO[0][i];
-	}
-	MPU6050_FIFO[0][FIFO_Length]=sum/FIFO_Length;
+		sum=0;
+		for(i=0;i<FIFO_Length;i++)
+		{	//«Ûµ±«∞ ˝◊Èµƒ∫œ£¨‘Ÿ»°∆Ωæ˘÷µ
+			 sum+=MPU6050_FIFO[0][i];
+		}
+		MPU6050_FIFO[0][FIFO_Length]=sum/FIFO_Length;
 
-	sum=0;
-	for(i=0;i<FIFO_Length;i++)
-	{
-		 sum+=MPU6050_FIFO[1][i];
-	}
-	MPU6050_FIFO[1][FIFO_Length]=sum/FIFO_Length;
+		sum=0;
+		for(i=0;i<FIFO_Length;i++)
+		{
+			 sum+=MPU6050_FIFO[1][i];
+		}
+		MPU6050_FIFO[1][FIFO_Length]=sum/FIFO_Length;
 
-	sum=0;
-	for(i=0;i<FIFO_Length;i++)
-	{
-		 sum+=MPU6050_FIFO[2][i];
-	}
-	MPU6050_FIFO[2][FIFO_Length]=sum/FIFO_Length;
+		sum=0;
+		for(i=0;i<FIFO_Length;i++)
+		{
+			 sum+=MPU6050_FIFO[2][i];
+		}
+		MPU6050_FIFO[2][FIFO_Length]=sum/FIFO_Length;
 
-	sum=0;
-	for(i=0;i<FIFO_Length;i++)
-	{
-		 sum+=MPU6050_FIFO[3][i];
-	}
-	MPU6050_FIFO[3][FIFO_Length]=sum/FIFO_Length;
+		sum=0;
+		for(i=0;i<FIFO_Length;i++)
+		{
+			 sum+=MPU6050_FIFO[3][i];
+		}
+		MPU6050_FIFO[3][FIFO_Length]=sum/FIFO_Length;
 
-	sum=0;
-	for(i=0;i<FIFO_Length;i++)
-	{
-		 sum+=MPU6050_FIFO[4][i];
-	}
-	MPU6050_FIFO[4][FIFO_Length]=sum/FIFO_Length;
+		sum=0;
+		for(i=0;i<FIFO_Length;i++)
+		{
+			 sum+=MPU6050_FIFO[4][i];
+		}
+		MPU6050_FIFO[4][FIFO_Length]=sum/FIFO_Length;
 
-	sum=0;
-	for(i=0;i<FIFO_Length;i++)
-	{
-		 sum+=MPU6050_FIFO[5][i];
-	}
-	MPU6050_FIFO[5][FIFO_Length]=sum/FIFO_Length;
+		sum=0;
+		for(i=0;i<FIFO_Length;i++)
+		{
+			 sum+=MPU6050_FIFO[5][i];
+		}
+		MPU6050_FIFO[5][FIFO_Length]=sum/FIFO_Length;
 }
+
+uint8_t MPU6050_Write_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf)
+{
+	uint8_t i; 
+    IO_IIC_start(); 
+	IO_IIC_write_byte((addr<<1)|0);//∑¢ÀÕ∆˜º˛µÿ÷∑+–¥√¸¡Ó	
+	if(MPU6050_IIC_Wait_Ack())	//µ»¥˝”¶¥
+	{
+		IO_IIC_stop();		 
+		return 1;		
+	}
+    IO_IIC_write_byte(reg);	//–¥ºƒ¥Ê∆˜µÿ÷∑
+    MPU6050_IIC_Wait_Ack();		//µ»¥˝”¶¥
+	for(i=0;i<len;i++)
+	{
+		IO_IIC_write_byte(buf[i]);	//∑¢ÀÕ ˝æ›
+		if(MPU6050_IIC_Wait_Ack())		//µ»¥˝ACK
+		{
+			IO_IIC_stop();	 
+			return 1;		 
+		}		
+	}    
+    IO_IIC_stop();	 
+	return 0;	
+}
+
+
+uint8_t MPU6050_IIC_Wait_Ack(void)
+{
+	uint8_t ucErrTime=0;
+	SDA_DIR_IN();
+	SDA_OUT_H;
+	IO_IIC_Delay();
+	SCL_OUT_H;
+	IO_IIC_Delay();
+	while ( SDA_IN)
+	{
+		ucErrTime ++;
+		if ( ucErrTime > 250)
+		{
+			IO_IIC_stop();
+			return 1;
+		}
+	}
+	SCL_OUT_L;
+	return 0;
+}
+
+uint8_t MPU6050_Read_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf)
+{
+ 	IO_IIC_start(); 
+	IO_IIC_write_byte((addr<<1)|0);//∑¢ÀÕ∆˜º˛µÿ÷∑+–¥√¸¡Ó	
+	if(MPU6050_IIC_Wait_Ack())	//µ»¥˝”¶¥
+	{
+		IO_IIC_stop();		 
+		return 1;		
+	}
+    IO_IIC_write_byte(reg);	//–¥ºƒ¥Ê∆˜µÿ÷∑
+    MPU6050_IIC_Wait_Ack();		//µ»¥˝”¶¥
+    IO_IIC_start();
+	IO_IIC_write_byte((addr<<1)|1);//∑¢ÀÕ∆˜º˛µÿ÷∑+∂¡√¸¡Ó	
+    MPU6050_IIC_Wait_Ack();		//µ»¥˝”¶¥ 
+	while(len)
+	{
+		if(len==1)*buf=IO_IIC_read_byte(0);//∂¡ ˝æ›,∑¢ÀÕnACK 
+		else *buf=IO_IIC_read_byte(1);		//∂¡ ˝æ›,∑¢ÀÕACK  
+		len--;
+		buf++; 
+	}    
+    IO_IIC_stop();	//≤˙…˙“ª∏ˆÕ£÷πÃıº˛ 
+	return 0;	
+}
+

@@ -1,7 +1,7 @@
 #ifndef _IO_IIC_H_
 #define _IO_IIC_H_
 
- 
+ #include "stm32f10x.h"
 
 /*************端口定义***********************/  
 
@@ -16,6 +16,11 @@
  
 //#define SDA_DIR_IN        GPIOB->MODER &= 0xFFFF3FFF   //STM32使用直接操作地址有点问题 
 //#define SDA_DIR_OUT				GPIOB->MODER |= 0x0000C000    //这里使用的函数代替的     
+
+//IO 方向设置
+#define SET_SDA_IN() {GPIOB->CRL&=0X0FFFFFFF;GPIOB->CRL|=8<<28;} //PB7
+#define SET_SDA_OUT() {GPIOB->CRL&=0X0FFFFFFF;GPIOB->CRL|=3<<28;}
+
 
 /********************************************************
  
@@ -32,6 +37,10 @@ void IO_IIC_stop(void); //I2C stop 信号
 void IO_IIC_ack(void);    //ack   I2C接收应答信号
 void IO_IIC_no_ack(void); //not ack 
 void IO_IIC_write_byte(unsigned char dat);//write a byte//向I2C总线发送一个字节数据
-unsigned char IO_IIC_read_byte(void);//read a byte//从I2C总线接收一个字节数据
+unsigned char IO_IIC_read_byte(unsigned char ack);//read a byte//从I2C总线接收一个字节数据
+void SDA_DIR_IN(void);//设置SDA方向为输入
+void SDA_DIR_OUT(void);//设置SDA方向为输出
+
+
 
 #endif

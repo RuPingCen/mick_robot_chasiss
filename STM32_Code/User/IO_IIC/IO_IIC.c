@@ -15,23 +15,13 @@
 
 void IO_IIC_GPIO_Init(void)
 {		
-//			GPIO_InitTypeDef GPIO_InitStruct;//F4 初始化代码
-//			RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB,ENABLE);//启动端口时钟
-// 
-//			GPIO_InitStruct.GPIO_Mode=GPIO_Mode_OUT; 	
-//			GPIO_InitStruct.GPIO_OType=GPIO_OType_OD;                                    
-//			GPIO_InitStruct.GPIO_PuPd=GPIO_PuPd_UP;     
-//			GPIO_InitStruct.GPIO_Pin=GPIO_Pin_6 | GPIO_Pin_7;                                      
-//			GPIO_InitStruct.GPIO_Speed=GPIO_Speed_100MHz;   
-//			GPIO_Init(GPIOB, &GPIO_InitStruct);
-
 	
 		My_GPIO_Init(GPIOB,GPIO_Pin_6,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//自定义初始化函数
 		My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//自定义初始化函数
 //		My_GPIO_Init(GPIOB,GPIO_Pin_10,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//自定义初始化函数
 //		My_GPIO_Init(GPIOB,GPIO_Pin_11,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//自定义初始化函数
-		IO_IIC_Delay();IO_IIC_Delay();
-		IO_IIC_Delay();IO_IIC_Delay();
+		IO_IIC_Delay();IO_IIC_Delay();IO_IIC_Delay();IO_IIC_Delay();
+		IO_IIC_Delay();IO_IIC_Delay();IO_IIC_Delay();IO_IIC_Delay();
 	
 }
 
@@ -78,100 +68,91 @@ void IO_IIC_Delay(void) //通信频率 375 hz
 void IO_IIC_start(void) //I2C start 信号
 {
         
+	SDA_DIR_OUT();				//设置SDA方向为输出
 	SDA_OUT_H;	 				//拉高数据线
 	SCL_OUT_H;					//拉高时钟线
 	IO_IIC_Delay();			//延时
 	SDA_OUT_L; 					//产生下降沿
 	IO_IIC_Delay();			//延时
 	SCL_OUT_L;          //拉低时钟线
-	IO_IIC_Delay();
- 
+
 }
  
 void IO_IIC_stop(void) //I2C stop 信号
 {
-        
-	SDA_OUT_L;					     //拉低数据线
-	SCL_OUT_H;						   //拉高时钟线
-	IO_IIC_Delay();				 	 //延时
-	SDA_OUT_H; 							 //产生上升沿
-	IO_IIC_Delay(); 					 //延时
+	SDA_DIR_OUT();
+	SCL_OUT_L;
+	SDA_OUT_L;
+	IO_IIC_Delay();
+	SCL_OUT_H;
+	SDA_OUT_H;
+	IO_IIC_Delay();
 }
- 
-void IO_IIC_ack(void)    //ack   I2C接收应答信号
+
+
+void IO_IIC_ack(void)    //ack   产生应答信号
 {
-		SDA_DIR_IN();          //把SDA端口配置为输入模式
-		//IO_IIC_Delay();IO_IIC_Delay();
-		SCL_OUT_H;            //拉高时钟线
-
-		IO_IIC_Delay();        //延时
-		SCL_OUT_L;            //拉低时钟线  
-		SDA_DIR_OUT();           
-		//IO_IIC_Delay();// IO_IIC_Delay();       //延时
-
+	SCL_OUT_L;
+	SDA_DIR_OUT();
+	SDA_OUT_L;
+	IO_IIC_Delay();
+	SCL_OUT_H;
+	IO_IIC_Delay();
+	SCL_OUT_L;
 }
- 
+
+
 void IO_IIC_no_ack(void) //not ack 
 {
-		SDA_OUT_L;
-		IO_IIC_Delay();
-		SCL_OUT_H;
-
-		IO_IIC_Delay();
-		SCL_OUT_L;
-		IO_IIC_Delay();   //让低电平持续时间稍长 目的是让数据线吧数据准备好
-	 
+	SCL_OUT_L;
+	SDA_DIR_OUT();
+	SDA_OUT_H;
+	IO_IIC_Delay();
+	SCL_OUT_H;
+	IO_IIC_Delay();
+	SCL_OUT_L;
 }
  
 void IO_IIC_write_byte(unsigned char dat) //write a byte//向I2C总线发送一个字节数据
 {
-	unsigned char i,temp;
+	unsigned char i ,temp;
+	SDA_DIR_OUT(); //这两个步骤，设置SDA为输出，和下拉时钟必不可少
+	SCL_OUT_L;
 	
-	 
-	 for(i = 0; i < 8; i++)
-	 {
-			 temp=dat & 0x80;
-			if(temp==0x80)
-				{
-					SDA_OUT_H;
-				}
-			else
-				{
-					SDA_OUT_L;
-				}
-				IO_IIC_Delay();
-				dat = dat << 1;		
-				SCL_OUT_H;
-				IO_IIC_Delay();
-				SCL_OUT_L;
-				 
-    } 
-	IO_IIC_ack();
+	for ( i = 0 ; i < 8 ; i ++)
+	{
+		temp = dat &0x80;
+		if ( temp == 0x80)
+		{
+			SDA_OUT_H;
+		}
+		else SDA_OUT_L;
+		IO_IIC_Delay();
+		dat <<= 1;
+		SCL_OUT_H;
+		IO_IIC_Delay();
+		SCL_OUT_L;
+		IO_IIC_Delay();
+	}
 }
  
-unsigned char IO_IIC_read_byte(void) //read a byte//从I2C总线接收一个字节数据
+unsigned char IO_IIC_read_byte(unsigned char ack) //read a byte//从I2C总线接收一个字节数据
 {
-		unsigned char i,dat=0;
-	
-		SDA_DIR_IN();            //  把SDA端口配置为输入模式
-		IO_IIC_Delay();IO_IIC_Delay();
-		for(i = 0; i < 8; i++)
-		{
-	
-			dat = dat << 1;
-			IO_IIC_Delay();
-			SCL_OUT_H;
-			if(SDA_IN == 1)
-			{
-				dat++;
-			}
-			IO_IIC_Delay();
-			SCL_OUT_L;
-		 
-		}
-		SDA_DIR_OUT();   
-		IO_IIC_Delay();//IO_IIC_Delay();
-		return dat;
+	unsigned char i, dat = 0;
+	SDA_DIR_IN();
+	IO_IIC_Delay();IO_IIC_Delay();
+	for ( i = 0 ; i < 8 ; i ++)
+	{
+		SCL_OUT_L;
+		IO_IIC_Delay();
+		SCL_OUT_H;
+		dat <<= 1;
+		if ( SDA_IN) dat ++;
+		IO_IIC_Delay();
+	}
+	if ( ack == 0) IO_IIC_no_ack();
+	else IO_IIC_ack();
+	return dat;
 }
 void IO_IIC_write_Command(unsigned char qijian_address,unsigned char reg_address,unsigned char command) //address+register+command
 {
@@ -192,7 +173,7 @@ unsigned char IO_IIC_read_Data(unsigned char qijian_address,unsigned char reg_ad
   IO_IIC_start();                  					//起始信号
 	IO_IIC_write_byte(qijian_address+1);      //发送设备地址+读信号
 //IO_IIC_ack();                            //接收应答信号
-	REG_data = IO_IIC_read_byte();           //读出寄存器数据
+	REG_data = IO_IIC_read_byte(0);           //读出寄存器数据
 	
 	
 /*IO_IIC_Delay();
@@ -205,6 +186,4 @@ unsigned char IO_IIC_read_Data(unsigned char qijian_address,unsigned char reg_ad
 	IO_IIC_stop();                            //停止信号
 	return REG_data;
 } 
-
-
 

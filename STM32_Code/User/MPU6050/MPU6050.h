@@ -199,6 +199,11 @@ extern void MPU6050_Data_Process(int16_t *int16t_MPU6050dat);//MPU6050Êý¾Ý¶ÁÈ¡ ¼
 extern void MPU6050_setSleepEnabled(uint8_t enabled); 
 extern short int READ_temp(void);//ÏÔÊ¾ÎÂ¶È
 extern short int MPU6050_GetData(unsigned char REG_Address); 
+
+//for mpu6050 DMP
+extern uint8_t MPU6050_Write_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);//Ð´¶à×Ö½Ú
+extern uint8_t MPU6050_IIC_Wait_Ack(void);//µÈ´ýACKÐÅºÅ
+extern uint8_t MPU6050_Read_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);//¶Á¶à×Ö½Ú
 #endif
 void  MPU6050_newValues(int16_t ax,int16_t ay,int16_t az,int16_t gx,int16_t gy,int16_t gz);
 

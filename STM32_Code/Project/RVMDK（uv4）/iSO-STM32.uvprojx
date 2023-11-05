@@ -188,7 +188,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_MD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\Led;..\..\User\cpu;..\..\User\PID;..\..\User\MPU6050;..\..\User\LCD240x320_ILI9341;..\..\User\W25Q16;..\..\User\stm32f10x_pwm;..\..\User\SDIO_SD;..\..\User\LCD240x320_Touch;..\..\ff9\src;..\..\ff9\src\option;..\..\User\BMP180;..\..\User\HMC5883;..\..\User\IMU;..\..\User\IO_IIC;..\..\User\Kalman_Filter;..\..\User\NRF_24L01;..\..\User\Scope_API;..\..\User\Seven_Lab_MiniIMU;..\..\User\WS2812;..\..\User\Mick_IO;..\..\User\speed_control;..\..\User\bsp_can;..\..\User\bsp_uart;..\..\User\DBUS;..\..\User\DJI_Motor;..\..\User\MPU9250</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\Led;..\..\User\cpu;..\..\User\PID;..\..\User\MPU6050;..\..\User\LCD240x320_ILI9341;..\..\User\W25Q16;..\..\User\stm32f10x_pwm;..\..\User\SDIO_SD;..\..\User\LCD240x320_Touch;..\..\ff9\src;..\..\ff9\src\option;..\..\User\BMP180;..\..\User\HMC5883;..\..\User\IMU;..\..\User\IO_IIC;..\..\User\Kalman_Filter;..\..\User\NRF_24L01;..\..\User\Scope_API;..\..\User\Seven_Lab_MiniIMU;..\..\User\WS2812;..\..\User\Mick_IO;..\..\User\speed_control;..\..\User\bsp_can;..\..\User\bsp_uart;..\..\User\DBUS;..\..\User\DJI_Motor;..\..\User\MPU9250;..\..\User\DMP</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -621,6 +621,16 @@
               <FileName>MPU6050.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\MPU6050\MPU6050.c</FilePath>
+            </File>
+            <File>
+              <FileName>inv_mpu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\DMP\inv_mpu.c</FilePath>
+            </File>
+            <File>
+              <FileName>inv_mpu_dmp_motion_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\DMP\inv_mpu_dmp_motion_driver.c</FilePath>
             </File>
             <File>
               <FileName>IMU.c</FileName>
