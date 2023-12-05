@@ -327,7 +327,7 @@ void RC_Upload_Message(void)
 {
 	unsigned char senddata[50];
 	unsigned char i=0,j=0;	
-	unsigned char cmd=0x03;	
+	unsigned char cmd=0xA3;	
 	unsigned int sum=0x00;	
 	senddata[i++]=0xAE;
 	senddata[i++]=0xEA;

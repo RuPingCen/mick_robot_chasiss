@@ -237,7 +237,7 @@ int main(void)
 		}
 		if(Timer2_Counter5 > 100) //1ms*100  10HZ ´òÓ¡ÆµÂÊ
 		{			 
-		  Isolated_IO_Upload_Message(); 
+		  //Isolated_IO_Upload_Message(); 
 			Timer2_Counter5=0;
 		}
 		

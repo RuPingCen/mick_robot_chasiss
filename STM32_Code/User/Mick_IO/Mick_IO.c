@@ -219,7 +219,7 @@ void Isolated_IO_Upload_Message(void)
 		senddat[i++]=0xAE;
 		senddat[i++]=0xEA;
 		senddat[i++]=0x01;//数据长度在后面赋值
-		senddat[i++]=0x11; //命令位 0x11
+		senddat[i++]=0xAC; //命令位 0x11
 
 		//上传数据帧计数
 		senddat[i++]=(IO_upload_counter>>24);
