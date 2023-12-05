@@ -54,7 +54,7 @@
 #include "DJI_Motor.h"
 #include "Mick_IO.h"
 
-
+#include "inv_mpu.h"
 #include "IMU.h"
 //#include "Seven_Lab_MiniIMU.h"
 //#include "MPU9250.h"
@@ -79,6 +79,7 @@ volatile uint8_t UART1_DMA_Flag2=0x00;
 volatile uint8_t UART2_Flag=0x00;
 volatile uint8_t CAN1_Flag=0x00;
 volatile uint8_t TIM3_Flag=0x00;
+volatile uint8_t IMU_Init_Flag=0x00;
 
 volatile uint32_t Timer2_Counter1=0; //分别用来标记接收命令是否超过了时间限制范围
 volatile uint32_t Timer2_Counter2=0;
@@ -130,13 +131,20 @@ int main(void)
 	while (mpu_dmp_init() && main_counter<10)
 	{
 		UART_send_string(USART2,"MPU6050 ReInit... \r\n");
-		Delay_10us(2000);
+		Delay_10us(9000);
 		main_counter++;
 	}
 	if(main_counter<10)
+	{
+		IMU_Init_Flag = 0x01;
 		UART_send_string(USART2,"MPU6050 Start Success   \r\n");
+	}
 	else
+	{
+		IMU_Init_Flag = 0x00;
 		UART_send_string(USART2,"MPU6050 Init Failed   \r\n");
+	}
+
 	 
 	//step4 初始化CAN ---------------------------------------------
 	CAN_Config();//初始化can模块
@@ -228,7 +236,7 @@ int main(void)
 			DJI_Motor_Upload_Message();
 			//DJI_Motor_Show_Message();
 		}
-		if(Timer2_Counter4 > 10) //1ms*10  100HZ 打印频率
+		if(IMU_Init_Flag && Timer2_Counter4 > 10) //1ms*10  100HZ 打印频率
 		{			 
 			IMU_Routing();
 			IMU_Upload_Message();
