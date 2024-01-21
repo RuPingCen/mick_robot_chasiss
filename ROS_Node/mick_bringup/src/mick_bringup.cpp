@@ -808,19 +808,19 @@ bool  analy_uart_recive_data( std_msgs::String serial_data)
 			  imu_chassis.mz = imu.int16_dat;
 			  
 			  imu.int16_dat=0;imu.byte_data[1] = reviced_tem[i++] ; imu.byte_data[0] = reviced_tem[i++] ;
-			  imu_chassis.pitch = imu.int16_dat/100.0f;
+			  imu_chassis.pitch = imu.int16_dat/100.0f/57.3f;
 			  imu.int16_dat=0;imu.byte_data[1] = reviced_tem[i++] ; imu.byte_data[0] = reviced_tem[i++] ;
-			  imu_chassis.roll = imu.int16_dat/100.0f;
+			  imu_chassis.roll = imu.int16_dat/100.0f/57.3f;
 			  imu.int16_dat=0;imu.byte_data[1] = reviced_tem[i++] ; imu.byte_data[0] = reviced_tem[i++] ;
-			  imu_chassis.yaw = imu.int16_dat/100.0f;
+			  imu_chassis.yaw = imu.int16_dat/100.0f/57.3f;
 			  
 			  imu_chassis.available = true;
 			  ROS_INFO_STREAM("recived imu  data" ); 
-			 // if(show_message)
+			  if(show_message)
 				{
 					ROS_INFO_STREAM("imu ax: " <<imu_chassis.ax << " ay: " <<imu_chassis.ay	 << " az: " << imu_chassis.az 
 					<< " gx: " <<imu_chassis.gx<< " gy: " <<imu_chassis.gy	 << " gz: " << imu_chassis.gz  
-					<< " roll: " <<imu_chassis.roll<< " pitch: " <<imu_chassis.pitch	 << " yaw: " << imu_chassis.yaw );
+					<< " roll: " <<imu_chassis.roll*57.3<< " pitch: " <<imu_chassis.pitch*57.3	 << " yaw: " << imu_chassis.yaw*57.3 );
 				}
 				publish_IMU_rawData();
 			}
@@ -900,6 +900,7 @@ bool  analy_uart_recive_data( std_msgs::String serial_data)
  */
 float s1=0,s2=0,s3=0,s4=0;
 float s1_last=0,s2_last=0,s3_last=0,s4_last=0;
+float imu_last_yaw=0,imu_curr_yaw=0;
 float position_x=0,position_y=0,position_w=0;
 static int motor_init_flag = 0;
 double last_time=0, curr_time =0;
@@ -954,9 +955,9 @@ void calculate_position_for_odometry(void)
 
 	curr_time = ros::Time::now().toSec();
 	double dt = curr_time - last_time;
-	if(dt>1)
-		dt = 0;
 	last_time =  curr_time;
+	if(dt>1)
+		dt = 1;
 
  if(chassis_type == 0) //差速模式
  {
@@ -969,24 +970,47 @@ void calculate_position_for_odometry(void)
 	linear_x = 0.25*v1+ 0.25*v2+ 0.25*v3+ 0.25*v4;
 	linear_y = 0;
 	linear_w = ((0.5*v3+0.5*v4)-(0.5*v1+0.5*v2))/float(WHEEL_L);
+	float delat_yaw=0;
 	if(imu_chassis.available)
 	{
 		float w_imu = imu_chassis.gz/16384.0*2000/57.3; // 2000表示IMU的量程
 		if(abs(w_imu - linear_w)>0.2  &&  abs(w_imu)>0.1) // 如果轮子计算的角速度和IMU测量的角速度差异值有0.2弧度 则放弃
    			linear_w = imu_chassis.gz ; //读取IMU的旋转角速度
 		//imu_chassis.available = false;
+	
+		// 方式2 从DMP输出的角度计算读取增量
+		if(imu_last_yaw == 0)//
+		{
+			imu_last_yaw =  imu_chassis.yaw;
+		}
+		imu_curr_yaw = imu_chassis.yaw;
+		delat_yaw = imu_curr_yaw - imu_last_yaw;
+		imu_last_yaw = imu_curr_yaw;
+		
+		if(abs(delat_yaw) > 5/57.3f)//10ms 内转动超过了5度
+		{
+			if (delat_yaw>0)
+				delat_yaw =5/57.3f;
+			else
+				delat_yaw =-5/57.3f; 
+		}
+		if(abs(delat_yaw)<0.015)  // 1度
+			delat_yaw = 0;
 
+		linear_w = delat_yaw/dt;
 		//cout<<"w_imu: "<< imu_chassis.gz<<endl;
 	}
 	else
 	{
+		imu_last_yaw = position_w;
 		ROS_WARN_STREAM("w_imu is not available  : ");
 	}
 	
  
 	position_x=position_x+cos(position_w)*linear_x*dt;
 	position_y=position_y+sin(position_w)*linear_x*dt;
-	position_w=position_w+linear_w*dt;
+	//position_w=position_w+linear_w*dt;
+	position_w=position_w+delat_yaw;
  }
  else if(chassis_type == 1) // 麦克纳姆轮模式
  {
@@ -1027,9 +1051,12 @@ void calculate_position_for_odometry(void)
   }
   else;
  
-  
-  ROS_INFO_STREAM("px:  "<<position_x<<"   py: " <<position_y<<"   pw: " <<position_w*57.3
-  <<"  vx:  "<<linear_x<<"   vy: " <<linear_y<<"   vw: " <<linear_w<<endl);
+  if(show_message)
+  {
+	    ROS_INFO_STREAM("px:  "<<position_x<<"   py: " <<position_y<<"   pw: " <<position_w*57.3
+  														<<"  vx:  "<<linear_x<<"   vy: " <<linear_y<<"   vw: " <<linear_w<<endl);
+  }
+
  
     publish_odomtery( position_x,position_y,position_w,linear_x,linear_y,linear_w);
      

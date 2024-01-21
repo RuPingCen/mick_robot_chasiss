@@ -10,6 +10,6 @@
 
 	  <param name="sub_cmdvel_topic" value="/cmd_vel" type="str" />
 	  <param name="pub_odom_topic" value="/odom" type="str" />
-	  <param name="is_pub_path" value="0" type="int" /> <!--0: 不发布底盘轨迹  1: 发布 -->
+	  <param name="is_pub_path" value="1" type="int" /> <!--0: 不发布底盘轨迹  1: 发布 -->
 	</node>
 </launch>

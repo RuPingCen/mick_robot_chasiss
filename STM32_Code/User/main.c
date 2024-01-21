@@ -127,9 +127,10 @@ int main(void)
 
 	//step3 初始化IMU ---------------------------------------------
 	UART_send_string(USART2,"Start Init MPU6050 ... \n");
- 
+    LED1_FLIP;
 	while (mpu_dmp_init() && main_counter<10)
 	{
+		LED1_FLIP;
 		UART_send_string(USART2,"MPU6050 ReInit... \r\n");
 		Delay_10us(9000);
 		main_counter++;
@@ -208,10 +209,10 @@ int main(void)
 			CAN1_Flag=0x00;  
 		}
 		
-		if(UART1_DMA_Flag) //遥控器介入控制命令逻辑  3*7ms 发送一次
+		if(UART1_DMA_Flag) //遥控器介入控制命令逻辑  7ms 发送一次
 		{	
 			UART1_DMA_Flag2++;
-			if(UART1_DMA_Flag2>5)
+			if(UART1_DMA_Flag2>7) // 49ms调用一次 函数 发送遥控器状态数据到上位机
 			{
 				LED2_FLIP;
 				//RC_Debug_Message();
@@ -229,20 +230,19 @@ int main(void)
 			recived_cmd.flag =0;//使用一次以后丢弃该数据
 			UART2_Flag=0x00;
 		}
-	
-		if(Timer2_Counter3 > 8) //1ms*8  125 HZ 上传电机数据
-		{
-			Timer2_Counter3=0;
-			DJI_Motor_Upload_Message();
-			//DJI_Motor_Show_Message();
-		}
-		if(IMU_Init_Flag && Timer2_Counter4 > 10) //1ms*10  100HZ 打印频率
+		if(IMU_Init_Flag && Timer2_Counter4 > 10) //1ms*10  100HZ 读取DMP
 		{			 
-			IMU_Routing();
-			IMU_Upload_Message();
-			//IMU_Report_AHRSdata();
+			IMU_Routing();		
 			Timer2_Counter4=0;
 		}
+		if(Timer2_Counter3 > 10) //1ms*10  100 HZ 上传电机数据
+		{
+			Timer2_Counter3=0;
+			DJI_Motor_Upload_Message();//同时上传IMU和电机数据，保证同步
+			//DJI_Motor_Show_Message();
+			IMU_Upload_Message(); 
+		}
+
 		if(Timer2_Counter5 > 100) //1ms*100  10HZ 打印频率
 		{			 
 		  //Isolated_IO_Upload_Message(); 

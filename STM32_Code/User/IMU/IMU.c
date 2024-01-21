@@ -445,12 +445,12 @@ void IMU_Upload_Message(void)
 
 	senddat[i++] = (uint8_t)(IMU_Data.accADC[0] >> 8); //int16
 	senddat[i++] = (uint8_t)(IMU_Data.accADC[0]);
-	senddat[i++] = (IMU_Data.accADC[1] >> 8);  
-	senddat[i++] = (IMU_Data.accADC[1]);
-	senddat[i++] = (IMU_Data.accADC[2] >> 8);  
-	senddat[i++] = (IMU_Data.accADC[2]);
-	senddat[i++] = (IMU_Data.gyroADC[0]&0xff00 >> 8);  
-	senddat[i++] = (IMU_Data.gyroADC[0]&0x00ff);
+	senddat[i++] = (uint8_t)(IMU_Data.accADC[1] >> 8);  
+	senddat[i++] = (uint8_t)(IMU_Data.accADC[1]);
+	senddat[i++] = (uint8_t)(IMU_Data.accADC[2] >> 8);  
+	senddat[i++] = ((uint8_t)IMU_Data.accADC[2]);
+	senddat[i++] = (uint8_t)(IMU_Data.gyroADC[0]&0xff00 >> 8);  
+	senddat[i++] = (uint8_t)(IMU_Data.gyroADC[0]&0x00ff);
 	senddat[i++] = (uint8_t)(IMU_Data.gyroADC[1]&0xff00 >> 8); 
 	senddat[i++] = (uint8_t)(IMU_Data.gyroADC[1]&0x00ff);
 	senddat[i++] = (uint8_t)(IMU_Data.gyroADC[2]&0xff00 >> 8);  
