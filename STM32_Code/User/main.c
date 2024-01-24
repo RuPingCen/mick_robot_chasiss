@@ -66,7 +66,7 @@
 uint32_t TimingDelay; //用于delay控制的精确延时
 uint16_t ADC_ConvertedValue; 
  
-#define DEBUUG 1
+#define DEBUUG 0
 #define DEBUUG_MATRIX_KEYSACN 0
 
 
@@ -215,8 +215,10 @@ int main(void)
 			if(UART1_DMA_Flag2>7) // 49ms调用一次 函数 发送遥控器状态数据到上位机
 			{
 				LED2_FLIP;
-				//RC_Debug_Message();
-				RC_Upload_Message();//上传遥控器状态
+				if(DEBUUG)
+					RC_Debug_Message();
+				else
+					RC_Upload_Message();//上传遥控器状态
 				UART1_DMA_Flag2=0;
 			}			
 			UART1_DMA_Flag=0x00;	
@@ -238,9 +240,15 @@ int main(void)
 		if(Timer2_Counter3 > 10) //1ms*10  100 HZ 上传电机数据
 		{
 			Timer2_Counter3=0;
-			DJI_Motor_Upload_Message();//同时上传IMU和电机数据，保证同步
-			//DJI_Motor_Show_Message();
-			IMU_Upload_Message(); 
+			if(DEBUUG)
+			{
+				DJI_Motor_Show_Message();//同时上传IMU和电机数据，保证同步
+			}
+			else
+			{
+				DJI_Motor_Upload_Message();
+				IMU_Upload_Message(); 
+			}
 		}
 
 		if(Timer2_Counter5 > 100) //1ms*100  10HZ 打印频率

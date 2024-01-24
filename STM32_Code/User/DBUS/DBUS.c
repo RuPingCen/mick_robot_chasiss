@@ -217,10 +217,13 @@ void RC_Routing(void)
 ****************************************************************************/
 char RC_Offset_Init(void)
 {
-	if((rc.ch1>900) && (rc.ch1<1100))
-		if((rc.ch2>900) && (rc.ch2<1100))
-			if((rc.ch3>900) && (rc.ch3<1100))
-				if((rc.ch4>900) && (rc.ch4<1100))
+	if((rc.ch1>850) && (rc.ch1<1200))
+	{
+		if((rc.ch2>850) && (rc.ch2<1200))
+		{
+			if((rc.ch3>850) && (rc.ch3<1200))
+			{
+				if((rc.ch4>850) && (rc.ch4<1200))
 				{
 						ch1_offset_sum+=rc.ch1;
 						ch2_offset_sum+=rc.ch2;
@@ -228,6 +231,26 @@ char RC_Offset_Init(void)
 						ch4_offset_sum+=rc.ch4;
 						rc_counter++;
 				}
+				else
+				{
+					UART_send_string(USART2,"error: rc.ch4<850 || rc.ch4>1200\n"); 
+				}
+			}
+			else
+			{
+				UART_send_string(USART2,"error: rc.ch3<850 || rc.ch3>1200\n"); 
+			}
+		}
+		else
+		{
+			UART_send_string(USART2,"error: rc.ch2<850 || rc.ch2>1200\n"); 
+		}
+	}
+	else
+	{
+		UART_send_string(USART2,"error: rc.ch1<850 || rc.ch1>1200\n"); 
+	}
+				
 	// 求10次数据的平均值
 	if(rc_counter>10)
 	{
@@ -308,12 +331,12 @@ void RC_Debug_Message(void)
 		
 	}
  
-//	UART_send_string(USART2,"cnt:");UART_send_data(USART2,rc.cnt);UART_send_char(USART2,'\t');
-//	UART_send_string(USART2,"available:");UART_send_data(USART2,rc.available);UART_send_char(USART2,'\t');
-//	UART_send_string(USART2,"ch1_offset:");UART_send_data(USART2,rc.ch1_offset);UART_send_char(USART2,'\t');		
-//	UART_send_string(USART2,"ch2_offset:");UART_send_data(USART2,rc.ch2_offset);UART_send_char(USART2,'\t');	
-//	UART_send_string(USART2,"ch3_offset:");UART_send_data(USART2,rc.ch3_offset);UART_send_char(USART2,'\t');	
-//	UART_send_string(USART2,"ch4_offset:");UART_send_data(USART2,rc.ch4_offset);UART_send_char(USART2,'\n');	
+	UART_send_string(USART2,"cnt:");UART_send_data(USART2,rc.cnt);UART_send_char(USART2,'\t');
+	UART_send_string(USART2,"available:");UART_send_data(USART2,rc.available);UART_send_char(USART2,'\t');
+	UART_send_string(USART2,"ch1_offset:");UART_send_data(USART2,rc.ch1_offset);UART_send_char(USART2,'\t');		
+	UART_send_string(USART2,"ch2_offset:");UART_send_data(USART2,rc.ch2_offset);UART_send_char(USART2,'\t');	
+	UART_send_string(USART2,"ch3_offset:");UART_send_data(USART2,rc.ch3_offset);UART_send_char(USART2,'\t');	
+	UART_send_string(USART2,"ch4_offset:");UART_send_data(USART2,rc.ch4_offset);UART_send_char(USART2,'\n');	
 }
 
 /***************************************************************************
