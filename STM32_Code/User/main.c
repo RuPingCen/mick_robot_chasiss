@@ -242,7 +242,7 @@ int main(void)
 			Timer2_Counter3=0;
 			if(DEBUUG)
 			{
-				DJI_Motor_Show_Message();//同时上传IMU和电机数据，保证同步
+				//DJI_Motor_Show_Message();//同时上传IMU和电机数据，保证同步
 			}
 			else
 			{
