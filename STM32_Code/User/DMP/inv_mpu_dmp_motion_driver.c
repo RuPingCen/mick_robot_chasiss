@@ -24,8 +24,8 @@
 #include "dmpKey.h"
 #include "dmpmap.h"
 
-#include "stm32f10x_Delay.h"
-
+//#include "delay.h"
+#include "bsp_systick.h"
 //定义目标板采用MSP430
 #define  MOTION_DRIVER_TARGET_MSP430
 

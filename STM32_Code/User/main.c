@@ -1,267 +1,254 @@
-/******************************************************************************************************
-#2023-11-04
-	1¡¢Ôö¼Ómpu6050 DMP½âËã£¬ÔÚwhileÑ­»·ÖĞ¶ÁÈ¡IMUÊı¾İ
-		// ÔÚmpu6050.hÖĞÔö¼Óº¯Êı
-			extern uint8_t MPU6050_Write_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);//Ğ´¶à×Ö½Ú
-			extern uint8_t MPU6050_IIC_Wait_Ack(void);//µÈ´ıACKĞÅºÅ
-			extern uint8_t MPU6050_Read_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf);//¶Á¶à×Ö½Ú
-		// IO_IIC.hÖĞÔö¼Óº¯Êı
-			unsigned char IO_IIC_read_byte(unsigned char ack);//read a byte//´ÓI2C×ÜÏß½ÓÊÕÒ»¸ö×Ö½ÚÊı¾İ
-			void SDA_DIR_IN(void);//ÉèÖÃSDA·½ÏòÎªÊäÈë
-			void SDA_DIR_OUT(void);//ÉèÖÃSDA·½ÏòÎªÊä³ö
-#2022-4-22
-	1¡¢Ôö¼Ó SBUS º¯ÊıÒ£¿ØÆ÷½âÂë¹¦ÄÜ 
-	2¡¢Ôö¼Ó SBUS ²¿·Ö´úÂë×¢ÊÍ
+/*
+* ä¸²å£1 ä¸ä¸Šä½æœºé€šè®¯
+* ä¸²å£2 DBUS DMAæ¥æ”¶é¥æ§å™¨æ•°æ®
+* ä¸²å£3 485æ€»çº¿
+* ä¸²å£4 ä¸²å£5 å¤‡ç”¨
+* ä¸²å£6 ç”¨äºæ‰“å°è°ƒè¯•ä¿¡æ¯ printf() å‡½æ•°
+*/
+#include "stm32f4xx.h"
+#include "bsp_systick.h" 
+#include "bsp_gpio.h"
+#include "bsp_uart.h" 
+#include "bsp_timer.h"
+#include "bsp_usart_dma.h" 
+#include "bsp_can.h" 
+#include "key.h" 
+#include "led.h" 
 
-#2021-4-18
-	1¡¢½«DBUS¡¢ÉÏÎ»»ú·¢ËÍµÄÃüÁîÒÆµ½ÖĞ¶Ïº¯ÊıÖĞ½øĞĞ´¦Àí
-	2¡¢½«PIDÏà¹Ø¼ÆËãº¯ÊıÒÆµ½PID.cÖĞ
-	3¡¢Ìí¼ÓMPU9250 ¶ÁÈ¡ºÍ×ËÌ¬¼ÆËãº¯Êı (ÓÉÓÚÖĞ¶Ï×ÊÔ´²»ÄÜ³¤Ê±¼ä±»Õ¼ÓÃ£¬Òò´ËÔİÊ±·ÅÔÚÁËwhileÖĞ)
-	4¡¢ÔÚmick robot controller V1.0.0°å×ÓÉÏ²âÊÔÍ¨¹ı
-	5¡¢LED1 Ö¸Ê¾³ÌĞòÊÇ·ñÕı³£ÔËĞĞ£¨20HZÉÁË¸£© 
-		 LED2Ö¸Ê¾Ò£¿ØÆ÷ÊÇ·ñÓĞÊı¾İ
-		 LED3Ö¸Ê¾CAN×ÜÏßÊÇ·ñÓĞÊı¾İ
-
-#2020-9-21 
-	1¡¢Ìí¼ÓÁËMPU9250µÄÊı¾İ¶ÁÈ¡ ×ËÌ¬½âËãº¯Êı
-	2¡¢Ä¿Ç°MPU9250Ê¹ÓÃµÄ¶Ë¿ÚÎªPB10  PB11
-	3¡¢ÔÚĞ¡³µ1.0µÄ°å×ÓÉÏ²âÊÔÍ¨¹ıÁË£¬¿ÉÕıÈ·¶ÁÈ¡Êı¾İ¡£2.0µÄÍ¨Ñ¶°å´®¿ÚÓĞÎÊÌâ
-	
-#2020-9-8
-	1¡¢¸üĞÂÁËDBUSÖĞµÄº¯ÊıÃû³Æ
-	2¡¢¸üĞÂÒ£¿ØÆ÷ĞÅºÅ¶ªÊ§Ôì³ÉµÄÊı¾İÂÒÂëÒıÆğ¡°·è×ª¡±µÄÎÊÌâ
-	3¡¢Í³Ò»4ÂÖºÍ2ÂÖ²îËÙĞ¡³µÄ£ĞÍµç»ú¿ØÖÆº¯ÊıµÄµ¥Î»Îª m/s  ºÍ rad/s   
-	
-#2019-10-07
-	1¡¢´´½¨Âó¿ËÄÉÄ·ÂÖPID¿ØÖÆº¯Êı
-	2¡¢Ôö¼ÓÓëROS½ÚµãÍ¨Ñ¶½Ó¿Ú
-	3¡¢Ôö¼ÓDMA·½Ê½½ÓÊÕDBUSÒ£¿ØÆ÷
-	
-* update 2020-9-21
-* maker: crp
-******************************************************************************************************/
-#include "stm32f10x.h"
-#include "stdio.h"//°üº¬´®¿Ú·¢ËÍµÄFILEÊôĞÔ
-#include "stdlib.h"
-
-#include "stm32f10x_Delay.h"
- 
-// #include "speed_cntr.h"
-#include "speed_control.h"
-#include "bsp_uart.h"
-#include "bsp_can.h"
-#include "DBUS.h"
-#include "DJI_Motor.h"
-#include "Mick_IO.h"
+#include "DBUS/DBUS.h" 
+#include "MOTOR_APSL2DB/MOTOR_APSL2DB.h" 
+#include "MOTOR_RMD/MOTOR_RMD.h" 
+#include "Battery/Battery.h"
+#include "Mick_IO/Mick_IO.h"
+#include "MOTOR_Control/MOTOR_Control.h"  
+#include "MOTOR_EULER.h" 
 
 #include "inv_mpu.h"
+#include "inv_mpu_dmp_motion_driver.h"
+#include "mpu6050.h"
+#include "IO_IIC.h"
 #include "IMU.h"
-//#include "Seven_Lab_MiniIMU.h"
-//#include "MPU9250.h"
-//#include "mpu6050.h"
-/*********************************************************/
-/**********************ºê¶¨Òå****************************/
-#define EnableInterrupt 	__set_PRIMASK(0) //×ÜÖĞ¶Ï Ğ´¡®0¡® ¿ª×ÜÖĞ¶Ï   ¡¯1¡®¹Ø×ÜÖĞ¶Ï
-#define DisableInterrupt 	__set_PRIMASK(1) //×ÜÖĞ¶Ï Ğ´¡®0¡® ¿ª×ÜÖĞ¶Ï   ¡¯1¡®¹Ø×ÜÖĞ¶Ï
-uint32_t TimingDelay; //ÓÃÓÚdelay¿ØÖÆµÄ¾«È·ÑÓÊ±
-uint16_t ADC_ConvertedValue; 
- 
-#define DEBUUG 0
-#define DEBUUG_MATRIX_KEYSACN 0
 
+#include "w25q128.h"
 
- 
-/*********************************************************/
-/******************È«¾Ö±äÁ¿ÉùÃ÷***************************/
-
-volatile uint8_t UART1_DMA_Flag=0x00;
-volatile uint8_t UART1_DMA_Flag2=0x00;
-volatile uint8_t UART2_Flag=0x00;
-volatile uint8_t CAN1_Flag=0x00;
-volatile uint8_t TIM3_Flag=0x00;
-volatile uint8_t IMU_Init_Flag=0x00;
-
-volatile uint32_t Timer2_Counter1=0; //·Ö±ğÓÃÀ´±ê¼Ç½ÓÊÕÃüÁîÊÇ·ñ³¬¹ıÁËÊ±¼äÏŞÖÆ·¶Î§
-volatile uint32_t Timer2_Counter2=0;
-volatile uint32_t Timer2_Counter3=0; 
-volatile uint32_t Timer2_Counter4=0;
-volatile uint32_t Timer2_Counter5=0; 
-
+#include "lwip/tcp.h"
+#include "netconf.h"
+#include "tcp_echoclient.h"
+#include "stm32f4x7_phy.h"
  
 
-extern command_t recived_cmd; //µ×ÅÌ½ÓÊÕÉÏÎ»»úÃüÁî½á¹¹Ìå
-extern uint8_t Code_Switch_Value;
-extern rc_info_t rc;  // remote command
-/*********************************************************/
-/**********************º¯ÊıÉùÃ÷***************************/
+extern volatile Battery battery; //ç”µæ± ç»“æ„ä½“æ•°æ®
+
+
+volatile uint32_t Timer2_Counter1=0;  //æ£€æµ‹é¥æ§å™¨ é€šè®¯æ˜¯å¦è¶…æ—¶
+volatile uint32_t Timer2_Counter2=0; //æ£€æµ‹ä¸Šä½æœº é€šè®¯æ˜¯å¦è¶…æ—¶
+volatile uint32_t Timer2_Counter3=0; //ç”µæ± è¯»å–
+volatile uint32_t Timer2_Counter4=0; //IOä¸Šä¼ ä»»åŠ¡
+volatile uint32_t Timer2_Counter5=0; // 
+volatile uint32_t Timer6_Counter2=0;  // IMUä¸Šä¼ 
+  
+
+volatile uint8_t UART1_Flag;
+volatile uint8_t UART2_DMA_Flag=0x00,UART2_DMA_Flag2=0; //ä¸²å£2ä¸­æ–­æ ‡å¿—ä½
+
+volatile uint8_t UART3_Flag; //ä¸²å£6ä¸­æ–­æ ‡å¿—ä½  æ¥æ”¶ç”µæ± 
+volatile uint8_t USART3_RX_BUF[RS485_RX_Len];  // ä¸²å£6 æ¥æ”¶ç¼“å­˜
+extern volatile uint8_t RS485_Recv_Data[RS485_RX_Len];//ç”µæ± æ¥æ”¶æ•°æ®
+ 
+volatile uint8_t flag_can1 = 0 ,flag_can1_2=0;		 //ç”¨äºæ ‡å¿—æ˜¯å¦æ¥æ”¶åˆ°æ•°æ®ï¼Œåœ¨ä¸­æ–­å‡½æ•°ä¸­èµ‹å€¼
+volatile uint8_t flag_can2 = 0;		  
+//volatile CanTxMsg CAN2_TxMessage;		 //å‘é€ç¼“å†²åŒº
+volatile CanRxMsg CAN1_RxMessage;		  //æ¥æ”¶ç¼“å†²åŒº
+volatile CanRxMsg CAN2_RxMessage;		  //æ¥æ”¶ç¼“å†²åŒº
+//extern uint8_t data_can[8];
+
+extern volatile moto_measure_t moto_chassis[4];
+
+volatile uint8_t motor_errors_cnt=0; //ç”µæœºæŠ¥é”™æ¬¡æ•°
+volatile uint8_t motor_detect_cnt=0; //ç”µæœºçŠ¶æ€ç›‘æµ‹æ¬¡æ•°
+
+// ä»¥å¤ªç½‘æµ‹è¯•å˜é‡
+extern __IO uint8_t EthLinkStatus;
+__IO uint32_t LocalTime = 0;
+
+
+static void TIM3_Config(uint16_t period,uint16_t prescaler);
 void Main_Delay(unsigned int delayvalue);
-void Main_Delay_us(unsigned int delayvalue);
-void Test_Mick_GPIO(void);
-void Test_MPU6050(void);
-
-/*********************************************************/
-/*****************Ö÷º¯Êı**********************************/
 int main(void)
-{	
-
-	uint8_t main_counter = 0;
-	unsigned char dma_lendat = 18;
-	SysTick_Init();//³õÊ¼»¯µÎ´ğ¶¨Ê±Æ÷
-	 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
-	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable,ENABLE);
+{
+	uint8_t motor_i=0;
+	uint8_t main_counter = 0,IMU_Init_Flag=0;
+	uint8_t W25QXX_ID;
+	uint8_t W25QXX_SendData[] = "W25Q128è¯»å†™æµ‹è¯•";
+	uint8_t W25QXX_Recv[256];
 	
-	//step1 ³õÊ¼»¯IO ---------------------------------------------
-	Init_Mick_GPIO();
-	Set_Isolated_Output(1,0);// ÉèÖÃËùÓĞÊä³öÎª¸ß×èÊä³ö
-	Set_Isolated_Output(2,0);			
+	
+	SysTick_Init(); //æ»´ç­”å®šæ—¶å™¨åˆå§‹åŒ–
+	Initial_micros(); //TIM2 TIM3çº§è”
+	Init_Mick_GPIO();// åˆå§‹åŒ–LED éš”ç¦»å‹è¾“å‡ºç«¯å£
+
+	Set_Isolated_Output(1,0);
+	Set_Isolated_Output(2,0);
 	Set_Isolated_Output(3,0);
-	Set_Isolated_Output(4,0);	
-	
-	//step2 ³õÊ¼»¯´®¿Ú2/3 -----------------------------------------
-	My_Config_USART_Init(USART2,115200,1);// ´®¿Ú³õÊ¼»¯º¯Êı ²¨ÌØÂÊ115200	 Óë¹¤¿Ø»úÍ¨Ñ¶
- 	My_Config_USART_Init(USART3,115200,1);	
-	Delay_10us(200);
-	UART_send_string(USART2,"\n\n MickX4 ROS Car \n");//×Ö·û´®º¯Êı
-	UART_send_string(USART3,"\n\n MickX4 ROS Car \n");//×Ö·û´®º¯Êı	
+	Set_Isolated_Output(4,0);
+ 
+	//ä¸Šä½æœºé€šè®¯ ä¸²å£1
+	My_Config_USART_Init(USART1,115200,1);
+	UART_send_string(USART1,"USART1 Chassiss for 4WS4WD .....\n");
 
-	//step3 ³õÊ¼»¯IMU ---------------------------------------------
-	UART_send_string(USART2,"Start Init MPU6050 ... \n");
+	//printf å ç”¨ä¸²å£6
+	My_Config_USART_Init(USART6,256000,1);
+	UART_send_string(USART6,"USART6 Chassiss for 4WS4WD .....\n");
+	
+	// FLASHèŠ¯ç‰‡åˆå§‹åŒ–
+	W25QXX_Init();
+	W25QXX_ID = W25QXX_ReadID();
+	printf("ID:%X\r\n",W25QXX_ID);
+	
+	// MPU 6050åˆå§‹åŒ–
+	printf("Start Init MPU6050 ... \n");
     LED1_FLIP;
 	while (mpu_dmp_init() && main_counter<10)
 	{
 		LED1_FLIP;
-		UART_send_string(USART2,"MPU6050 ReInit... \r\n");
+		printf("MPU6050 ReInit... \r\n");
 		Delay_10us(9000);
 		main_counter++;
 	}
 	if(main_counter<10)
 	{
-		IMU_Init_Flag = 0x01;
-		UART_send_string(USART2,"MPU6050 Start Success   \r\n");
+		IMU_Init_Flag = 1;
+		printf("MPU6050 Start Success   \r\n");
 	}
 	else
 	{
-		IMU_Init_Flag = 0x00;
-		UART_send_string(USART2,"MPU6050 Init Failed   \r\n");
+		printf("MPU6050 Init Failed   \r\n");
 	}
-
 	 
-	//step4 ³õÊ¼»¯CAN ---------------------------------------------
-	CAN_Config();//³õÊ¼»¯canÄ£¿é
-	DJI_Motor_Init();//³õÊ¼»¯3508Ä£¿é
-	Mecanum_Wheel_Speed_Model(0,0,0); //¿ª»úÒÔºó·¢ËÍÉèÖÃµç»úÄ¿±êÖµÎª0
 	
-	//step5 ÉèÖÃĞ¡³µÔË¶¯Ñ§Ä£ĞÍ -------------------------------------
-	Code_Switch_Value = Read_Code_Switch(); //²¦Âë¿ª¹ØµÍÁ½Î»ÉèÖÃµ×ÅÌµÄÔË¶¯Ñ§Ä£ĞÍ
-	if((Code_Switch_Value & 0x03) == 0x00)
-	{
-		UART_send_string(USART2,"The differential model is used. \n"); 
-	}
-	else if((Code_Switch_Value & 0x03) == 0x01)
-	{
-		UART_send_string(USART2,"The mecanum model is used. \n"); 
-	}
-	else if((Code_Switch_Value & 0x03) == 0x02)
-	{
-		UART_send_string(USART2,"The 4WS4WD model is used. \n"); 
-	}
-	else if((Code_Switch_Value & 0x03) == 0x03)
-	{
-		UART_send_string(USART2,"The Ackermann model is used. \n"); 
-	}
+    // DBUS é¥æ§å™¨   å ç”¨ä¸²å£2
+	printf("RC_Remote_Init ...\n");	 
+	RC_Remote_Init(); 
+	printf("RC_Remote_Init Successful !\n");
 	
-	//step6 ÉèÖÃÒ£¿ØÆ÷ÀàĞÍ -------------------------------------
-	Code_Switch_Value = 0x00;
-	Code_Switch_Value = Read_Code_Switch(); 
-	if((Code_Switch_Value & 0x04) == 0x00) // »ñÈ¡µÚ3Î»¿ª¹Ø×´Ì¬
-	{
-		UART_send_string(USART2,"SBUS (for T8FB)model is used. \n"); 
-		rc.type =2; // SBUSÄ£ĞÍ     ÀÖµÏĞ­Òé
-		dma_lendat = 25;
-	}
-	else
-	{
-		UART_send_string(USART2,"DBUS (for DJI DT7) model is used. \n"); 
-		rc.type =1; // Ä¬ÈÏÎªDBUSÄ£ĞÍ  ´ó½®Ğ­Òé
-		dma_lendat = 18;
-	}
-	USART_DMA_Rec_Config(USART1,100000,dma_lendat); //¿ªÆô´®¿Ú1 DMA½ÓÊÕ·½Ê½  ÓÃÓÚ½ÓÊÕÒ£¿ØÆ÷ĞÅºÅ
+	//---------------------CANæµ‹è¯•---------------------
+	printf("CAN1 Init ...\n");	
+	CAN_Config(CAN1); //è¡Œè¿›ç”µæœº
+	printf("CAN1 Init Successful !\n");	
 	
-	//step7 ³õÊ¼»¯¶¨Ê±Æ÷ -------------------------------------	
-	Timer_2to7_counter_Generalfuncation(TIM2,1000);//1ms
-	Timer_2to7_Generalfuncation_start(TIM2);
+	printf("MOTOR_APSL2DB Init ... \n");
+	MOTOR_APSL2DB_Init();
+	printf("MOTOR_APSL2DB Init Successful !\n");	
+ 
+    Timer_2to7_Init(TIM6,10*1000);// 10ms
+	Timer_start(TIM6);
 	
-	//Timer_2to7_counter_Generalfuncation(TIM3,5000);//5ms
-	//Timer_2to7_Generalfuncation_start(TIM3);
-	UART_send_string(USART2,"Init Successful !!! \n\n");//×Ö·û´®º¯Êı
-		   
+    Timer_2to7_Init(TIM7,50*1000);// 50 ms
+	Timer_start(TIM7);
+ 
+	printf("mickrobot Init seccessful...\n");	
 	while(1)
 	{
-		if(Timer2_Counter2 > 100) //×´Ì¬Ö¸Ê¾£¬ÏÔÊ¾³ÌĞòÕı³£ÔËĞĞ
-		{
-			LED1_FLIP;
-			Timer2_Counter2=0;
-		}
-
-		if(CAN1_Flag)  //CAN×ÜÏßÖĞ¶Ï
-		{
-			CAN1_Flag=0x00;  
-		}
-		
-		if(UART1_DMA_Flag) //Ò£¿ØÆ÷½éÈë¿ØÖÆÃüÁîÂß¼­  7ms ·¢ËÍÒ»´Î
+		if(UART2_DMA_Flag) //é¥æ§å™¨ä»‹å…¥æ§åˆ¶å‘½ä»¤é€»è¾‘  DBUS 7ms å‘é€ä¸€æ¬¡æ•°æ®
 		{	
-			UART1_DMA_Flag2++;
-			if(UART1_DMA_Flag2>7) // 49msµ÷ÓÃÒ»´Î º¯Êı ·¢ËÍÒ£¿ØÆ÷×´Ì¬Êı¾İµ½ÉÏÎ»»ú
+			UART2_DMA_Flag2++;
+			if(UART2_DMA_Flag2>10)
 			{
 				LED2_FLIP;
-				if(DEBUUG)
-					RC_Debug_Message();
-				else
-					RC_Upload_Message();//ÉÏ´«Ò£¿ØÆ÷×´Ì¬
-				UART1_DMA_Flag2=0;
+				Set_Isolated_Output(2,1);//ç»¿è‰²
+				//RC_Debug_Message();
+				//RC_Upload_Message();//ä¸Šä¼ é¥æ§å™¨çŠ¶æ€
+				UART2_DMA_Flag2=0;
 			}			
-			UART1_DMA_Flag=0x00;	
+			UART2_DMA_Flag=0x00;	
 		}
-		
-		if(UART2_Flag && recived_cmd.flag) //ÉÏÎ»»úÖ¸ÁîÏÂ·¢½Ó¿Ú
+		if(flag_can1)
 		{
-			//------------------------- ·ÇÊµÊ±Ïß³Ì --------------------//
-			
-			//---------------------------------------------------------//
-			recived_cmd.flag =0;//Ê¹ÓÃÒ»´ÎÒÔºó¶ªÆú¸ÃÊı¾İ
-			UART2_Flag=0x00;
-		}
-		if(IMU_Init_Flag && Timer2_Counter4 > 10) //1ms*10  100HZ ¶ÁÈ¡DMP
-		{			 
-			IMU_Routing();		
-			Timer2_Counter4=0;
-		}
-		if(Timer2_Counter3 > 10) //1ms*10  100 HZ ÉÏ´«µç»úÊı¾İ
-		{
-			Timer2_Counter3=0;
-			if(DEBUUG)
+			flag_can1_2++;
+			if(flag_can1_2>3)
 			{
-				//DJI_Motor_Show_Message();//Í¬Ê±ÉÏ´«IMUºÍµç»úÊı¾İ£¬±£Ö¤Í¬²½
+				flag_can1_2 = 0;
+				LED3_FLIP;
+			}
+				
+			//printf("\nStdId: 0x%x   FMI: 0x%x \n",RxMessage.StdId,RxMessage.FMI); 
+			//MOTOR_APSL2DB_PDO_Debug();
+			
+			if((moto_chassis[0].driver_status != 0x00) //è¡¨ç¤ºæœ‰æŠ¥è­¦
+				|| (moto_chassis[1].driver_status != 0x00) 
+				|| (moto_chassis[2].driver_status != 0x00) 
+				|| (moto_chassis[3].driver_status != 0x00))
+			{
+				motor_errors_cnt++; //æ¯éš”1ç§’æ¸…é™¤ä¸€æ¬¡è®¡æ•°	
+				motor_i=0;
+				for(motor_i=0;motor_i<4;motor_i++)
+				{
+					if((moto_chassis[0].driver_status != 0x00)) //è¡¨ç¤ºæœ‰æŠ¥è­¦
+					{
+						 printf("Motor ID: %d  with warning !!!\n",motor_i);	
+						if(((moto_chassis[motor_i].error_code_LSB & 0x80) || (moto_chassis[motor_i].error_code_HSB & 0x08)) && motor_errors_cnt<10) //é©±åŠ¨å™¨è¾“å‡ºçŸ­è·¯ 
+						{
+							    printf("Motor ID: %d  is overhead, now clear the error flag with reset APSL2DB\n",motor_i);	
+								MOTOR_APSL2DB_Init();
+						}
+						else
+						{
+							Set_Isolated_Output(1,1);//çº¢
+						}
+					}
+				}				
 			}
 			else
 			{
-				DJI_Motor_Upload_Message();
-				IMU_Upload_Message(); 
+				Set_Isolated_Output(1,0);//çº¢
 			}
+			
+			Chassis_Motor_Upload_Message();
+			Chassis_Odom_Upload_Message();
+			flag_can1=0;
 		}
-
-		if(Timer2_Counter5 > 100) //1ms*100  10HZ ´òÓ¡ÆµÂÊ
-		{			 
-		  //Isolated_IO_Upload_Message(); 
-			Timer2_Counter5=0;
+		// IMU æ•°æ®è¯»å– ä¸Šä¼ 
+		if(IMU_Init_Flag && Timer6_Counter2 > 1) //10ms  100HZ è¯»å–DMP
+		{
+			IMU_Routing();	
+			
+			IMU_Upload_Message();	
+			Timer6_Counter2=0;
 		}
 		
+		// -----IO çŠ¶æ€ä¸Šä¼ 
+		if(Timer2_Counter4>= 20*1) //1ç§’è¯»å–ä¸€æ¬¡ IOçŠ¶æ€
+		{
+			Isolated_IO_Upload_Message();
+			Timer2_Counter4=0;
+		}
+		
+		//------ç”µæœºçŠ¶æ€ç›‘æµ‹
+		if(Timer2_Counter5>= 20*1) //1ç§’è¯»å–ä¸€æ¬¡ç”µæœºçŠ¶æ€
+		{
+			Timer2_Counter5=0;
+			
+			motor_errors_cnt=0;  //ç”µæœºæŠ¥è­¦æ¬¡æ•°æ¸…é›¶
+			
+			motor_detect_cnt++;
+			if(motor_detect_cnt<5)
+				APS_L2DB_Read_Temp(motor_detect_cnt);
+			else
+			{
+				motor_detect_cnt =0;
+				if((moto_chassis[0].Temp >= 60) //è¡¨ç¤ºæœ‰æŠ¥è­¦
+					|| (moto_chassis[1].Temp >= 60) 
+					|| (moto_chassis[2].Temp >= 60) 
+					|| (moto_chassis[3].Temp >= 60))
+				{
+					Set_Isolated_Output(1,0);//çº¢
+				}
+			}
+		}
 	}
- // exit from main() function
 }
- 
- //ÑÓÊ±º¯Êı 6.3ms
+
+ //å»¶æ—¶å‡½æ•° 6.3ms
 void Main_Delay(unsigned int delayvalue)
 {
 	unsigned int i;
@@ -271,98 +258,3 @@ void Main_Delay(unsigned int delayvalue)
 		while(i-->0);
 	}
 }
-void Main_Delay_us(unsigned int delayvalue)
-{
-//	unsigned int i;
-	while(delayvalue-->0)
-	{	
-		;
-	}
-}
-void Test_MPU6050(void)
-{
-	float pitch,roll,yaw; 		//Å·À­½Ç
-	while (1)
-	{
-		mpu_dmp_get_data(&pitch,&roll,&yaw);
-		UART_send_string(USART2,"\npitch:");
-		UART_send_floatdat(USART2,pitch);
-	 
-		
-		UART_send_string(USART2,"\t roll:");
-		UART_send_floatdat(USART2,roll);
-	 		
-		UART_send_string(USART2,"\t yaw:");
-		UART_send_floatdat(USART2,yaw);
-	 
-		LED1_FLIP;
-		Delay_10us(20000);
-	}
-}
-void Test_Mick_GPIO(void)
-{
-	uint8_t code_switch_value=0;
-	while(1)
-	{
-		if(Read_Key(1))
-		{
-			UART_send_string(USART2,"key1 pressed ...\n"); 
-			Set_Isolated_Output(1,1);
-			Set_Isolated_Output(2,1);
-		}
-		else
-		{
-			Set_Isolated_Output(1,0);
-			Set_Isolated_Output(2,0);
-		}
-		if(Read_Key(2))
-		{
-			UART_send_string(USART2,"key2 pressed ...\n"); 
-			Set_Isolated_Output(3,1);
-			Set_Isolated_Output(4,1);
-		}
-		else
-		{
-			Set_Isolated_Output(3,0);
-			Set_Isolated_Output(4,0);
-		}
-		
-		code_switch_value=0;
-		code_switch_value = Read_Code_Switch();
-		if(code_switch_value)
-		{
-			UART_send_string(USART2,"Code Switch value: "); 
-			UART_send_data(USART2,code_switch_value);
-			UART_send_string(USART2," \n"); 
-		}
-		
-		if(Read_Isolated_Input(1))
-		{
-			UART_send_string(USART2,"Isolated channel 1 input VCC ...\n"); 
-		}
-		
-		if(Read_Isolated_Input(2))
-		{
-			UART_send_string(USART2,"Isolated channel 2 input VCC ...\n"); 
-		}
-		
-		if(Read_Isolated_Input(3))
-		{
-			UART_send_string(USART2,"Isolated channel 3 input VCC ...\n"); 
-		}
-
-		if(Read_Isolated_Input(4))
-		{
-			UART_send_string(USART2,"Isolated channel 4 input VCC ...\n"); 
-		}
- 
-		
-		LED1_FLIP;
-		LED2_FLIP;
-		LED3_FLIP;
-		
-		Main_Delay(200);
-	}
-}
-// --------------------------------------------------------------//
-/***************************END OF FILE**********************/

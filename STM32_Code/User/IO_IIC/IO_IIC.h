@@ -1,7 +1,7 @@
 #ifndef _IO_IIC_H_
 #define _IO_IIC_H_
 
- #include "stm32f10x.h"
+ #include "stm32f4xx.h"
 
 /*************端口定义***********************/  
 
@@ -18,8 +18,9 @@
 //#define SDA_DIR_OUT				GPIOB->MODER |= 0x0000C000    //这里使用的函数代替的     
 
 //IO 方向设置
-#define SET_SDA_IN() {GPIOB->CRL&=0X0FFFFFFF;GPIOB->CRL|=8<<28;} //PB7
-#define SET_SDA_OUT() {GPIOB->CRL&=0X0FFFFFFF;GPIOB->CRL|=3<<28;}
+#define SET_SDA_IN()  {GPIOB->MODER&=~(3<<(7*2));GPIOB->MODER|=0<<7*2;}	//PB9输入模式
+#define SET_SDA_OUT() {GPIOB->MODER&=~(3<<(7*2));GPIOB->MODER|=1<<7*2;} //PB9输出模式
+
 
 
 /********************************************************
@@ -41,6 +42,6 @@ unsigned char IO_IIC_read_byte(unsigned char ack);//read a byte//从I2C总线接收一
 void SDA_DIR_IN(void);//设置SDA方向为输入
 void SDA_DIR_OUT(void);//设置SDA方向为输出
 
-
+void I2C_STM32_Write_one_Byte(I2C_TypeDef* I2Cx,uint8_t slave_Address,u8 WriteAddr, u8 pBuffer);
 
 #endif

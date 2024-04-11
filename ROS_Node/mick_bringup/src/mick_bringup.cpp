@@ -25,7 +25,7 @@
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
 #include <std_msgs/String.h>
-#include <sensor_msgs/Imu.h>
+
 #include<tf/transform_broadcaster.h>
 #include<nav_msgs/Odometry.h>
 #include<nav_msgs/Path.h>
@@ -41,9 +41,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
-#include "EKF_ODOM2D.h"
-
+#include <chassis_mick_msg.h>
 using namespace std;
 using namespace boost::asio;           //定义一个命名空间，用于后面的读写操作
 
@@ -64,49 +62,14 @@ nav_msgs::Path path;
 serial::Serial ros_ser;
 ros::Publisher odom_pub,path_pub;
 
-typedef struct{
-		uint32_t 	angle;				//abs angle range:[0,8191] 电机转角绝对值
-		uint16_t 	last_angle;	  //abs angle range:[0,8191]
-		int16_t	 	speed_rpm;       //转速
-		int16_t  	given_current;   //实际的转矩电流
-		uint8_t  	Temp;           //温度
-		uint16_t	offset_angle;   //电机启动时候的零偏角度
-		int32_t		round_cnt;     //电机转动圈数
-		int32_t		total_angle;    //电机转动的总角度
-		uint32_t counter;
-}moto_measure_t;
-typedef struct{
- 		uint32_t counter;
-		int16_t 	ax,ay,az;		 
- 		int16_t 	gx,gy,gz;	
- 		int16_t 	mx,my,mz;	
-		float pitch,roll,yaw;
-		float pitch_rad,roll_rad,yaw_rad;
-		bool available;
-}imu_measure_t;
-typedef struct
-{
-	uint16_t ch1, ch2, ch3, ch4;
-	uint16_t ch5, ch6, ch7, ch8, ch9, ch10, ch11, ch12, ch13, ch14, ch15, ch16, ch17, ch18;
-	uint8_t sw1, sw2,sw3, sw4;
-	uint16_t ch1_offset, ch2_offset, ch3_offset, ch4_offset;
-
-
-	 uint8_t type;	 // 1 DJI-DBUS   2 SBUS 遥控器类型
-
-	 uint8_t status; 
-	volatile uint8_t update; //表示接收到了一个新数据
-	volatile uint8_t available; //是否数据是否有效可用
-
-
-} rc_info_t;
+ 
 volatile rc_info_t rc;
 int rc_init_flags =0;
 unsigned int init_times = 0;
 int sum_offset[4] = {0};
 int show_message =1;
 float RC_MIN = 0, RC_MAX = 2500, RC_K = 1; //遥控器摇杆通道输出的最小值、最大值、比例系数
-ros::Publisher joy_pub,imu_pub;
+ros::Publisher joy_pub;
 
 moto_measure_t moto_chassis[4] = {0};
 moto_measure_t moto_rmd_chassis[4] = {0};
@@ -142,7 +105,7 @@ void calculate_chassisAckermann2_position_for_odometry(void);
 void publish_odomtery(float  position_x,float position_y,float oriention,float vel_linear_x,float vel_linear_y,float vel_linear_w);
 bool publish_joy_msg(void);
 int calculate_rc_offset(void);
-void publish_IMU_rawData(void);
+
 
 int main(int argc,char** argv)
 {
@@ -158,7 +121,7 @@ int main(int argc,char** argv)
 //     sp.set_option(serial_port::stop_bits());
 //     sp.set_option(serial_port::character_size(8));
  
-    string sub_cmdvel_topic,pub_odom_topic,dev,joy_topic,imu_topic;
+    string sub_cmdvel_topic,pub_odom_topic,dev,joy_topic;
 	int baud,time_out,hz;
  	ros::init(argc, argv, "mick robot");
 	ros::NodeHandle n("~");
@@ -171,8 +134,8 @@ int main(int argc,char** argv)
 	n.param<int>("hz", hz, 100);
 	n.param<int>("is_pub_path", is_pub_path, 0); // 默认不发布小车底盘轨迹
 	n.param<int>("chassis_type", chassis_type, 3); //  
-	n.param<std::string>("imu_topic", imu_topic, "/chassis/imu");
-	n.param<std::string>("joy_topic", joy_topic, "/chassis/rc_remotes/joy");
+
+	n.param<std::string>("joy_topic", joy_topic, "/rc_remotes/joy");
 	n.param<float>("RC_K", RC_K, 1);
 	n.param<float>("RC_MIN", RC_MIN, 0);
 	n.param<float>("RC_MAX", RC_MAX, 2500);
@@ -197,7 +160,6 @@ int main(int argc,char** argv)
 	// ros::Publisher sensor_pub = n.advertise<std_msgs::String>("sensor", 1000);
 	
 	joy_pub = n.advertise<sensor_msgs::Joy>(joy_topic, 20);
-	imu_pub = n.advertise<sensor_msgs::Imu>(imu_topic, 20);
 	odom_pub= n.advertise<nav_msgs::Odometry>(pub_odom_topic, 20); //定义要发布/odom主题
 	path_pub = n.advertise<nav_msgs::Path>(pub_odom_topic+"/path",20, true);
 	// 开启串口模块
@@ -304,44 +266,33 @@ int main(int argc,char** argv)
 }
 void cmd_vel_callback(const geometry_msgs::Twist::ConstPtr& msg)
 {
+//ROS_INFO_STREAM("Write to serial port" << msg->data);
+ // ostringstream os;
   float speed_x,speed_y,speed_w;
   float v1=0,v2=0,v3=0,v4=0;
+  // os<<"speed_x:"<<msg->linear.x<<"      speed_y:"<<msg->linear.y<<"      speed_w:"<<msg->angular.z<<'\n';
+ //cout<<os.str()<<endl;
+//send_speed_to_chassis(msg->linear.x*10,msg->linear.y*10,msg->angular.z*2);
 
+  
   speed_x = msg->linear.x;
   speed_y = 0;
   speed_w = msg->angular.z;
   
-	if(chassis_type == 0 || chassis_type == 1 ) //差速模式   或是    麦克纳姆轮模式
+
+	if(chassis_type == 0) //差速模式
 	{
-		if(chassis_type == 0)//差速模式
-		{
-			v1 =speed_x-0.5*WHEEL_L*speed_w;   //左边    //转化为每个轮子的线速度
-			v2 =v1;
-			v4 =-(speed_x+0.5*WHEEL_L*speed_w);
-			v3 =v4;
-		}
-		else if(chassis_type == 1) // 麦克纳姆轮模式
-		{
-			v1 =speed_x-speed_y-WHEEL_K*speed_w;       //转化为每个轮子的线速度
-			v2 =speed_x+speed_y-WHEEL_K*speed_w;
-			v3 =-(speed_x-speed_y+WHEEL_K*speed_w);
-			v4 =-(speed_x+speed_y+WHEEL_K*speed_w);
-		}
-
-		v1 =v1/(2.0*WHEEL_R*WHEEL_PI);    //转换为轮子的速度　RPM
-		v2 =v2/(2.0*WHEEL_R*WHEEL_PI);
-		v3 =v3/(2.0*WHEEL_R*WHEEL_PI);
-		v4 =v4/(2.0*WHEEL_R*WHEEL_PI);
-
-		v1 =v1*WHEEL_RATIO*60;    //转每秒转换到RPM
-		v2 =v2*WHEEL_RATIO*60;
-		v3 =v3*WHEEL_RATIO*60;
-		v4 =v4*WHEEL_RATIO*60;
-
-		send_rpm_to_chassis(v1,v2,v3,v4);	 
-		//send_rpm_to_chassis(200,200,200,200);	
-		ROS_INFO_STREAM("v1: "<<v1<<"      v2: "<<v2<<"      v3: "<<v3<<"      v4: "<<v4);
-		ROS_INFO_STREAM("speed_x:"<<msg->linear.x<<"      speed_y:"<<msg->linear.y<<"      speed_w:"<<msg->angular.z);
+		v1 =speed_x-0.5*WHEEL_L*speed_w;   //左边    //转化为每个轮子的线速度
+		v2 =v1;
+		v4 =-(speed_x+0.5*WHEEL_L*speed_w);
+		v3 =v4;
+	}
+	else if(chassis_type == 1) // 麦克纳姆轮模式
+	{
+		v1 =speed_x-speed_y-WHEEL_K*speed_w;       //转化为每个轮子的线速度
+		v2 =speed_x+speed_y-WHEEL_K*speed_w;
+		v3 =-(speed_x-speed_y+WHEEL_K*speed_w);
+		v4 =-(speed_x+speed_y+WHEEL_K*speed_w);
 	}
 	else if(chassis_type == 2) // 阿卡曼模式
 	{
@@ -402,6 +353,21 @@ void cmd_vel_callback(const geometry_msgs::Twist::ConstPtr& msg)
 	{
 		ROS_WARN_STREAM("unknown chassis type ! ");
 	}
+
+	v1 =v1/(2.0*WHEEL_R*WHEEL_PI);    //转换为轮子的速度　RPM
+	v2 =v2/(2.0*WHEEL_R*WHEEL_PI);
+	v3 =v3/(2.0*WHEEL_R*WHEEL_PI);
+	v4 =v4/(2.0*WHEEL_R*WHEEL_PI);
+
+	v1 =v1*WHEEL_RATIO*60;    //转每秒转换到RPM
+	v2 =v2*WHEEL_RATIO*60;
+	v3 =v3*WHEEL_RATIO*60;
+	v4 =v4*WHEEL_RATIO*60;
+
+  send_rpm_to_chassis(v1,v2,v3,v4);	 
+ //send_rpm_to_chassis(200,200,200,200);	
+  ROS_INFO_STREAM("v1: "<<v1<<"      v2: "<<v2<<"      v3: "<<v3<<"      v4: "<<v4);
+  ROS_INFO_STREAM("speed_x:"<<msg->linear.x<<"      speed_y:"<<msg->linear.y<<"      speed_w:"<<msg->angular.z);
 }
 
 // 差速小车
@@ -782,10 +748,14 @@ bool  analy_uart_recive_data( std_msgs::String serial_data)
 											<<"  angle: "<<moto_chassis[j].angle <<"  angle_rmd: "<<moto_rmd_chassis[j].angle );
 				}
 		  }
-		  else if (reviced_tem[3+step] ==0xA0 ) // IMU
+		  else if (reviced_tem[3+step] ==0x10 )
 			{
 			     i=4+step;
-	  
+				motor_upload_counter.byte_data[3]=reviced_tem[i++];
+				motor_upload_counter.byte_data[2]=reviced_tem[i++];
+				motor_upload_counter.byte_data[1]=reviced_tem[i++];
+				motor_upload_counter.byte_data[0]=reviced_tem[i++];
+			  
 			  imu.int16_dat=0;imu.byte_data[1] = reviced_tem[i++] ;imu.byte_data[0] = reviced_tem[i++] ;
 			  imu_chassis.ax = imu.int16_dat;
 			  imu.int16_dat=0;imu.byte_data[1] = reviced_tem[i++] ; imu.byte_data[0] = reviced_tem[i++] ;
@@ -808,23 +778,15 @@ bool  analy_uart_recive_data( std_msgs::String serial_data)
 			  imu_chassis.mz = imu.int16_dat;
 			  
 			  imu.int16_dat=0;imu.byte_data[1] = reviced_tem[i++] ; imu.byte_data[0] = reviced_tem[i++] ;
-			  imu_chassis.pitch = imu.int16_dat/100.0f/57.3f;
+			  imu_chassis.pitch = imu.int16_dat/100.0f;
 			  imu.int16_dat=0;imu.byte_data[1] = reviced_tem[i++] ; imu.byte_data[0] = reviced_tem[i++] ;
-			  imu_chassis.roll = imu.int16_dat/100.0f/57.3f;
+			  imu_chassis.roll = imu.int16_dat/100.0f;
 			  imu.int16_dat=0;imu.byte_data[1] = reviced_tem[i++] ; imu.byte_data[0] = reviced_tem[i++] ;
-			  imu_chassis.yaw = imu.int16_dat/100.0f/57.3f;
+			  imu_chassis.yaw = imu.int16_dat/100.0f;
 			  
-			  imu_chassis.available = true;
-			  ROS_INFO_STREAM("recived imu  data" ); 
-			  if(show_message)
-				{
-					ROS_INFO_STREAM("imu ax: " <<imu_chassis.ax << " ay: " <<imu_chassis.ay	 << " az: " << imu_chassis.az 
-					<< " gx: " <<imu_chassis.gx<< " gy: " <<imu_chassis.gy	 << " gz: " << imu_chassis.gz  
-					<< " roll: " <<imu_chassis.roll*57.3<< " pitch: " <<imu_chassis.pitch*57.3	 << " yaw: " << imu_chassis.yaw*57.3 );
-				}
-				publish_IMU_rawData();
+				ROS_INFO_STREAM("recived imu  data" ); 
 			}
-			else if (reviced_tem[3+step] ==0xA1 )
+			else if (reviced_tem[3+step] ==0x11 )
 			{
 			    i=4+step;
 				uint16_t ultra_tem=0;
@@ -875,13 +837,9 @@ bool  analy_uart_recive_data( std_msgs::String serial_data)
 				// }
 				return true;
 			}
-			else if (reviced_tem[3 + step] == 0x11) // GPIO
-			{
-				ROS_INFO_STREAM("recived GPIO  data" ); ;
-			}
 			else
 			{
-				ROS_WARN_STREAM("unrecognize frame  "<<  reviced_tem[3 + step] ); 
+				ROS_WARN_STREAM("unrecognize frame" ); 
 			}
 			//return  true;
 	  }
@@ -900,20 +858,17 @@ bool  analy_uart_recive_data( std_msgs::String serial_data)
  */
 float s1=0,s2=0,s3=0,s4=0;
 float s1_last=0,s2_last=0,s3_last=0,s4_last=0;
-float imu_last_yaw=0,imu_curr_yaw=0;
 float position_x=0,position_y=0,position_w=0;
 static int motor_init_flag = 0;
-double last_time=0, curr_time =0;
 void calculate_position_for_odometry(void)
  {
-
+  //方法１：　　计算每个轮子转动的位移，然后利用Ｆ矩阵合成Ｘ,Y,W三个方向的位移
   float s1_delta=0,s2_delta=0,s3_delta=0,s4_delta=0;
   float v1=0,v2=0,v3=0,v4=0;
   float K4_1 = 1.0/(4.0*WHEEL_K);
   float position_x_delta,position_y_delta,position_w_delta,position_r_delta;
   float linear_x,linear_y,linear_w;
-
-	 //计算每个轮子转动的位移，然后利用Ｆ矩阵合成Ｘ,Y,W三个方向的位移
+	 
   if(motor_init_flag == 0 && ((s1_last == 0 && s2_last == 0&& s3_last==0&&s4_last==0) || (moto_chassis[0].counter ==0)))
   {
 		s1 = (moto_chassis[0].round_cnt+(moto_chassis[0].total_angle%8192)/8192.0)/WHEEL_RATIO*WHEEL_PI*WHEEL_D ; 
@@ -926,12 +881,6 @@ void calculate_position_for_odometry(void)
 		s3_last=s3;
 		s4_last=s4;
 
-		position_x = 0;
-		position_y = 0;
-		position_w = 0;
-
-		curr_time = ros::Time::now().toSec();
-		last_time =  curr_time;
 		motor_init_flag++;//保证程序只进入一次
 		
 		return ;
@@ -941,7 +890,7 @@ void calculate_position_for_odometry(void)
   s2_last=s2;
   s3_last=s3;
   s4_last=s4;
-
+ 
   //轮子转动的圈数乘以　N*２*pi*r
   s1 =    (moto_chassis[0].round_cnt+(moto_chassis[0].total_angle%8192)/8192.0)/WHEEL_RATIO*WHEEL_PI*WHEEL_D ; 
   s2 =    (moto_chassis[1].round_cnt+(moto_chassis[1].total_angle%8192)/8192.0)/WHEEL_RATIO*WHEEL_PI*WHEEL_D ; 
@@ -952,65 +901,33 @@ void calculate_position_for_odometry(void)
   s2_delta=s2-s2_last;
   s3_delta=s3-s3_last;
   s4_delta=s4-s4_last;
+  
+   // ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   if(abs(s1_delta) < 0.001 )  s1_delta=0;
+   if(abs(s2_delta) < 0.001 )  s2_delta=0;
+    if(abs(s3_delta) < 0.001 )  s3_delta=0;
+   if(abs(s4_delta) < 0.001 )  s4_delta=0;
+   
+  s1_delta = 0.5*s1_delta+0.5*s2_delta;  
+  s4_delta = 0.5*s3_delta+0.5*s4_delta; 
 
-	curr_time = ros::Time::now().toSec();
-	double dt = curr_time - last_time;
-	last_time =  curr_time;
-	if(dt>1)
-		dt = 1;
-
+//    if(s1_delta || s2_delta || s3_delta || s4_delta)
+//   cout<<"s1_delta:  "<<s1_delta<<"   s2_delta: " <<s2_delta<<"   s3_delta: " <<s3_delta<<"   s4_delta: " <<s4_delta<<endl;
+ 
  if(chassis_type == 0) //差速模式
  {
-	 // 差速模式下轮胎与地面滑转后，误差较大，直接用编码器计算轮子转动的位移合成位置 误差较大
-	v1 =    (moto_chassis[0].speed_rpm)/WHEEL_RATIO/60.0*WHEEL_R *WHEEL_PI*2;
-	v2 =    (moto_chassis[1].speed_rpm)/WHEEL_RATIO/60.0*WHEEL_R *WHEEL_PI*2; 
-	v3 =    (moto_chassis[2].speed_rpm)/WHEEL_RATIO/60.0*WHEEL_R *WHEEL_PI*2; 
-	v4 =    (moto_chassis[3].speed_rpm)/WHEEL_RATIO/60.0*WHEEL_R *WHEEL_PI*2; 
- 
-	linear_x = 0.25*v1+ 0.25*v2+ 0.25*v3+ 0.25*v4;
-	linear_y = 0;
-	linear_w = ((0.5*v3+0.5*v4)-(0.5*v1+0.5*v2))/float(WHEEL_L);
-	float delat_yaw=0;
-	if(imu_chassis.available)
-	{
-		float w_imu = imu_chassis.gz/16384.0*2000/57.3; // 2000表示IMU的量程
-		if(abs(w_imu - linear_w)>0.2  &&  abs(w_imu)>0.1) // 如果轮子计算的角速度和IMU测量的角速度差异值有0.2弧度 则放弃
-   			linear_w = imu_chassis.gz ; //读取IMU的旋转角速度
-		//imu_chassis.available = false;
-	
-		// 方式2 从DMP输出的角度计算读取增量
-		if(imu_last_yaw == 0)//
-		{
-			imu_last_yaw =  imu_chassis.yaw;
-		}
-		imu_curr_yaw = imu_chassis.yaw;
-		delat_yaw = imu_curr_yaw - imu_last_yaw;
-		imu_last_yaw = imu_curr_yaw;
-		
-		if(abs(delat_yaw) > 5/57.3f)//10ms 内转动超过了5度
-		{
-			if (delat_yaw>0)
-				delat_yaw =5/57.3f;
-			else
-				delat_yaw =-5/57.3f; 
-		}
-		if(abs(delat_yaw)<0.015)  // 1度
-			delat_yaw = 0;
-
-		linear_w = delat_yaw/dt;
-		//cout<<"w_imu: "<< imu_chassis.gz<<endl;
-	}
+	position_w_delta =((s4_delta)- (s1_delta))/float(WHEEL_L); //w 单位为弧度
+	if(abs(position_w_delta) < 0.0001)
+		position_r_delta=0;
 	else
-	{
-		imu_last_yaw = position_w;
-		ROS_WARN_STREAM("w_imu is not available  : ");
-	}
-	
- 
-	position_x=position_x+cos(position_w)*linear_x*dt;
-	position_y=position_y+sin(position_w)*linear_x*dt;
-	//position_w=position_w+linear_w*dt;
-	position_w=position_w+delat_yaw;
+		position_r_delta = ((s4_delta)+(s1_delta))/float(2*position_w_delta);
+	position_x_delta=position_r_delta*sin(position_w_delta);
+	position_y_delta = position_r_delta*(1-cos(position_w_delta));
+	// ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	position_x=position_x+cos(position_w)*position_x_delta-sin(position_w)*position_y_delta;
+	position_y=position_y+sin(position_w)*position_x_delta+cos(position_w)*position_y_delta;
+	position_w=position_w+position_w_delta;
  }
  else if(chassis_type == 1) // 麦克纳姆轮模式
  {
@@ -1021,16 +938,6 @@ void calculate_position_for_odometry(void)
 	position_x=position_x+cos(position_w)*position_x_delta-sin(position_w)*position_y_delta;
 	position_y=position_y+sin(position_w)*position_x_delta+cos(position_w)*position_y_delta;
 	position_w=position_w+position_w_delta;
-
-
-	linear_x = 0.25*v1+ 0.25*v2+ 0.25*v3+ 0.25*v4;
-	linear_y = -0.25*v1+ 0.25*v2- 0.25*v3+ 0.25*v4;
-	linear_w = -K4_1*v1-K4_1*v2+K4_1*v3+ K4_1*v4;
-
-	position_x=position_x+cos(position_w)*linear_x*dt;
-	position_y=position_y+sin(position_w)*linear_x*dt;
-	position_w=position_w+linear_w*dt;
-
  }
  else if(chassis_type == 2) // 4WS4WD模式
  {
@@ -1041,6 +948,8 @@ void calculate_position_for_odometry(void)
 	 ROS_WARN_STREAM("unknown chassis type ! ");
  }
   
+
+
   if(position_w>2*WHEEL_PI)
   {
      position_w=position_w-2*WHEEL_PI;	
@@ -1050,18 +959,42 @@ void calculate_position_for_odometry(void)
      position_w=position_w+2*WHEEL_PI;
   }
   else;
- 
-  if(show_message)
-  {
-	    ROS_INFO_STREAM("px:  "<<position_x<<"   py: " <<position_y<<"   pw: " <<position_w*57.3
-  														<<"  vx:  "<<linear_x<<"   vy: " <<linear_y<<"   vw: " <<linear_w<<endl);
-  }
 
+  v1 =    (moto_chassis[0].speed_rpm)/WHEEL_RATIO/60.0*WHEEL_R *WHEEL_PI*2;
+  v2 =    (moto_chassis[1].speed_rpm)/WHEEL_RATIO/60.0*WHEEL_R *WHEEL_PI*2; 
+  v3 =    (moto_chassis[2].speed_rpm)/WHEEL_RATIO/60.0*WHEEL_R *WHEEL_PI*2; 
+  v4 =    (moto_chassis[3].speed_rpm)/WHEEL_RATIO/60.0*WHEEL_R *WHEEL_PI*2; 
+ if(chassis_type == 0) //差速模式
+ {
+  linear_x = 0.25*v1+ 0.25*v2+ 0.25*v3+ 0.25*v4;
+  linear_y = 0;
+  linear_w = ((0.5*v3+0.5*v4)-(0.5*v1+0.5*v2))/float(WHEEL_L);
+ }
+ else if(chassis_type == 1) // 麦克纳姆轮模式
+ {
+  linear_x = 0.25*v1+ 0.25*v2+ 0.25*v3+ 0.25*v4;
+  linear_y = -0.25*v1+ 0.25*v2- 0.25*v3+ 0.25*v4;
+  linear_w = -K4_1*v1-K4_1*v2+K4_1*v3+ K4_1*v4;
+ }
+  else if(chassis_type == 2) // 4WS4WD模式
+ {
+	  ROS_WARN_STREAM("4WS4WD  ! ");
+ }
+ else
+ {
+	 ROS_WARN_STREAM("unknown chassis type ! ");
+ }
+  
+  ROS_INFO_STREAM("px:  "<<position_x<<"   py: " <<position_y<<"   pw: " <<position_w*57.3
+  <<"  vx:  "<<linear_x<<"   vy: " <<linear_y<<"   vw: " <<linear_w<<endl);
  
     publish_odomtery( position_x,position_y,position_w,linear_x,linear_y,linear_w);
-     
+    //方法２;利用轮子的转速来推算
 }
- 
+
+
+double last_time=0, curr_time =0;
+
 // Ackerman底盘  速度计算
 // 仅仅只是前轮转向模式
 void calculate_chassisAckermann_position_for_odometry(void)
@@ -1356,43 +1289,4 @@ int calculate_rc_offset(void)
 		}
 	}
 	return re_flag; //标定中
-}
-void publish_IMU_rawData(void)
-{
-	sensor_msgs::Imu  imu_msg;
-	imu_msg.header.stamp = ros::Time::now();
-	imu_msg.header.frame_id = "chassis_imu";
-
-	Eigen::Vector3d ea0(imu_chassis.roll * M_PI / 180.0,
-		  imu_chassis.pitch * M_PI / 180.0,
-		  imu_chassis.yaw * M_PI / 180.0);
-	Eigen::Matrix3d R;
-	R = Eigen::AngleAxisd(ea0[0], ::Eigen::Vector3d::UnitZ())
-		* Eigen::AngleAxisd(ea0[1], ::Eigen::Vector3d::UnitY())
-		* Eigen::AngleAxisd(ea0[2], ::Eigen::Vector3d::UnitX());
-
-	Eigen::Quaterniond q;
-	q = R;
-	q.normalize();
-
-	imu_msg.orientation.w = (double)q.w();
-	imu_msg.orientation.x = (double)q.x();
-	imu_msg.orientation.y = (double)q.y();
-	imu_msg.orientation.z = (double)q.z();
-
-	imu_msg.angular_velocity.x = imu_chassis.gx*0.0010652; 
-	imu_msg.angular_velocity.y = imu_chassis.gy*0.0010652;
-	imu_msg.angular_velocity.z = imu_chassis.gz*0.0010652;
-
-	imu_msg.linear_acceleration.x = imu_chassis.ax/32768.0f*2;
-	imu_msg.linear_acceleration.y = imu_chassis.ay/32768.0f*2;
-	imu_msg.linear_acceleration.z = imu_chassis.az/32768.0f*2;
-	imu_pub.publish(imu_msg);
-
-	// msg_mag.magnetic_field.x = imu_chassis.mx;
-	// msg_mag.magnetic_field.y = imu_chassis.my;
-	// msg_mag.magnetic_field.z = imu_chassis.mz;
-	// msg_mag.header.stamp = msg.header.stamp;
-	// msg_mag.header.frame_id = msg.header.frame_id;
-	// pub_mag.publish(msg_mag);
 }

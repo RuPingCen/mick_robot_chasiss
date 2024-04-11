@@ -21,10 +21,15 @@ else()
    message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
+
+find_package(Eigen3 REQUIRED)
+#find_package(OpenCV REQUIRED)
+#find_package(OpenMP)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+
    roscpp
    rospy
    std_msgs
@@ -34,7 +39,7 @@ find_package(catkin REQUIRED COMPONENTS
    rostime sensor_msgs 
    message_filters 
 )
-find_package(Eigen3 REQUIRED)
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -126,7 +131,7 @@ find_package(Eigen3 REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- INCLUDE_DIRS include
+#  INCLUDE_DIRS include
 #  LIBRARIES save_imagefrom_kinect2
 #  CATKIN_DEPENDS roscpp rospy stdmsg
 #  DEPENDS system_lib
@@ -143,19 +148,23 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-   ${catkin_INCLUDE_DIRS}
-   ${EIGEN3_INCLUDE_DIR}
-   include
+   src
+	${catkin_INCLUDE_DIRS}
+	${EIGEN3_INCLUDE_DIR}
 )
 
-add_executable(mick_bringup src/mick_bringup.cpp   src/EKF_ODOM2D.cpp)
+add_executable(mick_bringup src/mick_bringup.cpp)
 
-target_link_libraries(mick_bringup 
+target_link_libraries(mick_bringup
 	${catkin_LIBRARIES}
 )
 
 add_executable(mickx4_bringup_v2 src/mickx4_bringup_v2.cpp)
 target_link_libraries(mickx4_bringup_v2
+	${catkin_LIBRARIES}
+)
+add_executable(mickx4_bringup_v3 src/mickx4_bringup_v3.cpp)
+target_link_libraries(mickx4_bringup_v3
 	${catkin_LIBRARIES}
 )
 ## Declare a C++ library

@@ -1,8 +1,8 @@
-#include "stm32f10x.h"
-#include "stm32f10x_i2c.h"
-#include "stm32f10x_rcc.h" 
-#include "stm32f10x_Delay.h"
- 
+#include "stm32f4xx.h"
+#include "stm32f4xx_i2c.h"
+#include "stm32f4xx_rcc.h" 
+//#include "delay.h"
+#include "bsp_systick.h"
 #include "IO_IIC.h"
 #include "MPU6050.h"
  
@@ -101,45 +101,40 @@ void MPU6050_Data_Process(I2C_TypeDef* I2Cx,short int *u16MPU6050dat)//MPU6050数
 #else
 void MPU6050_Data_Process(int16_t *int16t_MPU6050dat)//MPU6050数据读取 及处理函数
 {
-	    
-	  
 //			int16t_MPU6050dat[0]=MPU6050_GetData(MPU6050_RA_ACCEL_XOUT_H)-ACC_OFFSET[0];//使用四元素 加速度数据 不需要减去OFFSET 
 //			int16t_MPU6050dat[1]=MPU6050_GetData(MPU6050_RA_ACCEL_YOUT_H)-ACC_OFFSET[1];// 
 //			int16t_MPU6050dat[2]=MPU6050_GetData(MPU6050_RA_ACCEL_ZOUT_H)-ACC_OFFSET[2];
 //			int16t_MPU6050dat[3]=MPU6050_GetData(MPU6050_RA_GYRO_XOUT_H)-GYRO_OFFSET[0];
 //			int16t_MPU6050dat[4]=MPU6050_GetData(MPU6050_RA_GYRO_YOUT_H)-GYRO_OFFSET[1];
 //			int16t_MPU6050dat[5]=MPU6050_GetData(MPU6050_RA_GYRO_ZOUT_H)-GYRO_OFFSET[2];  
-	
-	
-	   	int16t_MPU6050dat[0]=MPU6050_GetData(MPU6050_RA_ACCEL_XOUT_H);//使用四元素 加速度数据 不需要减去OFFSET 
-			int16t_MPU6050dat[1]=MPU6050_GetData(MPU6050_RA_ACCEL_YOUT_H); 
-			int16t_MPU6050dat[2]=MPU6050_GetData(MPU6050_RA_ACCEL_ZOUT_H); 
-			int16t_MPU6050dat[3]=MPU6050_GetData(MPU6050_RA_GYRO_XOUT_H);//陀螺仪数据在IMU 里面减去了OFFSET 
-			int16t_MPU6050dat[4]=MPU6050_GetData(MPU6050_RA_GYRO_YOUT_H);
-			int16t_MPU6050dat[5]=MPU6050_GetData(MPU6050_RA_GYRO_ZOUT_H); 
 
 
-			MPU6050_newValues(int16t_MPU6050dat[0],int16t_MPU6050dat[1],int16t_MPU6050dat[2],//滑动窗口滤波
-											  int16t_MPU6050dat[3],int16t_MPU6050dat[4],int16t_MPU6050dat[5]);
+	int16t_MPU6050dat[0]=MPU6050_GetData(MPU6050_RA_ACCEL_XOUT_H);//使用四元素 加速度数据 不需要减去OFFSET 
+	int16t_MPU6050dat[1]=MPU6050_GetData(MPU6050_RA_ACCEL_YOUT_H); 
+	int16t_MPU6050dat[2]=MPU6050_GetData(MPU6050_RA_ACCEL_ZOUT_H); 
+	int16t_MPU6050dat[3]=MPU6050_GetData(MPU6050_RA_GYRO_XOUT_H);//陀螺仪数据在IMU 里面减去了OFFSET 
+	int16t_MPU6050dat[4]=MPU6050_GetData(MPU6050_RA_GYRO_YOUT_H);
+	int16t_MPU6050dat[5]=MPU6050_GetData(MPU6050_RA_GYRO_ZOUT_H); 
 
 
-			int16t_MPU6050dat[0]=MPU6050_FIFO[0][FIFO_Length];
-			int16t_MPU6050dat[1]=MPU6050_FIFO[1][FIFO_Length];
-			int16t_MPU6050dat[2]=MPU6050_FIFO[2][FIFO_Length];
-			int16t_MPU6050dat[3]=MPU6050_FIFO[3][FIFO_Length];
-			int16t_MPU6050dat[4]=MPU6050_FIFO[4][FIFO_Length];
-			int16t_MPU6050dat[5]=MPU6050_FIFO[5][FIFO_Length];
+	MPU6050_newValues(int16t_MPU6050dat[0],int16t_MPU6050dat[1],int16t_MPU6050dat[2],//滑动窗口滤波
+								  int16t_MPU6050dat[3],int16t_MPU6050dat[4],int16t_MPU6050dat[5]);
 
-	
+
+	int16t_MPU6050dat[0]=MPU6050_FIFO[0][FIFO_Length];
+	int16t_MPU6050dat[1]=MPU6050_FIFO[1][FIFO_Length];
+	int16t_MPU6050dat[2]=MPU6050_FIFO[2][FIFO_Length];
+	int16t_MPU6050dat[3]=MPU6050_FIFO[3][FIFO_Length];
+	int16t_MPU6050dat[4]=MPU6050_FIFO[4][FIFO_Length];
+	int16t_MPU6050dat[5]=MPU6050_FIFO[5][FIFO_Length];
+
+
 //			UART_send_intdata(USART1,int16t_MPU6050dat[0]);UART_send_char(USART1,'\t'); 
 //			UART_send_intdata(USART1,int16t_MPU6050dat[1]);UART_send_char(USART1,'\t');
 //			UART_send_intdata(USART1,int16t_MPU6050dat[2]);UART_send_char(USART1,'\t');
 //			UART_send_intdata(USART1,int16t_MPU6050dat[3]);UART_send_char(USART1,'\t');
 //			UART_send_intdata(USART1,int16t_MPU6050dat[4]);UART_send_char(USART1,'\t');
 //			UART_send_intdata(USART1,int16t_MPU6050dat[5]);UART_send_char(USART1,'\n');
-			 
-
- 
 }
 #endif
 
@@ -377,7 +372,7 @@ uint8_t MPU6050_Write_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf)
 uint8_t MPU6050_IIC_Wait_Ack(void)
 {
 	uint8_t ucErrTime=0;
-	SDA_DIR_IN();
+	SET_SDA_IN();
 	SDA_OUT_H;
 	IO_IIC_Delay();
 	SCL_OUT_H;

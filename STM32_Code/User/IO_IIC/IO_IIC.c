@@ -5,9 +5,9 @@
  * ±¸×¢         £ºIO¿ÚÄ£ÄâIICÍ¨ÐÅ
 **********************************************************************************/
  
-#include "stm32f10x.h"
-#include "stm32f10x_gpio.h"
-#include "stm32f10x_rcc.h"
+#include "stm32f4xx.h"
+#include "stm32f4xx_gpio.h"
+#include "stm32f4xx_rcc.h"
  
 #include "IO_IIC.h"
 
@@ -15,45 +15,49 @@
 
 void IO_IIC_GPIO_Init(void)
 {		
+	GPIO_InitTypeDef GPIO_InitStructure;
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB,ENABLE);
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB,&GPIO_InitStructure);
 	
-		My_GPIO_Init(GPIOB,GPIO_Pin_6,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
-		My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
-//		My_GPIO_Init(GPIOB,GPIO_Pin_10,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
-//		My_GPIO_Init(GPIOB,GPIO_Pin_11,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
-		IO_IIC_Delay();IO_IIC_Delay();IO_IIC_Delay();IO_IIC_Delay();
-		IO_IIC_Delay();IO_IIC_Delay();IO_IIC_Delay();IO_IIC_Delay();
+		IO_IIC_Delay();IO_IIC_Delay();
+		IO_IIC_Delay();IO_IIC_Delay();
 	
 }
 
-void SDA_DIR_OUT(void)//ÕâÀïÊ¹ÓÃº¯Êý¸Ä±äIO·½Ïò
-{		
-//			GPIO_InitTypeDef GPIO_InitStruct;
-//		//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB,ENABLE);//Æô¶¯¶Ë¿ÚÊ±ÖÓ
-// 
-//			GPIO_InitStruct.GPIO_Mode=GPIO_Mode_OUT; 	
-//			GPIO_InitStruct.GPIO_OType=GPIO_OType_OD;                                    
-//			GPIO_InitStruct.GPIO_PuPd=GPIO_PuPd_UP;     
-//			GPIO_InitStruct.GPIO_Pin=GPIO_Pin_7;                                      
-//			GPIO_InitStruct.GPIO_Speed=GPIO_Speed_100MHz;   
-//			GPIO_Init(GPIOB, &GPIO_InitStruct);
-    
-				My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
-			//	My_GPIO_Init(GPIOB,GPIO_Pin_11,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
-}
-void SDA_DIR_IN(void)
-{		
-//			GPIO_InitTypeDef GPIO_InitStruct;
-//		//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB,ENABLE);//Æô¶¯¶Ë¿ÚÊ±ÖÓ
-// 
-//			GPIO_InitStruct.GPIO_Mode=GPIO_Mode_IN; 	
-//			GPIO_InitStruct.GPIO_OType=GPIO_OType_OD;                                    
-//			GPIO_InitStruct.GPIO_PuPd=GPIO_PuPd_UP;     
-//			GPIO_InitStruct.GPIO_Pin=GPIO_Pin_7;                                      
-//			GPIO_InitStruct.GPIO_Speed=GPIO_Speed_100MHz;   
-//			GPIO_Init(GPIOB, &GPIO_InitStruct);
-				My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_IPU, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
-			//My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_IPU, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
-}
+//void SDA_DIR_OUT(void)//ÕâÀïÊ¹ÓÃº¯Êý¸Ä±äIO·½Ïò
+//{		
+////			GPIO_InitTypeDef GPIO_InitStruct;
+////		//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB,ENABLE);//Æô¶¯¶Ë¿ÚÊ±ÖÓ
+//// 
+////			GPIO_InitStruct.GPIO_Mode=GPIO_Mode_OUT; 	
+////			GPIO_InitStruct.GPIO_OType=GPIO_OType_OD;                                    
+////			GPIO_InitStruct.GPIO_PuPd=GPIO_PuPd_UP;     
+////			GPIO_InitStruct.GPIO_Pin=GPIO_Pin_7;                                      
+////			GPIO_InitStruct.GPIO_Speed=GPIO_Speed_100MHz;   
+////			GPIO_Init(GPIOB, &GPIO_InitStruct);
+//    
+//				My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
+//			//	My_GPIO_Init(GPIOB,GPIO_Pin_11,GPIO_Mode_Out_OD, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
+//}
+//void SDA_DIR_IN(void)
+//{		
+////			GPIO_InitTypeDef GPIO_InitStruct;
+////		//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB,ENABLE);//Æô¶¯¶Ë¿ÚÊ±ÖÓ
+//// 
+////			GPIO_InitStruct.GPIO_Mode=GPIO_Mode_IN; 	
+////			GPIO_InitStruct.GPIO_OType=GPIO_OType_OD;                                    
+////			GPIO_InitStruct.GPIO_PuPd=GPIO_PuPd_UP;     
+////			GPIO_InitStruct.GPIO_Pin=GPIO_Pin_7;                                      
+////			GPIO_InitStruct.GPIO_Speed=GPIO_Speed_100MHz;   
+////			GPIO_Init(GPIOB, &GPIO_InitStruct);
+//				My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_IPU, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
+//			//My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_IPU, GPIO_Speed_50MHz);//×Ô¶¨Òå³õÊ¼»¯º¯Êý
+//}
 
 //----------------------------------------------------------------------------------------------------------//
  
@@ -68,7 +72,7 @@ void IO_IIC_Delay(void) //Í¨ÐÅÆµÂÊ 375 hz
 void IO_IIC_start(void) //I2C start ÐÅºÅ
 {
         
-	SDA_DIR_OUT();				//ÉèÖÃSDA·½ÏòÎªÊä³ö
+	SET_SDA_OUT();				//ÉèÖÃSDA·½ÏòÎªÊä³ö
 	SDA_OUT_H;	 				//À­¸ßÊý¾ÝÏß
 	SCL_OUT_H;					//À­¸ßÊ±ÖÓÏß
 	IO_IIC_Delay();			//ÑÓÊ±
@@ -80,7 +84,7 @@ void IO_IIC_start(void) //I2C start ÐÅºÅ
  
 void IO_IIC_stop(void) //I2C stop ÐÅºÅ
 {
-	SDA_DIR_OUT();
+	SET_SDA_OUT();
 	SCL_OUT_L;
 	SDA_OUT_L;
 	IO_IIC_Delay();
@@ -93,7 +97,7 @@ void IO_IIC_stop(void) //I2C stop ÐÅºÅ
 void IO_IIC_ack(void)    //ack   ²úÉúÓ¦´ðÐÅºÅ
 {
 	SCL_OUT_L;
-	SDA_DIR_OUT();
+	SET_SDA_OUT();
 	SDA_OUT_L;
 	IO_IIC_Delay();
 	SCL_OUT_H;
@@ -105,7 +109,7 @@ void IO_IIC_ack(void)    //ack   ²úÉúÓ¦´ðÐÅºÅ
 void IO_IIC_no_ack(void) //not ack 
 {
 	SCL_OUT_L;
-	SDA_DIR_OUT();
+	SET_SDA_OUT();
 	SDA_OUT_H;
 	IO_IIC_Delay();
 	SCL_OUT_H;
@@ -116,7 +120,7 @@ void IO_IIC_no_ack(void) //not ack
 void IO_IIC_write_byte(unsigned char dat) //write a byte//ÏòI2C×ÜÏß·¢ËÍÒ»¸ö×Ö½ÚÊý¾Ý
 {
 	unsigned char i ,temp;
-	SDA_DIR_OUT(); //ÕâÁ½¸ö²½Öè£¬ÉèÖÃSDAÎªÊä³ö£¬ºÍÏÂÀ­Ê±ÖÓ±Ø²»¿ÉÉÙ
+	SET_SDA_OUT(); //ÕâÁ½¸ö²½Öè£¬ÉèÖÃSDAÎªÊä³ö£¬ºÍÏÂÀ­Ê±ÖÓ±Ø²»¿ÉÉÙ
 	SCL_OUT_L;
 	
 	for ( i = 0 ; i < 8 ; i ++)
@@ -139,7 +143,7 @@ void IO_IIC_write_byte(unsigned char dat) //write a byte//ÏòI2C×ÜÏß·¢ËÍÒ»¸ö×Ö½ÚÊ
 unsigned char IO_IIC_read_byte(unsigned char ack) //read a byte//´ÓI2C×ÜÏß½ÓÊÕÒ»¸ö×Ö½ÚÊý¾Ý
 {
 	unsigned char i, dat = 0;
-	SDA_DIR_IN();
+	SET_SDA_IN();
 	IO_IIC_Delay();IO_IIC_Delay();
 	for ( i = 0 ; i < 8 ; i ++)
 	{
@@ -187,3 +191,41 @@ unsigned char IO_IIC_read_Data(unsigned char qijian_address,unsigned char reg_ad
 	return REG_data;
 } 
 
+void I2C_STM32_Write_one_Byte(I2C_TypeDef* I2Cx,uint8_t slave_Address,u8 WriteAddr, u8 pBuffer)
+{
+	
+  while(I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY)); //¼ì²éIIC×ÜÏßÊÇ·ñ·±Ã¦
+    
+  /* Send START condition */
+  I2C_GenerateSTART(I2Cx, ENABLE);//²úÉú¿ªÊ¼Ìõ¼þ
+
+  /* Test on EV5 and clear it */
+  while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));  //µÈ´ýACK
+
+  /* Send EEPROM address for write */
+  I2C_Send7bitAddress(I2Cx, slave_Address, I2C_Direction_Transmitter);
+  
+  /* Test on EV6 and clear it */
+  while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+      
+  /* Send the EEPROM's internal address to write to */
+  I2C_SendData(I2Cx, WriteAddr);
+  
+  /* Test on EV8 and clear it */
+  while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+
+  /* Send the byte to be written */
+  I2C_SendData(I2Cx, pBuffer); 
+   
+	 
+//	I2C_AcknowledgeConfig(I2Cx,DISABLE);
+  /* Test on EV8 and clear it */
+  while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+  
+  /* Send STOP condition */
+  I2C_GenerateSTOP(I2Cx, ENABLE);//½áÊøÐÅºÅ
+ 
+  I2C_ClearFlag(I2C1, I2C_FLAG_AF);/* Clear AF flag */            
+  I2C_GenerateSTOP(I2C1, ENABLE);/* STOP condition */
+	
+} 

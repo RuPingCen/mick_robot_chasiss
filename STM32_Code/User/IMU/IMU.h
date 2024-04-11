@@ -1,24 +1,27 @@
 #ifndef _IMU_H_
 #define _IMU_H_
  
-#include "stm32f10x.h"
+#include "stm32f4xx.h"
 
 
 
 typedef struct IMU_DAT
 {
 	 
-		int16_t accADC[3];
-		int16_t gyroADC[3];
-		int16_t magADC[3];
-	
-		int16_t gyroOffset[3]; 
-		float 	gyroRaw[3];		//rad/s 
+	int16_t accADC[3];
+	int16_t gyroADC[3];
+	int16_t magADC[3];
 
-		float   q[4];
-		float   roll;				//deg
-		float   pitch;
-		float 	yaw;
+	int16_t gyroOffset[3]; 
+	float 	gyroRaw[3];		//rad/s 
+
+	float   q[4];
+	float   roll;				//deg
+	float   pitch;
+	float 	yaw;
+	
+	uint32_t last_time,curr_time,dt; 
+	char update_flag;
 		
 }imu_Dat;
 float invSqrt(float x); 

@@ -20,7 +20,7 @@
 
 #ifndef _INV_MPU_H_
 #define _INV_MPU_H_
-#include "stm32f10x.h"
+#include "stm32f4xx.h"
 
 //定义输出速度
 #define DEFAULT_MPU_HZ  (100)		//100Hz

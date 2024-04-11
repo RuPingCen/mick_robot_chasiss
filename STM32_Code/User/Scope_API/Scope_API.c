@@ -1,10 +1,10 @@
-#include "stm32f10x_usart.h"
-#include "stm32f10x_rcc.h"
-#include "stm32f10x_dma.h" 
+#include "stm32f4xx_usart.h"
+#include "stm32f4xx_rcc.h"
+#include "stm32f4xx_dma.h" 
 #include "bsp_uart.h"
   
 
-#include "Scope_API.h" //虚拟示波器
+#include "Scope_API/Scope_API.h" //虚拟示波器
  
 
 //使用之前需要在主函数中对串口模块初始化  这里使用了 UART1 模块

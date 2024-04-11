@@ -1,12 +1,12 @@
-#include "stm32f10x.h"
-#include "stm32f10x_i2c.h"
-#include "stm32f10x_rcc.h" 
-#include "stm32f10x_Delay.h"
- 
-#include "Mick_IO.h"
+#include "stm32f4xx.h"
+#include "stm32f4xx_gpio.h"
+#include "stm32f4xx_rcc.h"
+#include "bsp_gpio.h"
+
+#include "Mick_IO/Mick_IO.h"
 #include "bsp_uart.h" 
 
-uint8_t Code_Switch_Value = 0x00;
+volatile uint8_t Isolated_Output_Value = 0x00; //存储输出端口的状态
 
 /***************************************************************************
 * @brief       控制板外部IO初始化（LED、KEY、编码开关、隔离输入输出）
@@ -19,32 +19,32 @@ uint8_t Code_Switch_Value = 0x00;
 ***************************************************************************/
 void Init_Mick_GPIO(void)
 {
-
-	My_GPIO_Init(GPIOA,GPIO_Pin_5,GPIO_Mode_Out_OD, GPIO_Speed_10MHz);//初始化LED端口
-	My_GPIO_Init(GPIOA,GPIO_Pin_6,GPIO_Mode_Out_OD, GPIO_Speed_10MHz);
-	My_GPIO_Init(GPIOC,GPIO_Pin_13,GPIO_Mode_Out_OD, GPIO_Speed_10MHz);
+	// LED灯
+	My_GPIO_Init(GPIOF, GPIO_Pin_13, GPIO_Mode_OUT);
+	My_GPIO_Init(GPIOF, GPIO_Pin_14, GPIO_Mode_OUT);
+	My_GPIO_Init(GPIOF, GPIO_Pin_15, GPIO_Mode_OUT);
 	
-	//按键端口 为输入
-	My_GPIO_Init(GPIOA,GPIO_Pin_7,GPIO_Mode_IPU, GPIO_Speed_10MHz);
-	My_GPIO_Init(GPIOB,GPIO_Pin_2,GPIO_Mode_IPU, GPIO_Speed_10MHz);
-	
-	//拨码开关端口
-	My_GPIO_Init(GPIOA,GPIO_Pin_15,GPIO_Mode_IPU, GPIO_Speed_10MHz);
-	My_GPIO_Init(GPIOB,GPIO_Pin_3,GPIO_Mode_IPU, GPIO_Speed_10MHz);
-	My_GPIO_Init(GPIOB,GPIO_Pin_4,GPIO_Mode_IPU, GPIO_Speed_10MHz);
-	My_GPIO_Init(GPIOB,GPIO_Pin_5,GPIO_Mode_IPU, GPIO_Speed_10MHz);
+//	//按键端口 为输入
+//	My_GPIO_Init(GPIOA,GPIO_Pin_7,GPIO_Mode_IPU);
+//	My_GPIO_Init(GPIOB,GPIO_Pin_2,GPIO_Mode_IPU);
+//	
+//	//拨码开关端口
+//	My_GPIO_Init(GPIOA,GPIO_Pin_15,GPIO_Mode_IPU);
+//	My_GPIO_Init(GPIOB,GPIO_Pin_3,GPIO_Mode_IPU);
+//	My_GPIO_Init(GPIOB,GPIO_Pin_4,GPIO_Mode_IPU);
+//	My_GPIO_Init(GPIOB,GPIO_Pin_5,GPIO_Mode_IPU);
 	
 	//外部隔离输入
-	My_GPIO_Init(GPIOB,GPIO_Pin_12,GPIO_Mode_IPU, GPIO_Speed_10MHz);
-	My_GPIO_Init(GPIOB,GPIO_Pin_13,GPIO_Mode_IPU, GPIO_Speed_10MHz);
-	My_GPIO_Init(GPIOB,GPIO_Pin_14,GPIO_Mode_IPU, GPIO_Speed_10MHz);
-	My_GPIO_Init(GPIOB,GPIO_Pin_15,GPIO_Mode_IPU, GPIO_Speed_10MHz);
+	My_GPIO_Init(GPIOA,GPIO_Pin_4,GPIO_Mode_IN);
+	My_GPIO_Init(GPIOE,GPIO_Pin_5,GPIO_Mode_IN);
+	My_GPIO_Init(GPIOE,GPIO_Pin_6,GPIO_Mode_IN);
+	My_GPIO_Init(GPIOB,GPIO_Pin_8,GPIO_Mode_IN);
 	
 	//外部隔离输出
-	My_GPIO_Init(GPIOB,GPIO_Pin_0,GPIO_Mode_Out_PP, GPIO_Speed_10MHz);
-	My_GPIO_Init(GPIOB,GPIO_Pin_1,GPIO_Mode_Out_PP, GPIO_Speed_10MHz);
-	My_GPIO_Init(GPIOB,GPIO_Pin_8,GPIO_Mode_Out_PP, GPIO_Speed_10MHz);
-	My_GPIO_Init(GPIOB,GPIO_Pin_9,GPIO_Mode_Out_PP, GPIO_Speed_10MHz);
+	My_GPIO_Init(GPIOB,GPIO_Pin_6,GPIO_Mode_OUT);
+	My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_OUT);
+	My_GPIO_Init(GPIOE,GPIO_Pin_4,GPIO_Mode_OUT);
+	My_GPIO_Init(GPIOA,GPIO_Pin_6,GPIO_Mode_OUT);
 }
 
 /***************************************************************************
@@ -95,10 +95,10 @@ uint8_t Read_Key(uint8_t ch)
 	uint8_t key_value=0xff;
 	if(ch == 1)
 	{
-			if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_7) == 0)
-				key_value = 1;
-			else
-				key_value = 0;
+		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_7) == 0)
+			key_value = 1;
+		else
+			key_value = 0;
 	}
 	else if(ch == 2)
 	{
@@ -126,28 +126,28 @@ uint8_t Read_Isolated_Input(uint8_t ch)
 	uint8_t key_value=0xff;
 	if(ch == 1)
 	{    //外部输入VCC 导致光耦导通，IO电平为0
-			if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_15) == 0)
+			if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) == 0)
 				key_value = 1;
 			else
 				key_value = 0;
 	}
 	else if(ch == 2)
 	{
-		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14) == 0)
+		if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5) == 0)
 				key_value = 1;
 			else
 				key_value = 0;
 	}
 	else if(ch == 3)
 	{
-			if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_13) == 0)
+			if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6) == 0)
 				key_value = 1;
 			else
 				key_value = 0;
 	}
 	else if(ch == 4)
 	{
-		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_12) == 0)
+		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8) == 0)
 				key_value = 1;
 			else
 				key_value = 0;
@@ -168,32 +168,56 @@ uint8_t Read_Isolated_Input(uint8_t ch)
 void Set_Isolated_Output(uint8_t ch, uint8_t out_value)
 {
 	if(ch == 1)
-	{    //IO输出高电平，导致光耦导通，输出端接到GND上  否则为高阻态
+	{    //IO输出高电平（1），导致光耦导通，输出端接到GND上  否则为高阻态
 			if(out_value)
-				 GPIO_SetBits(GPIOB,GPIO_Pin_0);
+			{
+				GPIO_SetBits(GPIOB,GPIO_Pin_6);
+				Isolated_Output_Value |= 0x01;
+			}
 			else
-				 GPIO_ResetBits(GPIOB,GPIO_Pin_0);
+			{
+				GPIO_ResetBits(GPIOB,GPIO_Pin_6);
+				Isolated_Output_Value &= 0xfe;
+			}
 	}
 	else if(ch == 2)
 	{
 			if(out_value)
-				 GPIO_SetBits(GPIOB,GPIO_Pin_1);
+			{
+				GPIO_SetBits(GPIOB,GPIO_Pin_7);
+				Isolated_Output_Value |= 0x02;
+			}
 			else
-				 GPIO_ResetBits(GPIOB,GPIO_Pin_1);
+			{
+				GPIO_ResetBits(GPIOB,GPIO_Pin_7);
+				Isolated_Output_Value &= 0xfd;
+			}
 	}
 	else if(ch == 3)
 	{
 			if(out_value)
-				 GPIO_SetBits(GPIOB,GPIO_Pin_8);
+			{
+				GPIO_SetBits(GPIOE,GPIO_Pin_4);
+				Isolated_Output_Value |= 0x04;
+			}
 			else
-				 GPIO_ResetBits(GPIOB,GPIO_Pin_8);
+			{
+				GPIO_ResetBits(GPIOE,GPIO_Pin_4);
+				Isolated_Output_Value &= 0xfB;
+			}
 	}
 	else if(ch == 4)
 	{
 			if(out_value)
-				 GPIO_SetBits(GPIOB,GPIO_Pin_9);
+			{
+				GPIO_SetBits(GPIOA,GPIO_Pin_6);
+				Isolated_Output_Value |= 0x08;
+			}
 			else
-				 GPIO_ResetBits(GPIOB,GPIO_Pin_9);
+			{
+				GPIO_ResetBits(GPIOA,GPIO_Pin_6);
+				Isolated_Output_Value &= 0xf7;
+			}
 	}
 	else
 		;
@@ -210,42 +234,75 @@ void Set_Isolated_Output(uint8_t ch, uint8_t out_value)
 ***************************************************************************/
 void Isolated_IO_Upload_Message(void)
 {
-		static  uint32_t IO_upload_counter=0;
-		unsigned char senddat[35];
-		unsigned char i=0,j=0;	
-		unsigned int sum=0x00;	
-		uint8_t ch1,ch2,ch3,ch4;
+	unsigned char senddat[35];
+	unsigned char i=0,j=0,Isolated_Input_Value;	
+	unsigned int sum=0x00;	
+ 
+	senddat[i++]=0xAE;
+	senddat[i++]=0xEA;
+	senddat[i++]=0x01;//数据长度在后面赋值
+	senddat[i++]=0xAC; //命令位 0xAC
 
-		senddat[i++]=0xAE;
-		senddat[i++]=0xEA;
-		senddat[i++]=0x01;//数据长度在后面赋值
-		senddat[i++]=0xAC; //命令位 0x11
 
-		//上传数据帧计数
-		senddat[i++]=(IO_upload_counter>>24);
-		senddat[i++]=(IO_upload_counter>>16);
-		senddat[i++]=(IO_upload_counter>>8);
-		senddat[i++]=(IO_upload_counter);
-			
-		ch1 = Read_Isolated_Input(1);
-		ch2 = Read_Isolated_Input(2);
-		ch3 = Read_Isolated_Input(3);
-		ch4 = Read_Isolated_Input(4);
+	senddat[i++] = Isolated_Output_Value;
 	
-		senddat[i++] = ch1; 
-		senddat[i++] = ch2;
-		senddat[i++] = ch3; 
-		senddat[i++] = ch4;
+	Isolated_Input_Value = 0x00;
+	Isolated_Input_Value = (Read_Isolated_Input(4)<<4)|(Read_Isolated_Input(3)<<3)|(Read_Isolated_Input(2)<<2)|Read_Isolated_Input(1);
+	senddat[i++] = Isolated_Input_Value;
 
-		senddat[2]=i-1; //数据长度
-		for(j=2;j<i;j++)
-			sum+=senddat[j];
-    senddat[i++]=sum;
-		
-		senddat[i++]=0xEF;
-		senddat[i++]=0xFE;
-		 
-		//UART_send_string(USART2,senddat);
-		UART_send_buffer(USART2,senddat,i);
-		IO_upload_counter++;
+	senddat[2]=i-1; //数据长度
+	for(j=2;j<i;j++)
+		sum+=senddat[j];
+	senddat[i++]=sum;
+
+	senddat[i++]=0xEF;
+	senddat[i++]=0xFE;
+	 
+	//UART_send_string(USART2,senddat);
+	UART_send_buffer(USART1,senddat,i);
+
 }
+
+
+//void Test_Mick_IO(void)
+//{
+//	while(1)
+//	{
+//		// 测试IO 输出
+//		{
+//				Set_Isolated_Output(1,0);  //红
+//				Set_Isolated_Output(2,0);  //绿
+//				Set_Isolated_Output(3,1); //黄    一直为高的时候就会闪烁
+//				Set_Isolated_Output(4,1);
+
+
+//				Main_Delay(500); 
+
+//				//		Set_Isolated_Output(1,0);
+//				//		Set_Isolated_Output(2,0);
+//				//		Set_Isolated_Output(3,0);
+//				//		Set_Isolated_Output(4,0);
+
+//				Main_Delay(500); 
+//		}
+//		// 测试IO 输入
+//		{
+//			if( Read_Isolated_Input(1) ==1)
+//			 {
+//				printf("Read_Isolated_Input(1)\n");	
+//			 }
+//				if( Read_Isolated_Input(2) ==1)
+//			 {
+//				printf("Read_Isolated_Input(1)\n");	
+//			 }
+//				if( Read_Isolated_Input(3) ==1)
+//			 {
+//				printf("Read_Isolated_Input(1)\n");	
+//			 }
+//				if( Read_Isolated_Input(4) ==1)
+//			 {
+//				printf("Read_Isolated_Input(1)\n");	
+//			 }
+//		}
+//	}
+//}

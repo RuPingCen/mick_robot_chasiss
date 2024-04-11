@@ -1,12 +1,17 @@
 #ifndef _MICK_IO_H_
 #define _MICK_IO_H_
 
-#include "stm32f10x.h"
+#include "stm32f4xx.h"
 
- 
-#define LED1_FLIP  GPIO_Flip_level(GPIOA,GPIO_Pin_6) 
-#define LED2_FLIP  GPIO_Flip_level(GPIOA,GPIO_Pin_5) 
-#define LED3_FLIP  GPIO_Flip_level(GPIOC,GPIO_Pin_13) 
+
+
+
+
+
+
+#define LED1_FLIP  GPIO_Flip_level(GPIOF,GPIO_Pin_13)   // 上位机发送指令 闪烁一次
+#define LED2_FLIP  GPIO_Flip_level(GPIOF,GPIO_Pin_14)   // 遥控器接收指令闪烁
+#define LED3_FLIP  GPIO_Flip_level(GPIOF,GPIO_Pin_15)    // CAN总线中断 闪烁
 
 
  

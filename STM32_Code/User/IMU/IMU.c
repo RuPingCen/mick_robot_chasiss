@@ -1,14 +1,14 @@
-#include "stm32f10x.h"
-#include "stm32f10x_rcc.h"
-#include "stm32f10x_usart.h"
-#include "stm32f10x_rcc.h"
-#include "stm32f10x_dma.h" 
-
+#include "stm32f4xx.h"
+#include "stm32f4xx_rcc.h"
+#include "stm32f4xx_usart.h"
+#include "stm32f4xx_gpio.h" 
+#include "stm32f4xx_dma.h" 
+ 
 #include "math.h"
 #include "IO_IIC.h"
 #include "MPU6050.h" 
-#include "HMC5883.h"
-#include "MPU9250.h"
+//#include "HMC5883.h"
+//#include "MPU9250.h"
 #include "bsp_uart.h" 
 
 #include "IMU.h"
@@ -16,8 +16,10 @@
 #include "inv_mpu.h"   //DMP
 #include "inv_mpu_dmp_motion_driver.h"
 
+#include "bsp_systick.h"
+
 //#include "Scope_API.h" //虚拟示波器
-#include "Seven_Lab_MiniIMU.h" //虚拟示波器
+//#include "Seven_Lab_MiniIMU.h" //虚拟示波器
 
 //使用之前需要在主函数中对串口模块初始化  这里使用了 UART1 模块
 
@@ -37,56 +39,44 @@ static char imu_timers=1;
 
 void IMU_Preper_Data(void)
 {
- 
-	if(imu_timers == 0) //第一次进入 用于标定陀螺仪
-	{
-		int64_t imu_Groy_tem[3];
-		char i=0;		 
-		imu_Groy_tem[0]=0;
-		imu_Groy_tem[1]=0;
-		imu_Groy_tem[2]=0;
-		for(i=0;i<50;i++)
-		{
-				MPU6050_Data_Process(imu_tem); //读取9250数据  
-				imu_Groy_tem[0]+=imu_tem[3];
-				imu_Groy_tem[1]+=imu_tem[4];
-				imu_Groy_tem[2]+=imu_tem[5];
-				Multiple_read_HMC5883(IMU_Data.magADC);//多次采集用于更新FIFO
-		}
-	 
-		 IMU_Data.gyroOffset[0]=(imu_Groy_tem[0]+45)/50;
-		 IMU_Data.gyroOffset[1]=(imu_Groy_tem[1]+45)/50;
-		 IMU_Data.gyroOffset[2]=(imu_Groy_tem[2]+45)/50;
-		
-		imu_timers++;
-	}
-	MPU6050_Data_Process(imu_tem); //读取9250数据  
+// 
+//	if(imu_timers == 0) //第一次进入 用于标定陀螺仪
+//	{
+//		int64_t imu_Groy_tem[3];
+//		char i=0;		 
+//		imu_Groy_tem[0]=0;
+//		imu_Groy_tem[1]=0;
+//		imu_Groy_tem[2]=0;
+//		for(i=0;i<50;i++)
+//		{
+//				MPU6050_Data_Process(imu_tem); //读取9250数据  
+//				imu_Groy_tem[0]+=imu_tem[3];
+//				imu_Groy_tem[1]+=imu_tem[4];
+//				imu_Groy_tem[2]+=imu_tem[5];
+//				Multiple_read_HMC5883(IMU_Data.magADC);//多次采集用于更新FIFO
+//		}
+//	 
+//		 IMU_Data.gyroOffset[0]=(imu_Groy_tem[0]+45)/50;
+//		 IMU_Data.gyroOffset[1]=(imu_Groy_tem[1]+45)/50;
+//		 IMU_Data.gyroOffset[2]=(imu_Groy_tem[2]+45)/50;
+//		
+//		imu_timers++;
+//	}
+//	MPU6050_Data_Process(imu_tem); //读取9250数据  
 
-	IMU_Data.accADC[0]=imu_tem[0]; 
-	IMU_Data.accADC[1]=imu_tem[1]; 
-	IMU_Data.accADC[2]=imu_tem[2]; 
-	
-	IMU_Data.gyroADC[0]=imu_tem[3]-IMU_Data.gyroOffset[0];
-	IMU_Data.gyroADC[1]=imu_tem[4]-IMU_Data.gyroOffset[1];
-	IMU_Data.gyroADC[2]=imu_tem[5]-IMU_Data.gyroOffset[2];
+//	IMU_Data.accADC[0]=imu_tem[0]; 
+//	IMU_Data.accADC[1]=imu_tem[1]; 
+//	IMU_Data.accADC[2]=imu_tem[2]; 
+//	
+//	IMU_Data.gyroADC[0]=imu_tem[3]-IMU_Data.gyroOffset[0];
+//	IMU_Data.gyroADC[1]=imu_tem[4]-IMU_Data.gyroOffset[1];
+//	IMU_Data.gyroADC[2]=imu_tem[5]-IMU_Data.gyroOffset[2];
 
-	IMU_Data.gyroRaw[0]=IMU_Data.gyroADC[0]*Angle_to_Rad/32.8f;
-	IMU_Data.gyroRaw[1]=IMU_Data.gyroADC[1]*Angle_to_Rad/32.8f;
-	IMU_Data.gyroRaw[2]=IMU_Data.gyroADC[2]*Angle_to_Rad/32.8f;
+//	IMU_Data.gyroRaw[0]=IMU_Data.gyroADC[0]*Angle_to_Rad/32.8f;
+//	IMU_Data.gyroRaw[1]=IMU_Data.gyroADC[1]*Angle_to_Rad/32.8f;
+//	IMU_Data.gyroRaw[2]=IMU_Data.gyroADC[2]*Angle_to_Rad/32.8f;
 
-	Multiple_read_HMC5883(IMU_Data.magADC);
- 
-//	UART_send_intdata(USART1,IMU_Data.accADC[0]); UART_send_char(USART1,'\t');
-//	UART_send_intdata(USART1,IMU_Data.accADC[1]); UART_send_char(USART1,'\t');
-//	UART_send_intdata(USART1,IMU_Data.accADC[2]); UART_send_char(USART1,'\t');
-
-//	UART_send_intdata(USART1,IMU_Data.gyroADC[0]); UART_send_char(USART1,'\t');
-//	UART_send_intdata(USART1,IMU_Data.gyroADC[1]); UART_send_char(USART1,'\t');
-//	UART_send_intdata(USART1,IMU_Data.gyroADC[2]); UART_send_char(USART1,'\t');
-
-//	UART_send_intdata(USART1,IMU_Data.magADC[0]); UART_send_char(USART1,'\t');
-//	UART_send_intdata(USART1,IMU_Data.magADC[1]); UART_send_char(USART1,'\t');
-//	UART_send_intdata(USART1,IMU_Data.magADC[2]); UART_send_char(USART1,'\n');
+//	Multiple_read_HMC5883(IMU_Data.magADC);
 }
  
  
@@ -340,9 +330,9 @@ uint8_t MPU6050_DMP_Routing(void)
 }
 void MPU9250_Routing(void)
 {
-	MPU9250_READ_ACCEL(IMU_Data.accADC);
-	MPU9250_READ_GYRO(IMU_Data.gyroADC);  
-	MPU9250_READ_MAG(IMU_Data.magADC);
+//	MPU9250_READ_ACCEL(IMU_Data.accADC);
+//	MPU9250_READ_GYRO(IMU_Data.gyroADC);  
+//	MPU9250_READ_MAG(IMU_Data.magADC);
 	
 	if(imu_timers <= 50) //第一次进入 用于标定陀螺仪
 	{
@@ -400,28 +390,32 @@ void MPU9250_Routing(void)
 }
 void IMU_Routing(void)
 {
-	//GPIO_SetBits(GPIOF,GPIO_Pin_7);//置位一个引脚  使引脚输出‘1’
+	//float gyro_x,gyro_y,gyro_z;
+	//GPIO_Flip_level(GPIOF,GPIO_Pin_13);
+	 
 	//MPU9250_Routing();
 	//MPU6050_Routing();
-	MPU6050_DMP_Routing();
-	//GPIO_ResetBits(GPIOF,GPIO_Pin_7);//复位一个引脚  使引脚输出‘0’
-//	
-//	UART_send_intdata(USART2,IMU_Data.accADC[0]); UART_send_char(USART2,'\t');
-//	UART_send_intdata(USART2,IMU_Data.accADC[1]); UART_send_char(USART2,'\t');
-//	UART_send_intdata(USART2,IMU_Data.accADC[2]); UART_send_char(USART2,'\t');
-
-//	UART_send_intdata(USART2,IMU_Data.gyroADC[0]); UART_send_char(USART2,'\t');
-//	UART_send_intdata(USART2,IMU_Data.gyroADC[1]); UART_send_char(USART2,'\t');
-//	UART_send_intdata(USART2,IMU_Data.gyroADC[2]); UART_send_char(USART2,'\t');
-
-//	UART_send_intdata(USART2,IMU_Data.magADC[0]); UART_send_char(USART2,'\t');
-//	UART_send_intdata(USART2,IMU_Data.magADC[1]); UART_send_char(USART2,'\t');
-//	UART_send_intdata(USART2,IMU_Data.magADC[2]); UART_send_char(USART2,'\n');
-//	
-//	UART_send_floatdat(USART2,IMU_Data.pitch); UART_send_char(USART2,'\t');
-//	UART_send_floatdat(USART2,IMU_Data.roll); UART_send_char(USART2,'\t');
-//	UART_send_floatdat(USART2,IMU_Data.yaw); UART_send_char(USART2,'\n');
+	IMU_Data.curr_time = micros()/1000;
+	IMU_Data.dt = IMU_Data.curr_time - IMU_Data.last_time;
+	IMU_Data.last_time = IMU_Data.curr_time;
 	
+	MPU6050_DMP_Routing();//62 us
+	
+	if(IMU_Data.dt > 200)
+		IMU_Data.update_flag = 0x00;
+	 else
+		 IMU_Data.update_flag = 0x01;
+	
+	printf("IMU dt %d   \n",IMU_Data.dt);
+	 
+//	printf("%d\t%d\t%d\t",IMU_Data.accADC[0],IMU_Data.accADC[1],IMU_Data.accADC[2]);
+//	printf("%d\t%d\t%d\t",IMU_Data.gyroADC[0],IMU_Data.gyroADC[1],IMU_Data.gyroADC[2]);
+//	printf("%d\t%d\t%d\t",IMU_Data.magADC[0],IMU_Data.magADC[1],IMU_Data.magADC[2]);
+//	printf("%f\t%f\t%f\n",IMU_Data.pitch,IMU_Data.roll,IMU_Data.yaw);	
+ 
+	//mpu_dmp_get_data(&gyro_x,&gyro_y,&gyro_z);
+	//printf("gyro_x:%.3f\tgyro_z:%.3f\tgyro_z:%.3f\r\n",gyro_x,gyro_y,gyro_z);
+	// 
 	
 }
 // 测试 ros接收IMU数据
@@ -434,7 +428,7 @@ void IMU_Upload_Message(void)
 
 	int16_t pitch,roll,yaw;
 
-	pitch =(IMU_Data.pitch*100+0.5)/1;
+	pitch =(IMU_Data.pitch*100+0.5)/1;//欧拉角放大100倍
 	roll=(IMU_Data.roll*100+0.5)/1;
 	yaw=(IMU_Data.yaw*100+0.5)/1;
 
@@ -443,24 +437,27 @@ void IMU_Upload_Message(void)
 	senddat[i++]=0x01;//数据长度在后面赋值
 	senddat[i++]=0xA0; //命令位 0xA0
 
-	senddat[i++] = (uint8_t)(IMU_Data.accADC[0] >> 8); //int16
-	senddat[i++] = (uint8_t)(IMU_Data.accADC[0]);
-	senddat[i++] = (uint8_t)(IMU_Data.accADC[1] >> 8);  
-	senddat[i++] = (uint8_t)(IMU_Data.accADC[1]);
-	senddat[i++] = (uint8_t)(IMU_Data.accADC[2] >> 8);  
-	senddat[i++] = ((uint8_t)IMU_Data.accADC[2]);
-	senddat[i++] = (uint8_t)(IMU_Data.gyroADC[0]&0xff00 >> 8);  
-	senddat[i++] = (uint8_t)(IMU_Data.gyroADC[0]&0x00ff);
-	senddat[i++] = (uint8_t)(IMU_Data.gyroADC[1]&0xff00 >> 8); 
-	senddat[i++] = (uint8_t)(IMU_Data.gyroADC[1]&0x00ff);
-	senddat[i++] = (uint8_t)(IMU_Data.gyroADC[2]&0xff00 >> 8);  
-	senddat[i++] = (uint8_t)(IMU_Data.gyroADC[2]&0x00ff);
-	senddat[i++] = (uint8_t)(IMU_Data.magADC[0]&0xff00 >> 8);  
-	senddat[i++] = (uint8_t)(IMU_Data.magADC[0]&0x00ff);
-	senddat[i++] = (uint8_t)(IMU_Data.magADC[1]&0xff00 >> 8); 
-	senddat[i++] = (uint8_t)(IMU_Data.magADC[1]&0x00ff);
-	senddat[i++] = (uint8_t)(IMU_Data.magADC[2]&0xff00 >> 8);  
-	senddat[i++] = (uint8_t)(IMU_Data.magADC[2]&0x00ff);
+	senddat[i++] = (IMU_Data.accADC[0] >> 8); //int16
+	senddat[i++] = (IMU_Data.accADC[0]);
+	senddat[i++] = (IMU_Data.accADC[1] >> 8);  
+	senddat[i++] = (IMU_Data.accADC[1]);
+	senddat[i++] = (IMU_Data.accADC[2] >> 8);  
+	senddat[i++] = (IMU_Data.accADC[2]);
+	
+	senddat[i++] = (IMU_Data.gyroADC[0]>> 8);  
+	senddat[i++] = (IMU_Data.gyroADC[0]);
+	senddat[i++] = (IMU_Data.gyroADC[1]>> 8); 
+	senddat[i++] = (IMU_Data.gyroADC[1]);
+	senddat[i++] = (IMU_Data.gyroADC[2]>> 8);  
+	senddat[i++] = (IMU_Data.gyroADC[2]);
+	
+	senddat[i++] = (IMU_Data.magADC[0] >> 8);  
+	senddat[i++] = (IMU_Data.magADC[0]);
+	senddat[i++] = (IMU_Data.magADC[1] >> 8); 
+	senddat[i++] = (IMU_Data.magADC[1]);
+	senddat[i++] = (IMU_Data.magADC[2] >> 8);  
+	senddat[i++] = (IMU_Data.magADC[2]);
+	
 	senddat[i++] = pitch>>8; 
 	senddat[i++] = pitch;
 	senddat[i++] = roll>>8; 
@@ -477,6 +474,6 @@ void IMU_Upload_Message(void)
 	senddat[i++]=0xFE;
 	 
 	//UART_send_string(USART2,senddat);
-	UART_send_buffer(USART2,senddat,i);
+	UART_send_buffer(USART1,senddat,i);
 	//IMU_upload_counter++;
 }
