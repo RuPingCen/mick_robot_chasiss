@@ -4,7 +4,7 @@
 
 注：代码默认的分支master分支适用于四轮差速小车，MickX4-V3为第3版小车（最新版），MickX4-V2分支为第2版小车代码分支。 M4分支为麦克纳姆轮第一版小车代码分支。[项目更新日志](https://github.com/RuPingCen/mick_robot_chasiss/tree/master/更新日志.md)
 
-![image-20240411174345904](README.assets/image-20240411174345904.png)
+![image-20240411174345904](README.assets/fengmian.gif)
 
 ------------------------------------------------------------------------------------------
 
