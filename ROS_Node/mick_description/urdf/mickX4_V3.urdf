@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<robot name="mickx4"> 
+    <link name="base_link">
+    <inertial>
+      <origin
+        xyz="0. 0. 0.0"
+        rpy="0. 0. 0." />
+      <mass
+        value="5.251988675650349" />
+      <inertia
+        ixx="0.000595579869264794"
+        ixy="5.99238175321912E-08"
+        ixz="-1.98242615307314E-08"
+        iyy="0.00102462329604677"
+        iyz="-1.73115625503396E-05"
+        izz="0.00060561972360446" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="-0.25 -0.30 -0.1"
+        rpy="0 0.0 0" />
+      <geometry>
+        <mesh filename="package://mick_description/urdf/mesh/MickX4_V3.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+   </link>
+   
+ <link name="base_footprint"/>
+
+ <joint name="base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_footprint"/>
+    <origin xyz="0.0 0.0 -0.1"/>
+  </joint>
+</robot>
+
