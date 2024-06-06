@@ -1,11 +1,3 @@
-/*
-
-*³µÂÖ´óÐ¡   0.258m
-*³µÁ¾×óÓÒÂÖ¼ä¾à   0.74m
-* Ç°ºóÂÖ¼ä¾à  0.8m 
-*/
-
-
 #include "stm32f4xx.h"
 #include "math.h"
 #include "bsp_uart.h" 
@@ -18,12 +10,13 @@
 #include "Mick_IO/Mick_IO.h"
 #include "IMU.h"
 
+
+#include "MickRobot_V3.h"
+
+
 extern imu_Dat IMU_Data;//IMUÊý¾Ý½á¹¹Ìå
 
-#define Chassis_MAX_Speed  2.2  // µ×ÅÌ×î´óËÙ¶È
-#define Chassis_Parameter_L  0.4 // Ç°ºóÂÖ¾à
-#define Chassis_Parameter_lw  0.4 // ×óÓÒ²àÂÖ¾à 
-#define PI 3.1415926
+
 
 volatile uint16_t run_cnt=0;
 
@@ -42,14 +35,23 @@ extern volatile uint32_t Timer2_Counter1,Timer2_Counter2;//Ò£¿ØÆ÷ºÍÉÏÎ»»úÍ¨Ñ¶¼ä¸
 extern volatile moto_measure_t moto_chassis[4];//ÐÐ½øµç»ú×´Ì¬
 extern volatile moto_measure_t moto_rmd_chassis[4];//×ªÏòµç»ú×´Ì¬
 
+
+
+
+/*
+ * °üº¬3ÖÖÀàÐÍµ×ÅÌ¿ØÖÆ    ²îËÙ¡¢°¢¿¨Âü¡¢È«Ïò
+
+
+*/
+
 /**
-* @funtion	 4ÂÖ²îËÙ
+* @funtion	 4ÂÖ²îËÙÀàÐÍµ×ÅÌ
 * @Param	 speed_w ·¶Î§ÊÇ [-1 1]  µ¥Î» rad/s
 * @Retval	 None
 * @Date     2020/8/16
 * @maker    crp
 */
-void DiffX4_Wheel_Speed_Model_APSL(float speed_x,float speed_w)
+void DiffX4_Wheel_Speed_Model(float speed_x,float speed_w)
 {
 	recived_cmd.speed_available = 0x01;
  
@@ -80,29 +82,34 @@ void DiffX4_Wheel_Speed_Model_APSL(float speed_x,float speed_w)
 	recived_cmd.tag_rpm[1] = -(112.344668*v2)/1;  // µ×ÅÌÖÐÐÄµ½ÂÖ×Ó×ª¶¯ÖÐÐÄµÄ¾àÀëÊÇ 0.4
 	recived_cmd.tag_rpm[2] = -(112.344668*v3)/1;   // speed_wµÄ·¶Î§ÊÇÕý¸º1 ÊÇ·ñ»¹ÐèÒª³ËÒÔÒ»¸öpi ÏÞÖÆÐý×ªËÙ¶ÈÊÇpi/s
 	recived_cmd.tag_rpm[3] = -(112.344668*v4)/1;
- 
 }
- 
-/**
-* @funtion	 µ×ÅÌÔ­µã×ªÏò½ÇËÙ¶È
-* @Param	 speed_w ·¶Î§ÊÇ [-1 1]  µ¥Î» rad/s
-* @Retval	 None
-* @Date     2020/8/16
-* @maker    crp
-*/
-void DiffX4_Wheel_Speed_Model(float speed_w)
+// ²îËÙÄ£ÐÍµ×ÅÌ ¼ÆËãÀï³Ì¼Æ
+void Calculate_DiffX4_Odom(void)
 {
-	recived_cmd.chassis_mode = 0x01;
-	recived_cmd.tag_angl[0] = -4500;
-	recived_cmd.tag_angl[1] = 4500;
-	recived_cmd.tag_angl[2] = -4500;
-	recived_cmd.tag_angl[3] = 4500;
+	float vr ,vl;
+	float w_tem = 0;
+	static float last_yaw =0;
+	vr = (moto_chassis[0].speed_rpm + moto_chassis[1].speed_rpm)/2000.0f/112.2336;
+	vl = (moto_chassis[3].speed_rpm + moto_chassis[2].speed_rpm)/2000.0f/112.2336;
 
-	recived_cmd.tag_rpm[0] = (37.604*speed_w)/1; // ÏßËÙ¶Èµ½RPMµÄ×ª»»ÏµÊýÊÇ  70.02556
-	recived_cmd.tag_rpm[1] = (37.604*speed_w)/1;  // µ×ÅÌÖÐÐÄµ½ÂÖ×Ó×ª¶¯ÖÐÐÄµÄ¾àÀëÊÇ 0.537
-	recived_cmd.tag_rpm[2] = (37.604*speed_w)/1;   // speed_wµÄ·¶Î§ÊÇÕý¸º1 ÊÇ·ñ»¹ÐèÒª³ËÒÔÒ»¸öpi ÏÞÖÆÐý×ªËÙ¶ÈÊÇpi/s
-	recived_cmd.tag_rpm[3] = (37.604*speed_w)/1;
+	odom_vx = (vr+vl)/2.0f;
+	odom_vy = 0;
+	odom_w = (vr-vl)/0.4f;
+	if(IMU_Data.update_flag)
+	{
+		w_tem = (IMU_Data.yaw-last_yaw)/0.05;
+		last_yaw = IMU_Data.yaw;
+	}
+	// ÅÐ¶ÏÊ²Ã´Çé¿öÏÂÊ¹ÓÃIMUµÄ½ÇËÙ¶È
+	if(fabs(odom_w) > 0.25)
+	{
+		if(fabs(w_tem)>0.05)
+			odom_w = w_tem;
+	}
+	else
+		odom_w = 0;
 }
+
 // ºóÂÖ°¢¿¨ÂüÄ£ÐÍ
 //theta µÄÊäÈë·¶Î§ÊÇ [-90 90]  µ¥Î» m/s
 //void AKM_Wheel_Speed_Model(float speed_x,float speed_w)
@@ -420,71 +427,82 @@ void AKM2_Wheel_Speed_Model(float speed_x,float speed_y,float speed_w)
 }
 /****************************************************************
 @param speed_x x·½ÏòËÙ¶È  ·¶Î§K*[-1 1]
+       speed_w ·¶Î§ÊÇ [-1 1]  µ¥Î» rad/s
+* @Retval	 None
+* @Date     2020/8/16
+* @maker    crp
 ****************************************************************/
-void WSWD_Wheel_Speed_Model(float speed_x,float speed_y)
+void WSWD_Wheel_Speed_Model(float speed_x,float speed_y,float speed_w)
 {
 	recived_cmd.chassis_mode = 0x03;
-	
 	int8_t direction = 1;
 	double v = sqrt(speed_x*speed_x+speed_y*speed_y);
 	float theta =0;
-	if(v > 1e-3)
-		theta = acosf(speed_x/v)*57.3;
- 
-	if(theta>90) //Á¿»¯µ½[-pi pi]
-		theta=180-theta;
 	
-	if(speed_y<0) //Î»ÓÚ3/4ÏóÏÞ
+	if(speed_w != 0)
 	{
-		theta = -theta;
-	}
-	if(speed_x<0)  
-	{
-		v = -v;
-	}
-	if(v<0)
-		direction=-direction;
-	
-	recived_cmd.tag_angl[0] = (direction*theta*100)/1;
-	recived_cmd.tag_angl[1] = (direction*theta*100)/1;
-	recived_cmd.tag_angl[2] = (direction*theta*100)/1;
-	recived_cmd.tag_angl[3] = (direction*theta*100)/1;
+		if(v > 1e-3)
+			theta = acosf(speed_x/v)*57.3;
+	 
+		if(theta>90) //Á¿»¯µ½[-pi pi]
+			theta=180-theta;
+		
+		if(speed_y<0) //Î»ÓÚ3/4ÏóÏÞ
+		{
+			theta = -theta;
+		}
+		if(speed_x<0)  
+		{
+			v = -v;
+		}
+		if(v<0)
+			direction=-direction;
+		
+		recived_cmd.tag_angl[0] = (direction*theta*100)/1;
+		recived_cmd.tag_angl[1] = (direction*theta*100)/1;
+		recived_cmd.tag_angl[2] = (direction*theta*100)/1;
+		recived_cmd.tag_angl[3] = (direction*theta*100)/1;
 
-	recived_cmd.tag_rpm[0] = -(v*70.02556)/1;// ÏßËÙ¶Èµ½RPM×ª»» 70.02556=60/(3.1515926*0.258);
-	recived_cmd.tag_rpm[1] = -(v*70.02556)/1;
-	recived_cmd.tag_rpm[2] = (v*70.02556)/1;
-	recived_cmd.tag_rpm[3] = (v*70.02556)/1;
-}
-void Calculate_DiffX4_Odom(void)
-{
-	float vr ,vl;
-	float w_tem = 0;
-	static float last_yaw =0;
-	vr = (moto_chassis[0].speed_rpm + moto_chassis[1].speed_rpm)/2000.0f/112.2336;
-	vl = (moto_chassis[3].speed_rpm + moto_chassis[2].speed_rpm)/2000.0f/112.2336;
-
-	odom_vx = (vr+vl)/2.0f;
-	odom_vy = 0;
-	odom_w = (vr-vl)/0.4f;
-	if(IMU_Data.update_flag)
-	{
-		w_tem = (IMU_Data.yaw-last_yaw)/0.05;
-		last_yaw = IMU_Data.yaw;
-	}
-	// ÅÐ¶ÏÊ²Ã´Çé¿öÏÂÊ¹ÓÃIMUµÄ½ÇËÙ¶È
-	if(fabs(odom_w) > 0.25)
-	{
-		if(fabs(w_tem)>0.05)
-			odom_w = w_tem;
+		recived_cmd.tag_rpm[0] = -(v*70.02556)/1;// ÏßËÙ¶Èµ½RPM×ª»» 70.02556=60/(3.1515926*0.258);
+		recived_cmd.tag_rpm[1] = -(v*70.02556)/1;
+		recived_cmd.tag_rpm[2] = (v*70.02556)/1;
+		recived_cmd.tag_rpm[3] = (v*70.02556)/1;
 	}
 	else
-		odom_w = 0;
-	
-	
+	{
+		recived_cmd.tag_angl[0] = -4500;
+		recived_cmd.tag_angl[1] = 4500;
+		recived_cmd.tag_angl[2] = -4500;
+		recived_cmd.tag_angl[3] = 4500;
+
+		recived_cmd.tag_rpm[0] = (37.604*speed_w)/1; // ÏßËÙ¶Èµ½RPMµÄ×ª»»ÏµÊýÊÇ  70.02556
+		recived_cmd.tag_rpm[1] = (37.604*speed_w)/1;  // µ×ÅÌÖÐÐÄµ½ÂÖ×Ó×ª¶¯ÖÐÐÄµÄ¾àÀëÊÇ 0.537
+		recived_cmd.tag_rpm[2] = (37.604*speed_w)/1;   // speed_wµÄ·¶Î§ÊÇÕý¸º1 ÊÇ·ñ»¹ÐèÒª³ËÒÔÒ»¸öpi ÏÞÖÆÐý×ªËÙ¶ÈÊÇpi/s
+		recived_cmd.tag_rpm[3] = (37.604*speed_w)/1;
+	}
 }
+
 // ¿ØÖÆ³ÌÐòÏß³Ì 10msµ÷ÓÃÒ»´Î  for mick-v3
 void ChasissDiffX4_Control_Routing(uint32_t cnt)
 { 
+	//¼±Í£		
+	if( Read_Isolated_Input(1) ==1)
+	 {
+		recived_cmd.rpm_available =0x00;
+		recived_cmd.speed_available =0x00;
+		 
+		// printf("Emergency STOP !!!!");
+	 
+		recived_cmd.tag_angl[0] = 0;
+		recived_cmd.tag_angl[1] = 0;
+		recived_cmd.tag_angl[2] = 0;
+		recived_cmd.tag_angl[3] = 0;
+
+		recived_cmd.tag_rpm[0] = 0;//  
+		recived_cmd.tag_rpm[1] = 0;
+		recived_cmd.tag_rpm[2] = 0;
+		recived_cmd.tag_rpm[3] = 0;
+	}
 	switch(cnt)
 	{	
 		case 1: MOTOR_APSL2DB_Set_RPM(1, recived_cmd.tag_rpm[0]);break;	
@@ -557,25 +575,6 @@ void Chasiss4WS4WD_Control_Routing(uint32_t cnt)
 void Chasiss_Control_Routing(void)
 {
 	//uint8_t i=0;
-	//¼±Í£	
-	
-	
-	
-	if( Read_Isolated_Input(4) ==1)
-	 {
-		recived_cmd.rpm_available =0x00;
-		recived_cmd.speed_available =0x00;
-	 
-		recived_cmd.tag_angl[0] = 0;
-		recived_cmd.tag_angl[1] = 0;
-		recived_cmd.tag_angl[2] = 0;
-		recived_cmd.tag_angl[3] = 0;
-
-		recived_cmd.tag_rpm[0] = 0;//  
-		recived_cmd.tag_rpm[1] = 0;
-		recived_cmd.tag_rpm[2] = 0;
-		recived_cmd.tag_rpm[3] = 0;
-	 }
 	 
 	 
 	if((Timer2_Counter1>20) || (Timer2_Counter2>1*20 && rc.sw1 ==1))  //ÉÏÎ»»úÍ¨Ñ¶¶Ï¿ª1s      50msÒ»´ÎÖÐ¶Ï
@@ -626,11 +625,11 @@ char Motor_WriteData_In_Buff(uint8_t *DataBuff,uint16_t datalength)
 		//È«ÏòÄ£Ê½
 		if(recived_cmd.tag_speed_w!=0)
 		{
-			DiffX4_Wheel_Speed_Model(recived_cmd.tag_speed_w);
+			WSWD_Wheel_Speed_Model(0,0,recived_cmd.tag_speed_w);
 		}
 		else
 		{
-			WSWD_Wheel_Speed_Model(recived_cmd.tag_speed_x,recived_cmd.tag_speed_y);
+			WSWD_Wheel_Speed_Model(recived_cmd.tag_speed_x,recived_cmd.tag_speed_y,0);
 		}		
 	}
 	else if(recived_cmd.cmd ==0xF3 && rc.sw1 ==1) //mick-v3 ²îËÙ
@@ -643,7 +642,7 @@ char Motor_WriteData_In_Buff(uint8_t *DataBuff,uint16_t datalength)
 		recived_cmd.rpm_available=0x00;
 		recived_cmd.speed_available=0x01;
 		 
-		DiffX4_Wheel_Speed_Model_APSL(recived_cmd.tag_speed_x,recived_cmd.tag_speed_w);
+		DiffX4_Wheel_Speed_Model(recived_cmd.tag_speed_x,recived_cmd.tag_speed_w);
 	}
 	else if(recived_cmd.cmd ==0xF4 && rc.sw1 ==1) //°¢¿¨ÂüÄ£Ê½
 	{

@@ -821,6 +821,11 @@
               <FilePath>..\..\User\Battery\Battery.c</FilePath>
             </File>
             <File>
+              <FileName>MOTOR_Control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\MOTOR_Control\MOTOR_Control.c</FilePath>
+            </File>
+            <File>
               <FileName>MOTOR_APSL2DB.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\MOTOR_APSL2DB\MOTOR_APSL2DB.c</FilePath>
@@ -829,11 +834,6 @@
               <FileName>MOTOR_RMD.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\MOTOR_RMD\MOTOR_RMD.c</FilePath>
-            </File>
-            <File>
-              <FileName>MOTOR_Control.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\MOTOR_Control\MOTOR_Control.c</FilePath>
             </File>
             <File>
               <FileName>MOTOR_EULER.c</FileName>

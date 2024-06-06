@@ -45,12 +45,13 @@ void MOTOR_APSL2DB_Init(void)
 	
 	//printf("MOTOR_APSL2DB: step1 check can line is OK?\n");
 	// step1  检测CAN总线是连接否正常
-	for(index_i=1;index_i<5;index_i++)
+	//for(index_i=1;index_i<5;index_i++)
+	for(index_i=4;index_i>0;index_i--)
 	{
 		MOTOR_APSL2DB_Set_Model(index_i,3);// 设置1-4号电机为速度模式
 		MOTOR_Delay(delay_MAX);
 		init_times = 0;
-		while(flag_can1==0 && (init_times++ < init_times_MAX))
+		while(flag_can1==0 )//(flag_can1==0 && (init_times++ < init_times_MAX))
 		{
 			flag_can1 = 0;
 			if(CAN1_RxMessage.StdId == 0x580+index_i)

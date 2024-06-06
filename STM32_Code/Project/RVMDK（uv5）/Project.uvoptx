@@ -908,8 +908,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\User\MOTOR_APSL2DB\MOTOR_APSL2DB.c</PathWithFileName>
-      <FilenameWithoutPath>MOTOR_APSL2DB.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\User\MOTOR_Control\MOTOR_Control.c</PathWithFileName>
+      <FilenameWithoutPath>MOTOR_Control.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -920,8 +920,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\User\MOTOR_RMD\MOTOR_RMD.c</PathWithFileName>
-      <FilenameWithoutPath>MOTOR_RMD.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\User\MOTOR_APSL2DB\MOTOR_APSL2DB.c</PathWithFileName>
+      <FilenameWithoutPath>MOTOR_APSL2DB.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -932,8 +932,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\User\MOTOR_Control\MOTOR_Control.c</PathWithFileName>
-      <FilenameWithoutPath>MOTOR_Control.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\User\MOTOR_RMD\MOTOR_RMD.c</PathWithFileName>
+      <FilenameWithoutPath>MOTOR_RMD.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

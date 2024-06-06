@@ -33,7 +33,7 @@ char RC_Remote_Init(void)
 	USART_DMACmd(USART2,USART_DMAReq_Rx,ENABLE); 
 	
 	rc.type =2; // 大疆DBUS 1      乐迪SBUS 2
-	Code_Switch_Value |= 0x00; //4ws4wd模型  0x02                 差速模型  0x00 
+	Code_Switch_Value |= 0x00; //  差速模型  0x00   麦克纳姆轮 0x01    4ws4wd模型  0x02    阿卡曼0x03
 	
 	while(rc.available == 0x00)
 	{
@@ -271,7 +271,7 @@ char RC_Offset_Init(void)
 		rc.cnt =rc_counter;
 		return 0;
 	}
-	return 1;
+	//return 1;
 }
 /***************************************************************************
 * @brief       成功接收到一帧DBUS数据以后调用该函数设定PID控制的目标值
@@ -317,7 +317,7 @@ void RC_Routing(void)
 		if((Code_Switch_Value & 0x03) == 0x00) // 差速模型
 		{  // printf("Diff_Wheel_Speed_Model\n");
 			//DiffX4_Wheel_Speed_Model_APSL(0,-0.5);
-			DiffX4_Wheel_Speed_Model_APSL(err_ch2/660.0*RC_K,-err_ch1/660.0*RC_K);
+			DiffX4_Wheel_Speed_Model(err_ch2/660.0*RC_K,-err_ch1/660.0*RC_K); 
 		}
 		else if((Code_Switch_Value & 0x03) == 0x01) // 麦克纳姆轮模型
 		{
@@ -328,7 +328,7 @@ void RC_Routing(void)
 			if(err_ch3!=0) //原地转向模式
 			{
 				//printf("DiffX4_Wheel_Speed_Model\n");
-				DiffX4_Wheel_Speed_Model(-err_ch3/660.0);
+				WSWD_Wheel_Speed_Model(0,0,-err_ch3/660.0);
 			}
 			else 
 			{
@@ -338,7 +338,7 @@ void RC_Routing(void)
 					AKM2_Wheel_Speed_Model(err_ch2/660.0*RC_K,0,-err_ch1/660.0*RC_K); 
 				}				
 				else if(rc.sw1 ==2) //全向模式
-					WSWD_Wheel_Speed_Model(err_ch2/660.0*RC_K,-err_ch1/660.0*RC_K);
+					WSWD_Wheel_Speed_Model(err_ch2/660.0*RC_K,-err_ch1/660.0*RC_K,0);
 				else ;
 			}
 		}

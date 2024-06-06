@@ -4,7 +4,27 @@
 #include "stm32f4xx.h"
 
 
+// 按键 key1 = PE0
+// 按键 key2 = PE1
 
+//  IN1 = PE2
+//  IN2 = PE3
+//  IN3 = PE4
+//  IN4 = PE5
+
+//  Out1 = PF5
+//  Out2 = PF4
+//  Out3 = PF3
+//  Out4 = PF2
+
+// sw1 = PE11
+// sw2 = PE12
+// sw3 = PE13
+// sw4 = PE14
+
+// led1 = PF13
+// led2 = PF14
+// led3 = PF15
 
 
 
@@ -16,6 +36,7 @@
 
  
 //mick robot 机器人控制板
+
 void Init_Mick_GPIO(void);
 
 // 读取编码器的编码值

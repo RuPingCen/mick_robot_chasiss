@@ -74,6 +74,7 @@ __IO uint32_t LocalTime = 0;
 
 static void TIM3_Config(uint16_t period,uint16_t prescaler);
 void Main_Delay(unsigned int delayvalue);
+void Test_Mick_IO(void);
 int main(void)
 {
 	uint8_t motor_i=0;
@@ -85,20 +86,17 @@ int main(void)
 	
 	SysTick_Init(); //滴答定时器初始化
 	Initial_micros(); //TIM2 TIM3级联
+	
 	Init_Mick_GPIO();// 初始化LED 隔离型输出端口
 
-	Set_Isolated_Output(1,0);
-	Set_Isolated_Output(2,0);
-	Set_Isolated_Output(3,0);
-	Set_Isolated_Output(4,0);
  
 	//上位机通讯 串口1
 	My_Config_USART_Init(USART1,115200,1);
-	UART_send_string(USART1,"USART1 Chassiss for 4WS4WD .....\n");
+	UART_send_string(USART1,"USART1 Chassiss for MickRobot-V3 .....\n");
 
 	//printf 占用串口6
 	My_Config_USART_Init(USART6,256000,1);
-	UART_send_string(USART6,"USART6 Chassiss for 4WS4WD .....\n");
+	UART_send_string(USART6,"USART6 Chassiss for MickRobot-V3 .....\n");
 	
 	// FLASH芯片初始化
 	W25QXX_Init();
@@ -124,14 +122,16 @@ int main(void)
 	{
 		printf("MPU6050 Init Failed   \r\n");
 	}
-	 
+	
+	// 是否进入测试模式
+	//Test_Mick_IO();
 	
     // DBUS 遥控器   占用串口2
 	printf("RC_Remote_Init ...\n");	 
 	RC_Remote_Init(); 
 	printf("RC_Remote_Init Successful !\n");
 	
-	//---------------------CAN测试---------------------
+	// CAN初始化
 	printf("CAN1 Init ...\n");	
 	CAN_Config(CAN1); //行进电机
 	printf("CAN1 Init Successful !\n");	
@@ -146,7 +146,7 @@ int main(void)
     Timer_2to7_Init(TIM7,50*1000);// 50 ms
 	Timer_start(TIM7);
  
-	printf("mickrobot Init seccessful...\n");	
+	printf("mickrobot-V3 Init seccessful...\n");	
 	while(1)
 	{
 		if(UART2_DMA_Flag) //遥控器介入控制命令逻辑  DBUS 7ms 发送一次数据
@@ -186,7 +186,8 @@ int main(void)
 					if((moto_chassis[0].driver_status != 0x00)) //表示有报警
 					{
 						 printf("Motor ID: %d  with warning !!!\n",motor_i);	
-						if(((moto_chassis[motor_i].error_code_LSB & 0x80) || (moto_chassis[motor_i].error_code_HSB & 0x08)) && motor_errors_cnt<10) //驱动器输出短路 
+						if(((moto_chassis[motor_i].error_code_LSB & 0x80) || (moto_chassis[motor_i].error_code_HSB & 0x08)) 
+							&& motor_errors_cnt<10) //驱动器输出短路 
 						{
 							    printf("Motor ID: %d  is overhead, now clear the error flag with reset APSL2DB\n",motor_i);	
 								MOTOR_APSL2DB_Init();
@@ -241,6 +242,7 @@ int main(void)
 					|| (moto_chassis[2].Temp >= 60) 
 					|| (moto_chassis[3].Temp >= 60))
 				{
+					printf("Motor ID 1-4 tempture: %d, %d, %d, %d \n",moto_chassis[0].Temp,moto_chassis[1].Temp,moto_chassis[2].Temp,moto_chassis[3].Temp);	
 					Set_Isolated_Output(1,0);//红
 				}
 			}
@@ -256,5 +258,105 @@ void Main_Delay(unsigned int delayvalue)
 	{	
 		i=5000;
 		while(i-->0);
+	}
+}
+
+void Test_Mick_IO(void)
+{
+	uint8_t code =0x00;
+	uint8_t cnt =0;
+	while(1)
+	{
+		cnt++;
+		// 测试IO 输出
+		{
+			 if(cnt>=0 &  cnt <30)
+			 {
+				 Set_Isolated_Output(1,1);
+				 Set_Isolated_Output(2,0);
+				 Set_Isolated_Output(3,0);
+				 Set_Isolated_Output(4,0);
+			 }
+			 else if(cnt>=30 &  cnt <60)
+			 {
+				 Set_Isolated_Output(1,0);
+				 Set_Isolated_Output(2,1);
+				 Set_Isolated_Output(3,0);
+				 Set_Isolated_Output(4,0);
+			 }
+			 else if(cnt>=60 &  cnt <90)
+			 {
+				 Set_Isolated_Output(1,0);
+				 Set_Isolated_Output(2,0);
+				 Set_Isolated_Output(3,1);
+				 Set_Isolated_Output(4,0);
+			 }
+			 else if(cnt>=90 &  cnt <120)
+			 {
+				 Set_Isolated_Output(1,0);
+				 Set_Isolated_Output(2,0);
+				 Set_Isolated_Output(3,0);
+				 Set_Isolated_Output(4,1);
+			 }
+			else
+				cnt =0;
+ 
+
+			Main_Delay(500); Main_Delay(500);  
+		}
+		{
+				LED1_FLIP;
+				LED2_FLIP;
+				LED3_FLIP;
+		}
+		{
+			if(Read_Key(1) == 1)
+			{
+				 printf("key1 pressed \n");	
+				 Set_Isolated_Output(1,1);   
+				 Set_Isolated_Output(2,1);   
+			}
+			else
+			{
+				 Set_Isolated_Output(1,0);   
+				 Set_Isolated_Output(2,0);   
+			}
+
+			if(Read_Key(2) == 1)
+			{
+				printf("key2 pressed \n");
+				 Set_Isolated_Output(3,1);   
+				 Set_Isolated_Output(4,1); 
+			}
+			else
+			{
+				 Set_Isolated_Output(3,0);   
+				 Set_Isolated_Output(4,0);   
+			}
+
+		}
+		{
+			code = Read_Code_Switch();
+			printf("Read_Code_Switch   0x%x\n",code);
+		}
+		// 测试IO 输入
+		{
+			if( Read_Isolated_Input(1) ==1)
+			 {
+				printf("Read_Isolated_Input(1)\n");	
+			 }
+				if( Read_Isolated_Input(2) ==1)
+			 {
+				printf("Read_Isolated_Input(2)\n");	
+			 }
+				if( Read_Isolated_Input(3) ==1)
+			 {
+				printf("Read_Isolated_Input(3)\n");	
+			 }
+				if( Read_Isolated_Input(4) ==1)
+			 {
+				printf("Read_Isolated_Input(4)\n");	
+			 }
+		}
 	}
 }

@@ -9,8 +9,7 @@
 volatile uint8_t Isolated_Output_Value = 0x00; //存储输出端口的状态
 
 /***************************************************************************
-* @brief       控制板外部IO初始化（LED、KEY、编码开关、隔离输入输出）
-*
+* @brief       控制板外部IO初始化（LED、KEY、编码开关、隔离输入输出）  MickV3
 * @param[out]   编码值 0-15
 * @param[in]   无
 * @retval 
@@ -19,32 +18,61 @@ volatile uint8_t Isolated_Output_Value = 0x00; //存储输出端口的状态
 ***************************************************************************/
 void Init_Mick_GPIO(void)
 {
+// led1 = PF13
+// led2 = PF14
+// led3 = PF15
+	
+// 按键 key1 = PE0  key2 = PE1
+	
+// sw1 = PE11
+// sw2 = PE12
+// sw3 = PE13
+// sw4 = PE14
+	
+//  IN1 = PE2
+//  IN2 = PE3
+//  IN3 = PE4
+//  IN4 = PE5
+
+//  Out1 = PF5
+//  Out2 = PF4
+//  Out3 = PF3
+//  Out4 = PF2
+
+ 
 	// LED灯
 	My_GPIO_Init(GPIOF, GPIO_Pin_13, GPIO_Mode_OUT);
 	My_GPIO_Init(GPIOF, GPIO_Pin_14, GPIO_Mode_OUT);
 	My_GPIO_Init(GPIOF, GPIO_Pin_15, GPIO_Mode_OUT);
 	
-//	//按键端口 为输入
-//	My_GPIO_Init(GPIOA,GPIO_Pin_7,GPIO_Mode_IPU);
-//	My_GPIO_Init(GPIOB,GPIO_Pin_2,GPIO_Mode_IPU);
-//	
-//	//拨码开关端口
-//	My_GPIO_Init(GPIOA,GPIO_Pin_15,GPIO_Mode_IPU);
-//	My_GPIO_Init(GPIOB,GPIO_Pin_3,GPIO_Mode_IPU);
-//	My_GPIO_Init(GPIOB,GPIO_Pin_4,GPIO_Mode_IPU);
-//	My_GPIO_Init(GPIOB,GPIO_Pin_5,GPIO_Mode_IPU);
+	//按键端口 为输入
+	My_GPIO_Init(GPIOE,GPIO_Pin_0,GPIO_Mode_IN);
+	My_GPIO_Init(GPIOE,GPIO_Pin_1,GPIO_Mode_IN);
+	
+	//拨码开关端口
+	My_GPIO_Init(GPIOE,GPIO_Pin_11,GPIO_Mode_IN);
+	My_GPIO_Init(GPIOE,GPIO_Pin_12,GPIO_Mode_IN);
+	My_GPIO_Init(GPIOE,GPIO_Pin_13,GPIO_Mode_IN);
+	My_GPIO_Init(GPIOE,GPIO_Pin_14,GPIO_Mode_IN);
 	
 	//外部隔离输入
-	My_GPIO_Init(GPIOA,GPIO_Pin_4,GPIO_Mode_IN);
+	My_GPIO_Init(GPIOE,GPIO_Pin_2,GPIO_Mode_IN);
+	My_GPIO_Init(GPIOE,GPIO_Pin_3,GPIO_Mode_IN);
+	My_GPIO_Init(GPIOE,GPIO_Pin_4,GPIO_Mode_IN);
 	My_GPIO_Init(GPIOE,GPIO_Pin_5,GPIO_Mode_IN);
-	My_GPIO_Init(GPIOE,GPIO_Pin_6,GPIO_Mode_IN);
-	My_GPIO_Init(GPIOB,GPIO_Pin_8,GPIO_Mode_IN);
 	
 	//外部隔离输出
-	My_GPIO_Init(GPIOB,GPIO_Pin_6,GPIO_Mode_OUT);
-	My_GPIO_Init(GPIOB,GPIO_Pin_7,GPIO_Mode_OUT);
-	My_GPIO_Init(GPIOE,GPIO_Pin_4,GPIO_Mode_OUT);
-	My_GPIO_Init(GPIOA,GPIO_Pin_6,GPIO_Mode_OUT);
+	My_GPIO_Init(GPIOF,GPIO_Pin_5,GPIO_Mode_OUT);
+	My_GPIO_Init(GPIOF,GPIO_Pin_4,GPIO_Mode_OUT);
+	My_GPIO_Init(GPIOF,GPIO_Pin_3,GPIO_Mode_OUT);
+	My_GPIO_Init(GPIOF,GPIO_Pin_2,GPIO_Mode_OUT);
+	
+	
+	
+	Set_Isolated_Output(1,0);
+	Set_Isolated_Output(2,0);
+	Set_Isolated_Output(3,0);
+	Set_Isolated_Output(4,0);
 }
 
 /***************************************************************************
@@ -60,22 +88,22 @@ void Init_Mick_GPIO(void)
 uint8_t Read_Code_Switch(void)
 {
 	uint8_t value=0;
-	if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_15) == 0)
+	if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_11) == 0)
 		value |= 0x08;
 	else
 		value &= 0xf7;
 	
- 	if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_3) == 0)
+ 	if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12) == 0)
 		value |= 0x04;
 	else
 		value &= 0xfB;
 	
-		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_4) == 0)
+		if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_13) == 0)
 		value |= 0x02;
 	else
 		value &= 0xfD;
 	
-		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5) == 0)
+		if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_14) == 0)
 		value |= 0x01;
 	else
 		value &= 0xfe;
@@ -95,14 +123,14 @@ uint8_t Read_Key(uint8_t ch)
 	uint8_t key_value=0xff;
 	if(ch == 1)
 	{
-		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_7) == 0)
+		if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_0) == 0)
 			key_value = 1;
 		else
 			key_value = 0;
 	}
 	else if(ch == 2)
 	{
-		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2) == 0)
+		if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_1) == 0)
 			key_value = 1;
 		else
 			key_value = 0;
@@ -126,28 +154,28 @@ uint8_t Read_Isolated_Input(uint8_t ch)
 	uint8_t key_value=0xff;
 	if(ch == 1)
 	{    //外部输入VCC 导致光耦导通，IO电平为0
-			if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4) == 0)
+			if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5) == 0)
 				key_value = 1;
 			else
 				key_value = 0;
 	}
 	else if(ch == 2)
 	{
-		if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5) == 0)
+		if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 0)
 				key_value = 1;
 			else
 				key_value = 0;
 	}
 	else if(ch == 3)
 	{
-			if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6) == 0)
+			if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_3) == 0)
 				key_value = 1;
 			else
 				key_value = 0;
 	}
 	else if(ch == 4)
 	{
-		if(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8) == 0)
+		if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_2) == 0)
 				key_value = 1;
 			else
 				key_value = 0;
@@ -171,12 +199,12 @@ void Set_Isolated_Output(uint8_t ch, uint8_t out_value)
 	{    //IO输出高电平（1），导致光耦导通，输出端接到GND上  否则为高阻态
 			if(out_value)
 			{
-				GPIO_SetBits(GPIOB,GPIO_Pin_6);
+				GPIO_SetBits(GPIOF,GPIO_Pin_5);
 				Isolated_Output_Value |= 0x01;
 			}
 			else
 			{
-				GPIO_ResetBits(GPIOB,GPIO_Pin_6);
+				GPIO_ResetBits(GPIOF,GPIO_Pin_5);
 				Isolated_Output_Value &= 0xfe;
 			}
 	}
@@ -184,12 +212,12 @@ void Set_Isolated_Output(uint8_t ch, uint8_t out_value)
 	{
 			if(out_value)
 			{
-				GPIO_SetBits(GPIOB,GPIO_Pin_7);
+				GPIO_SetBits(GPIOF,GPIO_Pin_4);
 				Isolated_Output_Value |= 0x02;
 			}
 			else
 			{
-				GPIO_ResetBits(GPIOB,GPIO_Pin_7);
+				GPIO_ResetBits(GPIOF,GPIO_Pin_4);
 				Isolated_Output_Value &= 0xfd;
 			}
 	}
@@ -197,12 +225,12 @@ void Set_Isolated_Output(uint8_t ch, uint8_t out_value)
 	{
 			if(out_value)
 			{
-				GPIO_SetBits(GPIOE,GPIO_Pin_4);
+				GPIO_SetBits(GPIOF,GPIO_Pin_3);
 				Isolated_Output_Value |= 0x04;
 			}
 			else
 			{
-				GPIO_ResetBits(GPIOE,GPIO_Pin_4);
+				GPIO_ResetBits(GPIOF,GPIO_Pin_3);
 				Isolated_Output_Value &= 0xfB;
 			}
 	}
@@ -210,12 +238,12 @@ void Set_Isolated_Output(uint8_t ch, uint8_t out_value)
 	{
 			if(out_value)
 			{
-				GPIO_SetBits(GPIOA,GPIO_Pin_6);
+				GPIO_SetBits(GPIOF,GPIO_Pin_2);
 				Isolated_Output_Value |= 0x08;
 			}
 			else
 			{
-				GPIO_ResetBits(GPIOA,GPIO_Pin_6);
+				GPIO_ResetBits(GPIOF,GPIO_Pin_2);
 				Isolated_Output_Value &= 0xf7;
 			}
 	}
@@ -264,45 +292,4 @@ void Isolated_IO_Upload_Message(void)
 }
 
 
-//void Test_Mick_IO(void)
-//{
-//	while(1)
-//	{
-//		// 测试IO 输出
-//		{
-//				Set_Isolated_Output(1,0);  //红
-//				Set_Isolated_Output(2,0);  //绿
-//				Set_Isolated_Output(3,1); //黄    一直为高的时候就会闪烁
-//				Set_Isolated_Output(4,1);
 
-
-//				Main_Delay(500); 
-
-//				//		Set_Isolated_Output(1,0);
-//				//		Set_Isolated_Output(2,0);
-//				//		Set_Isolated_Output(3,0);
-//				//		Set_Isolated_Output(4,0);
-
-//				Main_Delay(500); 
-//		}
-//		// 测试IO 输入
-//		{
-//			if( Read_Isolated_Input(1) ==1)
-//			 {
-//				printf("Read_Isolated_Input(1)\n");	
-//			 }
-//				if( Read_Isolated_Input(2) ==1)
-//			 {
-//				printf("Read_Isolated_Input(1)\n");	
-//			 }
-//				if( Read_Isolated_Input(3) ==1)
-//			 {
-//				printf("Read_Isolated_Input(1)\n");	
-//			 }
-//				if( Read_Isolated_Input(4) ==1)
-//			 {
-//				printf("Read_Isolated_Input(1)\n");	
-//			 }
-//		}
-//	}
-//}

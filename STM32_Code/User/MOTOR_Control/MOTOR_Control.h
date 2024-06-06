@@ -28,12 +28,12 @@ typedef struct __command_t //接收上位机控制命令的结构体数据
 
 
 
-void DiffX4_Wheel_Speed_Model_APSL(float speed_x,float speed_w);
-void DiffX4_Wheel_Speed_Model(float speed_w);
+void DiffX4_Wheel_Speed_Model(float speed_x,float speed_w);
+ 
 void AKM_Wheel_Speed_Model(float speed_x,float speed_w);
 void AKM2_Wheel_Speed_Model(float speed_x,float speed_y,float speed_w);
 
-void WSWD_Wheel_Speed_Model(float speed_x,float speed_y);
+void WSWD_Wheel_Speed_Model(float speed_x,float speed_y,float speed_w);// 4ws4wd全向驱动
 
 void Calculate_DiffX4_Odom(void);
 
