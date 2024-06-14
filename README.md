@@ -5,10 +5,10 @@
 本项目描述了针对室外环境设计的一个开源ROS小车底盘，项目开源了小车的3D机械图，基于STM32设计的小车控制板，电源板（为传感器供电）；小车的**PCB**、**代码**及**3D图纸**均是开源，大家可以自行下载打样学习。
 
 - **master分支 为第3版小车 MickX4-V3（ 最新版）**，
-
 - MickX4-V2分支为第2版小车代码分支。 
-
 - M4分支为麦克纳姆轮第一版小车代码分支。[项目更新日志](https://github.com/RuPingCen/mick_robot_chasiss/tree/master/更新日志.md)
+
+![mickx4-v3](README.assets/mickx4-v3.png)
 
 
 ![image-20240411174345904](README.assets/fengmian.gif)
@@ -151,7 +151,13 @@ roslaunch turtlebot3_bringup turtlebot3_model.launch
 
 ## 2 小车控制板
 
-### 2.1 小车控制板V1
+## 2.1 小车控制板V3
+
+第3版小车控制板采用了STM32F407作为主控制器
+
+![mick-control-V3-1](README.assets/mick-control-V3-1.png)
+
+### 2.2 小车控制板V1
 
 第一版控制板采用STM32F103作为主控制芯片。控制板输入20-36V DC直流，对外提供1路DC 5V 2A 、1路DC 12V 2A 对车载传感器供电。
 
@@ -164,7 +170,7 @@ roslaunch turtlebot3_bringup turtlebot3_model.launch
 
 ### 2.2 小车控制板外形尺寸
 
-第一版和第二版的小车控制板外形和安装孔位一致。
+第1版和第3版的小车控制板外形和安装孔位一致。
 
 板子外形为99*99 mm 安装孔位于四周呈轴对称分布，孔中心间距为93mm,孔直径为φ3.1 mm。如下图所示。
 
