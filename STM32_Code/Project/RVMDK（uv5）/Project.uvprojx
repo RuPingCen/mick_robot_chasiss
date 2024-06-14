@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,STM32F40_41xxx,</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\User;..\..\Libraries\CMSIS\Include;..\..\Libraries\STM32F4xx_StdPeriph_Driver\inc;..\..\Libraries\CMSIS\Device\ST\STM32F4xx\Include;..\..\Bsp\bsp_systick;..\..\Bsp\bsp_uart;..\..\Bsp\bsp_gpio;..\..\Bsp\bsp_timer;..\..\Bsp\bsp_pwm;..\..\Bsp\bsp_usart_dma;..\..\User\key;..\..\User\led;..\..\Bsp\bsp_can;..\..\Bsp\bsp_eth;..\..\User\App;..\..\User\lwip-1.4.1\port;..\..\User\lwip-1.4.1\port\arch;..\..\User\lwip-1.4.1\port\Standalone;..\..\User\lwip-1.4.1\src\include;..\..\User\lwip-1.4.1\src\include\ipv4;..\..\User\lwip-1.4.1\src\include\lwip;..\..\User\lwip-1.4.1\src\include\netif;..\..\User\IO_IIC;..\..\User\MPU6050;..\..\User\DMP;..\..\Bsp\bsp_spi;..\..\User\FLASH;..\..\User\IMU;..\..\User\MOTOR_EULER</IncludePath>
+              <IncludePath>..\..\User;..\..\Libraries\CMSIS\Include;..\..\Libraries\STM32F4xx_StdPeriph_Driver\inc;..\..\Libraries\CMSIS\Device\ST\STM32F4xx\Include;..\..\Bsp\bsp_systick;..\..\Bsp\bsp_uart;..\..\Bsp\bsp_gpio;..\..\Bsp\bsp_timer;..\..\Bsp\bsp_pwm;..\..\Bsp\bsp_usart_dma;..\..\User\key;..\..\User\led;..\..\Bsp\bsp_can;..\..\Bsp\bsp_eth;..\..\User\App;..\..\User\lwip-1.4.1\port;..\..\User\lwip-1.4.1\port\arch;..\..\User\lwip-1.4.1\port\Standalone;..\..\User\lwip-1.4.1\src\include;..\..\User\lwip-1.4.1\src\include\ipv4;..\..\User\lwip-1.4.1\src\include\lwip;..\..\User\lwip-1.4.1\src\include\netif;..\..\User\IO_IIC;..\..\User\MPU6050;..\..\User\DMP;..\..\Bsp\bsp_spi;..\..\User\FLASH;..\..\User\IMU;..\..\User\MOTOR_EULER;..\..\Bsp\bsp_adc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -904,6 +904,11 @@
               <FileName>bsp_pwm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Bsp\bsp_pwm\bsp_pwm.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Bsp\bsp_adc\bsp_adc.c</FilePath>
             </File>
             <File>
               <FileName>bsp_can.c</FileName>

@@ -12,6 +12,7 @@
 #include "bsp_timer.h"
 #include "bsp_usart_dma.h" 
 #include "bsp_can.h" 
+#include "bsp_adc.h" 
 #include "key.h" 
 #include "led.h" 
 
@@ -28,6 +29,7 @@
 #include "mpu6050.h"
 #include "IO_IIC.h"
 #include "IMU.h"
+#include "MickRobot_V3.h"
 
 #include "w25q128.h"
 
@@ -35,7 +37,8 @@
 #include "netconf.h"
 #include "tcp_echoclient.h"
 #include "stm32f4x7_phy.h"
- 
+
+extern  __IO uint16_t ADC_ConvertedValue[1]; // AD转换DMA数据存储  用于测量输入电压 若低于24V则报警
 
 extern volatile Battery battery; //电池结构体数据
 
@@ -124,7 +127,7 @@ int main(void)
 	}
 	
 	// 是否进入测试模式
-	//Test_Mick_IO();
+	Test_Mick_IO();
 	
     // DBUS 遥控器   占用串口2
 	printf("RC_Remote_Init ...\n");	 
@@ -155,13 +158,21 @@ int main(void)
 			if(UART2_DMA_Flag2>10)
 			{
 				LED2_FLIP;
-				Set_Isolated_Output(2,1);//绿色
-				//RC_Debug_Message();
-				//RC_Upload_Message();//上传遥控器状态
+				Flip_Isolated_Output(3);//绿色
+				
+				if(Send_RC_Message)
+				{
+					RC_Upload_Message();//上传遥控器状态
+				}
+				if(Debug_RC_Message)
+				{
+					RC_Debug_Message();
+				}
 				UART2_DMA_Flag2=0;
 			}			
 			UART2_DMA_Flag=0x00;	
 		}
+		
 		if(flag_can1)
 		{
 			flag_can1_2++;
@@ -194,26 +205,29 @@ int main(void)
 						}
 						else
 						{
-							Set_Isolated_Output(1,1);//红
+							Set_Isolated_Output(4,1);//红
 						}
 					}
 				}				
 			}
 			else
 			{
-				Set_Isolated_Output(1,0);//红
+				Set_Isolated_Output(4,0);//红
 			}
-			
-			Chassis_Motor_Upload_Message();
-			Chassis_Odom_Upload_Message();
+			if(Send_Motor_Message)
+				Chassis_Motor_Upload_Message();
+			if(Send_Odom_Message)
+				Chassis_Odom_Upload_Message();
 			flag_can1=0;
 		}
 		// IMU 数据读取 上传
 		if(IMU_Init_Flag && Timer6_Counter2 > 1) //10ms  100HZ 读取DMP
 		{
 			IMU_Routing();	
-			
-			IMU_Upload_Message();	
+			if(Send_IMU_Message)
+			{
+				IMU_Upload_Message();	
+			}
 			Timer6_Counter2=0;
 		}
 		
@@ -243,7 +257,7 @@ int main(void)
 					|| (moto_chassis[3].Temp >= 60))
 				{
 					printf("Motor ID 1-4 tempture: %d, %d, %d, %d \n",moto_chassis[0].Temp,moto_chassis[1].Temp,moto_chassis[2].Temp,moto_chassis[3].Temp);	
-					Set_Isolated_Output(1,0);//红
+					Set_Isolated_Output(4,0);//红
 				}
 			}
 		}
@@ -265,30 +279,57 @@ void Test_Mick_IO(void)
 {
 	uint8_t code =0x00;
 	uint8_t cnt =0;
+//	while(1)
+//	{
+//		// ch4 红 靠近VCC这一侧
+//		// ch3 绿色  
+//		// ch2 黄 
+//		 Set_Isolated_Output(2,1);
+//		Main_Delay(500); Main_Delay(500);  
+//		Set_Isolated_Output(2,0);
+//		Main_Delay(500); Main_Delay(500);  
+//	}
+	
+	//  蜂鸣器是 PA0
+		
+	//	ADC 是 PA1
+	MY_ADC_DMA_Init(ADC1,ADC_Channel_1);
+	float tem =0;
+ 
 	while(1)
 	{
+		  
 		cnt++;
+		{
+			tem = ADC_ConvertedValue[0]*3.3/4096.0*21.0;
+			UART_send_string(USART1,"\n ADC: ");
+			UART_send_floatdat(USART1,tem);
+			if(tem < 23)
+				BUZZER_ON;
+			else
+				BUZZER_OFF;
+		}
 		// 测试IO 输出
 		{
 			 if(cnt>=0 &  cnt <30)
 			 {
-				 Set_Isolated_Output(1,1);
+				 Set_Isolated_Output(1,0);
 				 Set_Isolated_Output(2,0);
 				 Set_Isolated_Output(3,0);
-				 Set_Isolated_Output(4,0);
+				 Set_Isolated_Output(4,1);
 			 }
 			 else if(cnt>=30 &  cnt <60)
 			 {
 				 Set_Isolated_Output(1,0);
-				 Set_Isolated_Output(2,1);
-				 Set_Isolated_Output(3,0);
+				 Set_Isolated_Output(2,0);
+				 Set_Isolated_Output(3,1);
 				 Set_Isolated_Output(4,0);
 			 }
 			 else if(cnt>=60 &  cnt <90)
 			 {
 				 Set_Isolated_Output(1,0);
-				 Set_Isolated_Output(2,0);
-				 Set_Isolated_Output(3,1);
+				 Set_Isolated_Output(2,1);
+				 Set_Isolated_Output(3,0);
 				 Set_Isolated_Output(4,0);
 			 }
 			 else if(cnt>=90 &  cnt <120)
@@ -296,12 +337,12 @@ void Test_Mick_IO(void)
 				 Set_Isolated_Output(1,0);
 				 Set_Isolated_Output(2,0);
 				 Set_Isolated_Output(3,0);
-				 Set_Isolated_Output(4,1);
+				 Set_Isolated_Output(4,0);
 			 }
 			else
 				cnt =0;
  
-
+		
 			Main_Delay(500); Main_Delay(500);  
 		}
 		{
@@ -312,50 +353,59 @@ void Test_Mick_IO(void)
 		{
 			if(Read_Key(1) == 1)
 			{
-				 printf("key1 pressed \n");	
+				 printf("key1 pressed \n");
+				 UART_send_string(USART1,"key1 pressed \n");
 				 Set_Isolated_Output(1,1);   
-				 Set_Isolated_Output(2,1);   
+				 BUZZER_ON;
+				 //Set_Isolated_Output(2,1);   
 			}
 			else
 			{
 				 Set_Isolated_Output(1,0);   
-				 Set_Isolated_Output(2,0);   
+				 BUZZER_OFF;
+				 //Set_Isolated_Output(2,0);   
 			}
 
 			if(Read_Key(2) == 1)
 			{
 				printf("key2 pressed \n");
-				 Set_Isolated_Output(3,1);   
-				 Set_Isolated_Output(4,1); 
+				UART_send_string(USART1,"key2 pressed \n");
+				 Set_Isolated_Output(2,1);   
+				// Set_Isolated_Output(4,1); 
 			}
 			else
 			{
-				 Set_Isolated_Output(3,0);   
-				 Set_Isolated_Output(4,0);   
+				 Set_Isolated_Output(2,0);   
+				// Set_Isolated_Output(4,0);   
 			}
 
 		}
 		{
 			code = Read_Code_Switch();
 			printf("Read_Code_Switch   0x%x\n",code);
+			
 		}
 		// 测试IO 输入
 		{
 			if( Read_Isolated_Input(1) ==1)
 			 {
 				printf("Read_Isolated_Input(1)\n");	
+				UART_send_string(USART1,"Read_Isolated_Input(1)\n");
 			 }
 				if( Read_Isolated_Input(2) ==1)
 			 {
 				printf("Read_Isolated_Input(2)\n");	
+				UART_send_string(USART1,"Read_Isolated_Input(2)\n");
 			 }
 				if( Read_Isolated_Input(3) ==1)
 			 {
 				printf("Read_Isolated_Input(3)\n");	
+				UART_send_string(USART1,"Read_Isolated_Input(3)\n");
 			 }
 				if( Read_Isolated_Input(4) ==1)
 			 {
 				printf("Read_Isolated_Input(4)\n");	
+				UART_send_string(USART1,"Read_Isolated_Input(4)\n"); 
 			 }
 		}
 	}

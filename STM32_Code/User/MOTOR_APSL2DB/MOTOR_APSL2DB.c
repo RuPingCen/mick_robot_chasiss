@@ -4,6 +4,8 @@
 #include "bsp_can.h" 
 
 #include "common.h" 
+#include "Mick_IO/Mick_IO.h"
+
 #include "MOTOR_APSL2DB/MOTOR_APSL2DB.h" 
  
  
@@ -51,7 +53,7 @@ void MOTOR_APSL2DB_Init(void)
 		MOTOR_APSL2DB_Set_Model(index_i,3);// 设置1-4号电机为速度模式
 		MOTOR_Delay(delay_MAX);
 		init_times = 0;
-		while(flag_can1==0 )//(flag_can1==0 && (init_times++ < init_times_MAX))
+		while(flag_can1==0 && (init_times++ < init_times_MAX))
 		{
 			flag_can1 = 0;
 			if(CAN1_RxMessage.StdId == 0x580+index_i)
@@ -73,7 +75,9 @@ void MOTOR_APSL2DB_Init(void)
 	
 	// step2  0x86 清除驱动器报警
     for(index_i=1;index_i<5;index_i++)
+	{
 		MOTOR_APSL2DB_Enable(index_i,0x86);MOTOR_Delay(delay_MAX);
+	}
 	
 	 // step3  电机上电(使能)
     for(index_i=1;index_i<5;index_i++)
@@ -151,15 +155,21 @@ uint8_t MOTOR_APSL2DB_Infor_Get(void)
 	{
 		for(j=0;j<6;j++)
 		{
-			MOTOR_APSL2DB_Read_Cmd(index_i,cmd_tem1[j],cmd_tem2[j]); 
-			MOTOR_Delay(delay_MAX);
+			
 			init_times = 0;
-			while(flag_can1==0 && (init_times++ < init_times_MAX))
+			while(flag_can1==0 )//&& (init_times++ < init_times_MAX))
 			{
-				;
+				LED3_ON;
+				MOTOR_APSL2DB_Read_Cmd(index_i,cmd_tem1[j],cmd_tem2[j]); 
+				MOTOR_Delay(5000);
+				LED3_OFF;
+				MOTOR_Delay(5000);
+				MOTOR_Delay(5000);
+				MOTOR_Delay(5000);
+				printf("Motro APSL2DB: %d read motor ID \n",index_i);
 			}
 			if(init_times >= init_times_MAX)
-				printf("Motro APSL2DB: %d read motor ID faild\n",index_i);
+				printf("Motro APSL2DB: %d read motor ID faild !!!\n",index_i);
 			else
 				MOTOR_APSL2DB_Measurements_Debug();
 		}

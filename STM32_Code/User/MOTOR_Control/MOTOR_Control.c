@@ -815,7 +815,7 @@ void Chassis_Odom_Upload_Message(void)
 	senddata[i++]=0xEA;
 	senddata[i++]=0x01;//数据长度在后面赋值
 	senddata[i++]=0xA7; //命令字
-	printf("odom %.3f \t %.3f \t %.3f \n",odom_vx,odom_vy,odom_w);
+	//printf("odom %.3f \t %.3f \t %.3f \n",odom_vx,odom_vy,odom_w);
 	
 	tem = (int16_t)((odom_vx*1000)/1); //odom_vx最大值65.535
 	senddata[i++] = tem>>8;

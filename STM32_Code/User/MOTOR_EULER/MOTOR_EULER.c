@@ -2,9 +2,6 @@
 * 欧拉轮毂电机驱动，该电机使用CAN、422、UART几种方式驱动
 * CAN总线报文比较复杂 需要使用多个报文进行传输
 *
-
-
-
 */
 #include "stm32f4xx.h"
 #include "string.h"

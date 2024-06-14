@@ -37,6 +37,7 @@ char RC_Remote_Init(void)
 	
 	while(rc.available == 0x00)
 	{
+		LED2_FLIP;
 		i=6553600;
 		while(i-->0);
 		printf("wait for RC init...\n");

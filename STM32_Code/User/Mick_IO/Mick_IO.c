@@ -67,7 +67,9 @@ void Init_Mick_GPIO(void)
 	My_GPIO_Init(GPIOF,GPIO_Pin_3,GPIO_Mode_OUT);
 	My_GPIO_Init(GPIOF,GPIO_Pin_2,GPIO_Mode_OUT);
 	
-	
+	// 蜂鸣器 PA0
+	My_GPIO_Init(GPIOA,GPIO_Pin_0,GPIO_Mode_OUT);
+	GPIO_ResetBits(GPIOA,GPIO_Pin_0);
 	
 	Set_Isolated_Output(1,0);
 	Set_Isolated_Output(2,0);
@@ -251,7 +253,28 @@ void Set_Isolated_Output(uint8_t ch, uint8_t out_value)
 		;
 
 }
- 
+void Flip_Isolated_Output(uint8_t ch)
+{
+	if(ch == 1)
+	{    
+		GPIO_Flip_level(GPIOF,GPIO_Pin_5);
+	}
+	else if(ch == 2)
+	{
+		GPIO_Flip_level(GPIOF,GPIO_Pin_4);
+	}
+	else if(ch == 3)
+	{
+		GPIO_Flip_level(GPIOF,GPIO_Pin_3);
+	}
+	else if(ch == 4)
+	{
+		GPIO_Flip_level(GPIOF,GPIO_Pin_2);
+	}
+	else
+		;
+
+}
 /***************************************************************************
 * @brief       读取4个IO状态上传到PC
 * @param[out]    
