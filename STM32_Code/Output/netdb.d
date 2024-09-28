@@ -1,0 +1,9 @@
+..\..\output\netdb.o: ..\..\User\lwip-1.4.1\src\api\netdb.c
+..\..\output\netdb.o: ..\..\User\lwip-1.4.1\src\include\lwip/netdb.h
+..\..\output\netdb.o: ..\..\User\lwip-1.4.1\src\include\lwip/opt.h
+..\..\output\netdb.o: ..\..\User\App\lwipopts.h
+..\..\output\netdb.o: ..\..\User\lwip-1.4.1\src\include\lwip/debug.h
+..\..\output\netdb.o: ..\..\User\lwip-1.4.1\src\include\lwip/arch.h
+..\..\output\netdb.o: ..\..\User\lwip-1.4.1\port\arch/cc.h
+..\..\output\netdb.o: ..\..\User\lwip-1.4.1\port\arch/cpu.h
+..\..\output\netdb.o: ..\..\User\lwip-1.4.1\src\include\lwip/opt.h

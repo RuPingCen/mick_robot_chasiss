@@ -4,12 +4,12 @@
 
 本项目描述了针对室外环境设计的一个开源ROS小车底盘，项目开源了小车的3D机械图，基于STM32设计的小车控制板，电源板（为传感器供电）；小车的**PCB**、**代码**及**3D图纸**均是开源，大家可以自行下载打样学习。
 
+
 - **master分支 为第3版小车 MickX4-V3（ 最新版）**，
 - MickX4-V2分支为第2版小车代码分支。 
 - M4分支为麦克纳姆轮第一版小车代码分支。[项目更新日志](https://github.com/RuPingCen/mick_robot_chasiss/tree/master/更新日志.md)
 
-![mickx4-v3](README.assets/mickx4-v3.png)
-
+<img src="README.assets/mickx4-v3.png" alt="mickx4-v3-1" style="zoom:70%;" />
 
 ![image-20240411174345904](README.assets/fengmian.gif)
 
@@ -38,7 +38,7 @@
 
 
 ## 1 启动差速小车底盘
-master分支代码文件可适配**两轮**、**四轮差速小车**。两轮差速底盘，主需要把底盘电机ID设置为1和3即可使用4轮差速底盘相同的命令。
+master分支代码文件可适配**两轮**、**四轮差速小车**。两轮差速底盘，需要把底盘电机ID设置为1和3即可使用4轮差速底盘相同的命令。
 
 ###  1.1 连线配置小车
 
@@ -155,13 +155,15 @@ roslaunch turtlebot3_bringup turtlebot3_model.launch
 
 第3版小车控制板采用了STM32F407作为主控制器
 
-![mick-control-V3-1](README.assets/mick-control-V3-1.png)
+<img src="README.assets/mick-control-V3-1.png" alt="mick-control-V3-1" style="zoom: 70%;" />
+
+
 
 ### 2.2 小车控制板V1
 
 第一版控制板采用STM32F103作为主控制芯片。控制板输入20-36V DC直流，对外提供1路DC 5V 2A 、1路DC 12V 2A 对车载传感器供电。
 
-<img src="https://raw.githubusercontent.com/RuPingCen/blog/master/mick_robot_chasiss/fig/control_fig0.png" alt="control_fig0" style="zoom: 50%;" />
+<img src="README.assets/control_fig0.png" alt="control_fig0" style="zoom: 90%;" />
 
 提供1路DBUS接口、1路232接口、1路CAN总线、1路485接口、1路UART3接口（与485复用）、1路IIC。其中DBUS被用来接收遥航模遥控器的数据，232接口负责与上位机ROS通讯。CAN总线连接4个M3508电机。IIC连接板子上安装的MPU9250。485接口和UART3接口复用，可扩展其他传感器模块。
 3路LED指示灯用于显示程序状态。2路按键、4路拨码开关用于调试和选择程序功能。4路隔离输入（输入电压范围12-24V）。4路隔离输出（输出高阻态和GND，承受电流2A）。
@@ -174,7 +176,7 @@ roslaunch turtlebot3_bringup turtlebot3_model.launch
 
 板子外形为99*99 mm 安装孔位于四周呈轴对称分布，孔中心间距为93mm,孔直径为φ3.1 mm。如下图所示。
 
-<img src="https://raw.githubusercontent.com/RuPingCen/blog/master/mick_robot_chasiss/fig/control_fig4.png" alt="control_fig4" style="zoom: 67%;" />
+<img src="https://raw.githubusercontent.com/RuPingCen/blog/master/mick_robot_chasiss/fig/control_fig4.png" alt="control_fig4" style="zoom: 57%;" />
 
 
 ## 3 小车电源板-功能说明

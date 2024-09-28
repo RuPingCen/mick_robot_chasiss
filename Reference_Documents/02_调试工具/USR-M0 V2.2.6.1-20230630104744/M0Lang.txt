@@ -1,0 +1,281 @@
+;语言文件格式为: 名称|中文|英文，竖线分割，逗号与分号为注释，///为换行，空行自动忽略
+;Language file format: Name|Chinese|English，vertical is delimiter， comma or semicolon is Comments，///is newline，Empty lines automatically ignored
+ 
+lang_Main_Title|USR-M0|USR-M0
+lang_Main_AppTitle|USR-M0|USR-M0
+lang_Menu_File|文件|File
+lang_Menu_Pswd|用户名密码设置|User config
+lang_Menu_ExpDev|导出设备列表|Export Devices
+lang_Menu_Quit|退出|Quit
+lang_Menu_Lang|Language|Language
+lang_Menu_Cn|简体中文|简体中文
+lang_Menu_En|English|English
+lang_Menu_Diy|DiyLang|DiyLang
+lang_Menu_Help|帮助|Help
+lang_Menu_About|关于...|About...
+lang_Menu_Hint|实时帮助|Real-time Help
+lang_Menu_Version|检查更新|Latest version
+lang_Menu_WorkOrder|提交问题|Work Order
+lang_Menu_DownUrl|https://www.usr.cn/Download/257.html|http://www.usriot.com/Download/237.html
+lang_Lv_DevIP|设备IP|Device IP
+lang_Lv_DevName|设备名称|Device Name
+lang_Lv_MAC|MAC地址|MAC
+lang_Lv_Version|版本|Version
+lang_lblKNum|请选择设备型号|Select Model Type
+lang_lbl_SelectCom|请选择串口|Select serial port
+lang_NoCom|没有串口|No serial port
+lang_mni_CopeAllMac|复制所有MAC|Cope All Mac
+lang_mni_CopyTheMac|复制选中MAC|Copy The Mac
+lang_mni_FirmwareUp|固件升级|Firmware upgrade
+lang_mni_OpenWeb|打开网页|OpenWeb
+lang_mni_Reset|恢复出厂设置|Reset
+lang_mni_Restart|重启设备|Restart
+lang_btn_Search|搜索设备|Search Device
+lang_btn_ComSet|保存参数|Save Config
+lang_btn_ComRead|读取参数|Read Config
+lang_rztbsht_Net|通过网络操作|Operate Via LAN
+lang_rztbsht_Com|通过串口操作|Operate Via COM
+lang_rztbsht_Log|操作日志|Operation Log
+lang_rztbsht_Hex|数据流|Hex Streams
+lang_grp_Param|常规功能|General functions
+lang_grp_Special|扩展功能|Expand functions
+lang_grp_BaseSave|基础设置 (不带*的一般保持默认)|Base Param (which is without *,usually keep default)
+lang_grp_ComParam|端口设置|Port Param
+lang_InputBdTitle|自定义波特率|Diy Baud Rate
+lang_PlsInputBd|请输入波特率：|Please Input your Baud Rate :
+lang_BaudRate_Custom|自定义|Custom
+lang_Lbl_UPNPPort|UPNP端口|UPNP Port
+lang_Lbl_HTTPPort|HTTP服务端口|HTTP Port
+lang_Lbl_DevID|设备ID|Device ID
+lang_Lbl_DevIDType|设备ID类型|Device ID Type
+lang_Lbl_UserName|用户名|User Name
+lang_Lbl_Password|密码|Password
+lang_Lbl_DevName|设备名称|Device Name
+lang_Lbl_MAC|用户MAC地址|User MAC
+lang_Lbl_IPType|IP地址类型|IP Type
+lang_Lbl_StaticIP|模块静态IP|ModuleStaticIP
+lang_Lbl_Gateway|网关|Gateway
+lang_Lbl_SubnetMask|子网掩码|SubnetMask
+lang_Lbl_Baudrate|串口波特率|Baudrate
+lang_Lbl_PDS|校验/数据/停止|Parity/Data/Stop
+lang_Lbl_FlowControl|串口流控制|FlowControl
+lang_Lbl_LocalPort|本地端口|Local Port
+lang_Lbl_RemotePort|远程端口|Remote Port
+lang_Lbl_WorkMode|模块工作方式|Module work mode
+lang_Lbl_TCPSvrCount|TCP Server 连接数|Tcp connect num
+lang_Lbl_TCPStyle|TCP Server 样式|TCP Server style
+lang_Lbl_ModbusTCP|ModbusTCP|ModbusTCP
+lang_Lbl_RemoteIP|目标IP/域名|RemoteIP
+lang_Lbl_TelnetTimeout|网络重连时间|Telnet Timeout
+lang_Lbl_PackTime|串口打包时间|PackTime
+lang_Lbl_PackLen|串口打包长度|PackLen
+lang_Chkbox_RFC22170|同步波特率(类RFC2217)|Synchronize baudrate(RFC2217 similar)
+lang_Lbl_InfoTimeOut|秒     (<256, 0为不使用)|s  (<256, 0 for no uses)
+lang_Lbl_InfoPackTime|毫秒 (0~255)|ms (0~255)
+lang_Lbl_InfoPackLen|字节 (0~1023)|byte (0~1023)
+lang_Cbb_DHCP|DHCP/动态IP|DHCP/Auto IP
+lang_Cbb_StaticIP|静态IP|Static IP
+lang_Cbb_Transparent|透明传输|Transparent transmission
+lang_Cbb_NoIDDiscard|按ID发送-无ID则丢弃|As ID(No ID discard)
+lang_Cbb_NoIDBroadcast|按ID发送-无ID则群发|As ID(No ID Broadcast)
+lang_lblDns|DNS地址|DNS Address
+lang_LabeledEditShortTime|短连接时间|Short Connection time
+lang_RzCheckBoxShortEnable|开启短连接|Short Connection
+lang_rzchckbxComSetEnable|串口设置参数|UART Set Parameter
+lang_LabeledEdit1|超时重启时间(秒)|Reset Timeout(s)
+lang_RzCheckBox2|清除缓存数据|Clear Buffer Data Before Connected
+lang_RzCheckBox1|TCP Server-踢掉旧连接|TCP Server-kick off old connection
+lang_rzchbUdpFrom|UDP数据来源判断|UDP data source judgment
+lang_chkMulticast|组播|Multicast
+lang_lblGetPost|Httpd 选项|Httpd Chose
+lang_RzCheckBox3|移除Httpd包头|Remove Httpd Head
+lang_RzLabel1|心跳包使能|Heartbeat Packet Type
+lang_lblHeartTm|心跳时间(s)|Heartbeat Time(s)
+lang_lblHeartPackType|心跳包类型|Heartbeat Type
+lang_lblHeartDt|自定义心跳包|Heartbeat Packet
+lang_RzGroupBoxHeart|心跳包|Heartbeat
+lang_rzgrpbxRegHeart|注册包|Register
+lang_RzLabel2|注册包类型|Register Packet Type
+lang_lblDid|设备编号|DeviceId
+lang_lblCompass|通讯密码|Communication Code
+lang_lblRegSnd|注册包位置|Registered Direction
+lang_lblRegTp|自定义注册包|User Register Packet
+lang_cbbRegType_1|数据携带|Data With
+lang_cbbRegType_0|连接发送|Connect With
+lang_cbbRegType_2|连接与携带|Connect And Data With
+lang_RzComboBox1_0|心跳包关闭|None
+lang_RzComboBox1_1|串口心跳包|Uart Heartbeat 
+lang_RzComboBox1_2|网络心跳包|Net Heartbeat
+lang_cbbHeartPackType_0|MAC心跳包|MAC As Heart
+lang_cbbHeartPackType_1|自定义心跳包|USER Heart
+lang_RzComboBox2_0|注册包关闭|None
+lang_RzComboBox2_1|MAC注册包|MAC As Register
+lang_RzComboBox2_2|自定义注册包|USER Register
+lang_RzComboBox2_3|启用有人云|Enable USR Cloud
+lang_lblModbusEn|Modbus使能|Modbus Type
+lang_cbbModbusType_0|Modbus关闭|None
+lang_cbbModbusType_1|Modbus TCP/RTU转换|Modbus TCP/RTU
+lang_cbbModbusType_2|ModbusRTU轮询|ModbusRTU poll
+lang_lblReportProto|上报协议|Report Protocol
+lang_cbbReporproto_1|透传|Transparent
+lang_lblModbusTimeout|Modbus轮询超时|Poll Timeout
+lang_lblModbusInterval|Modbus轮询间隔|Poll Interval
+lang_lblModbusException|Modbus异常响应|Exception Response
+lang_cbbModbusException_0|关闭|Close
+lang_cbbModbusException_1|开启|Open
+lang_rzchckbxmodbuspool|ModbusTCP轮询|ModbusTCP poll
+lang_lblhearttime|轮询时间(ms)|Poll Timeout(ms)
+lang_lblModbusEnable1|Modbus使能|Modbus Type
+lang_cmbModbusEnable1_0|Modbus关闭|None
+lang_cmbModbusEnable1_1|Modbus TCP/RTU转换|Modbus TCP/RTU
+lang_cmbModbusEnable1_2|Modbus多主机轮询|Modbus Multi-Master Poll
+lang_cmbModbusEnable1_3|Modbus轮询加协议转换|Modbus poll plus Protocol conver
+lang_lblModbusTimeout1|Modbus轮询超时|Poll Timeout
+lang_lblModbusInterval1|Modbus轮询间隔|Poll Interval
+lang_lblModbusException1|Modbus异常响应|Exception Response
+lang_cmbModbusException1_0|关闭|Close
+lang_cmbModbusException1_1|开启|Open
+lang_lbl_ModuleIP|本模块IP地址|Module IP
+lang_lbl_DeIP|连接目标IP|Destination IP
+lang_chk_ConnSendId|建立连接后发送ID号|Send device ID when connected
+lang_chk_DataWithId|发送数据时携带ID号|Send data with device ID
+lang_H_btn_Search|搜索局域网内的设备,需要将CFG引脚悬空|Search device in LAN, please leave CFG pin free
+lang_H_btn_ComRead|通过串口读取设备配置,需要将CFG引脚接地|Read device param via COM, please connect CFG to GND
+lang_H_lv_Dev|点击搜到的设备可读取参数，右键点击设备列表显示更多功能|Click device can read the parameters, right-click Device list show more
+lang_lbl_H_LocationURLPort| UPNP端口，一般用不着 | LocationURLPort /// In general ，it's useless 
+lang_lbl_H_HTTPServerPort| 网页端口 | Webpage Port 
+lang_lbl_H_Id| 设备ID必须与设备ID类型配合使用 | Device ID must be used with Device ID Type 
+lang_lbl_H_IdType| 设备ID类型必须与设备ID配合使用 | Device ID Type must be used with Device ID 
+lang_lbl_H_username| 网页登录与本软件配置的用户名与密码 | The user name and password for webpage login and the software configuration 
+lang_lbl_H_password| 网页登录与本软件配置的用户名与密码 | The user name and password for webpage login and the software configuration 
+lang_lbl_H_ModName| 设备名称，可修改 | Device Name ,it's revisable 
+lang_lbl_H_UserMAC| MAC地址，可修改 | MAC address ,it's revisable 
+lang_lbl_H_AddrType| 静态IP是使用固定IP地址，DHCP是由路由器分配动态的IP地址 | Static IP :  set a fixed IP address /// DHCP    :  get a dynamic IP address from router 
+lang_lbl_H_StaticIP| 本模块静态IP地址可在指定网段内任意分配，但网内不允许重复 | Assign any IP address  for the module in the network , but the IP address isn't allowed to repeat
+lang_lbl_H_GatewayIP| 网关，可以参看你电脑的网关IP，///一般是192.168.0.1，192.168.1.1，192.168.0.254这类。 | Default Gateway in your lan,/// you can look at pc‘s default getway,///it should be like 192.168.0.1 
+lang_lbl_H_SubnetMask| 子网掩码：通常是255.255.255.0 | Subnet mask, the default is 255.255.255.0 
+lang_lbl_H_BaudRate| 请选择或自定义波特率。我们确保每个模块都工作OK的波特率是115200///（我们的测试波特率和默认波特率）| Please select standard bandrate number or custom any bandrate. 
+lang_lbl_H_PDS| 校验/数据/停止| Parity bits / data bits / stop bits  
+lang_lbl_H_FlowControl| 默认为none，/// RS485代表开启485功能（RTS脚做收发控制），/// Hardware代表使用RTS/CTS硬件流控  | The default is none /// RS485 :use 485(RTS transceiver control) /// Hardware : use RTS/CTS hardware flow control
+lang_lbl_H_LocalPort| 模块工作于UDP或TCPServer模式时将监听此端口 | When work at UDP mod or TCP Server mode, module will listen this port. 
+lang_lbl_H_RemotePort| 服务器上的应用程序监听的端口号 | The port be listen at server software. 
+lang_lbl_H_WorkMode| 模块工作方式选择：///UDP server 是指不验证来源IP地址，///收到UDP数据包后将目标IP改为数据来源IP，///类似TCP server的功能。 | module work mode: ///UDP server is like TCP server,when receive a UDP packet,///change target IP to sorce IP of the received UDP packet ///Does not verify the source IP. 
+lang_lbl_H_TCPSvrCount| TCP Server下允许的最大客户端数量 | The number of allowed client when device is working at ' TCP Server ' WorkMode 
+lang_lbl_H_TCPStyle| 一般选择透明传输 | Generally , please select transparent transmission 
+lang_lbl_H_ModbusTCP| 请选择none，除非使用了Modbus TCP协议 |  , Please select 'none' , unless Modbus TCP is used 
+lang_lbl_H_RemoteIP| 服务器的IP或者你要连接的计算机的IP | RemoteIP is the Server Ip or the PC ip which you want to link. 
+lang_lbl_H_UARTTime| 当串口持续一定时间没有接到数据之后，当前的数据就会被打包发送出去。/// 打包时间跟打包长度共同作用，详见 http://www.usr.cn/Faq/6.html /// *想禁用此功能，请将该值设为0*| When the serial port has not received a data for a certain time , /// the data will be packed and sent. /// PackTime and PackLen will working together./// More information is on http://www.usr.cn/Faq/6.html ///* Want the feature disable , set it 0 *
+lang_lbl_H_UARTLength| 当串口收到的数据长度达到一定数量后，当前的数据就会被打包发送出去。/// 打包时间跟打包长度共同作用，详见 http://www.usr.cn/Faq/6.html /// *想禁用此功能，请将该值设为0* | When the data length of received through the serial port achieve the certain value , /// the data will be packed and sent. /// PackLen and PackTime will working together./// More information is on http://www.usr.cn/Faq/6.html ///* Want the feature disable , set it 0 *
+lang_chk_H_RFC2217| 默认勾选，配合虚拟串口软件使用，/// 根据您的应用软件，动态改变串口服务器的串口参数。 | Ticked default , use it with 'USR-VCOM Virtual Serial Port Server'  /// Change the configure of Serial server dynamically based on your software 
+lang_Hint_ModuleWork|模块工作方式选择：///UDP server 是指不验证来源IP地址，收到UDP数据包后将目标IP改为数据来源IP，类似TCP server的功能。|module work mode: ///UDP server is like TCP server,when receive a UDP packet,change target IP to sorce IP of the received UDP packet,Does not verify the source IP.
+lang_Hint_ModuleIP|本模块IP地址可在指定网段内任意分配，但网内不允许重复。|Module IP can fill any ip in LAN, ///just remeber do not repeat.
+lang_Hint_Mask|子网掩码：通常是255.255.255.0|Subnet mask, the default is 255.255.255.0
+lang_Hint_Gateway|模块默认网关，可以参看你电脑的网关IP，///一般是192.168.0.1，192.168.1.1，192.168.0.254这类。|Default Gateway in your lan, ///you can look at pc's default getway, ///it should be like 192.168.0.1
+lang_Hint_BaudRate|模块默认波特率为115200.波特率应该与串口服务器连接的串口设备波特率一致。选择第一项可弹出自定义波特率|The default baudRate is 115200,it should be same as baudRate of device which communicate with the module.You can select the first line to diy bandrate.
+lang_Hint_PDS|校验位 / 数据位 / 停止位|Parity bits / Data bits / Stop bits
+lang_Hint_ModulePort|模块工作于UDP或TCP Server模式时将监听此端口|When work at UDP mod or TCP Server mode,/// module will listen this port.
+lang_Hint_DeIP|服务器的IP或者模块要连接计算机的IP，目标IP只对TCP client和UDP模式起作用。///发UDP广播时，将其设置为255.255.255.255，其广播端口在下面的【远程端口】处设置。|Destination IP is the Server Ip or the PC ip which you want to link.It only work in TCP client or UDP mod.///If you want to Broadcast,set it 255.255.255.255,and set the broadcast port in 【RemotePort】
+lang_Hint_DePort|服务器上的应用程序监听的端口号|The port be listen at server software.
+lang_Hint_NetDev|点击搜到的设备可读取参数，右键点击设备列表显示更多功能|Click device can read the parameters, right-click Device list show more
+lang_Hint_ID|设备的ID，十进制表示，范围0~65535|Device ID in decimal, from 0 to 65535.
+lang_Hint_RS485|开启485功能，默认勾选。不会对232通信造成影响|Use 485
+lang_Hint_RS422|开启422功能|Use 422
+lang_Hint_Reset|做TCP Client时，尝试30次连接Tcp Server失败，自动重启|The Device as a TCP Client, try to connect the TCP Server 30 times failure, automatic restart
+lang_Hint_Link|开启Link脚指示TCP连接是否建立的功能，连接建立则输出低电平|Pin link to show if tcp has connected or not,f the connection is established, then the output low level
+lang_Hint_Index|模块做TCP server时，使用index来区分多个tcp连接|TCP Server index,4.12 or above support this function
+lang_Hint_RFC2217|类RFC2217功能，在网络端动态修改模块的串口工作参数，默认勾选|RFC2217 change baudrate in socket,4.13 support this function
+lang_Hint_ComF5|点击可刷新显示本机所有串口|Click to refresh and show all serial port in the machine
+lang_Hint_HexCopy|复制数据流|Copy Hex
+lang_About_Title|关于|About
+lang_About_Version|版本：|Version:
+lang_About_OK|确 认|OK
+lang_About_SoftName|名称：USR-M0|Name:  USR-M0
+lang_About_Description|说明：本程序由济南有人物联网技术有限公司设计提供|Instruction:  This software is design by Jinan USR IOT Technology Limited
+lang_About_Contact|联系我们| 
+lang_About_Website|http://www.usr.cn|http://www.usriot.com
+lang_About_Tel| | 
+lang_About_Email| | 
+lang_Log_Title|用户名密码设置|User config
+lang_Log_OK|确定|OK
+lang_Log_Cancel|取消|Cancel
+lang_Upgrade_Title|固件升级|Firmware Upgrade
+lang_Upgrade_grpClnt| 目标选择 |Select Client
+lang_Upgrade_grpFileName| 固件选择 |Select .bin file
+lang_Upgrade_btnProgram|升 级|Program
+lang_Upgrade_btnExit|退 出|Exit
+lang_Upgrade_lblClientIP|目标IP地址：|Client IP Address:
+lang_Upgrade_lblClientMAC|目标MAC地址：|Client MAC Address:
+lang_ts_OK|完成| OK 
+lang_ts_Send|发送|send
+lang_ts_Read|读取|Read
+lang_Hint_DevNum| 在线设备数：| On-line Device NUM:
+lang_Hint_ACK| 正确执行。| ACK.
+lang_Hint_CheckErr| 校验错误,正确的校验值为: | Check Error: it should be: 
+lang_Hint_ReceiveOther| 接收未知数据,长度为: | Receive unknown,length is: 
+lang_Hint_PswdErr| 用户名密码错误！请重新输入。| UsrName or Password Error!
+lang_Hint_OtherErr| 其他错误。| Other Error.
+lang_Hint_OverTime| 接收超时！| Receive over time.
+lang_Hint_Sending|数据已发送| Data has been sent
+lang_Hint_BeenRead| 数据读取完毕。| Data has been read.
+lang_Hint_Searching| 搜索在线设备...| Search online Device...
+lang_Hint_UDPPortChange| 搜索端口：| Search Port:
+lang_Hint_UDPPortInUse| 端口被占用！| Port In Use!
+lang_Hint_NoTarget| 请在搜索列表中选择模块。| Please select the module in the search list.
+lang_Hint_UpSearching| 搜索可升级设备...| Searching device...
+lang_Hint_UpReady| 已搜索到设备，发送升级请求...| Find Device,Ready to upgrade...
+lang_Hint_UpProgress| 升级进度...| Upgrade progress...
+lang_Hint_UpSuccess| 升级已完成，请恢复出厂默认。| Upgrade successful.please restore factory default.
+lang_Hint_UpNoClient| 未选择升级目标。| Please Select Client first.
+lang_Hint_UpNoFileName| 未选择升级文件。| Please Select .bin file first.
+lang_Hint_Upfailed| 固件升级失败，请联系厂家！| Upgrade failed!
+lang_Hint_UpTimeOut| 升级超时！| Upgrade time out!
+lang_Hint_BinNotMatch| 固件与硬件不匹配！| Firmware does not match with hardware!
+lang_Hint_UpPleaseUpgrade|本程序支持2002或更高版本，请先升级：设备->固件升级|This program supports version 2002 or higher, please upgrade first:Device->Firmware upgrade
+lang_Hint_UpNoSamNetwork|请先设置模块与计算机在同一网段，否则无法升级。|Please set the module and the computer on the same network segment, otherwise unable to upgrade.
+lang_Hint_VerIncompatible|本程序仅支持M0系列|This program is only used for M0 Series
+lang_ts_CfgFree|CFG引脚需悬空|please leave CFG pin free
+lang_ts_CfgGnd|CFG引脚需接地|please connect CFG to GND
+lang_ComIsNo|串口不存在或被占用|Serial is Occupied
+lang_ComIsOpen|串口已打开|Serial is Open
+lang_ComIsClose|串口已关闭|Serial is Close
+lang_Ts_ComSendFailure|串口发送失败，请重试|Serial Send Failure，please try again
+lang_DataHeadOrChkErr|包头或校验错误|Packet Header error or check sum is not correct
+lang_Ts_ComSetOk|设置成功|setup success
+lang_Upgrade_Hint|注意：请确保已关闭防火墙和杀毒软件，再进行升级!|Notes: Please disable firewall and antivirus software before ///           upgrade firmware!
+lang_Upgrade_lblLocalIP|本地IP地址:|Local IP Address:
+lang_btn_DataDebug|数据调试|DataDebug
+lang_DataDebug_Title|网络数据调试|Network data debugging
+lang_DataDebug_lblProtocol|协议选择:|Protocol:
+lang_DataDebug_btnConnet|连接|Connect
+lang_DataDebug_disconnect|断开|Disconnect
+lang_DataDebug_btnStart|启动|Start
+lang_DataDebug_chkChooseAll|全选|Choose All
+lang_DataDebug_btnClearAll|清除全部数据|Clear All
+lang_DataDebug_btnImport|导入文件|Import Files
+lang_DataDebug_btnExport|导出文件|Export Files
+lang_DataDebug_lblDelay|延迟(ms)|Delay(ms)
+lang_DataDebug_lblCycleInternal|循环间隔:|Cycle internal:
+lang_DataDebug_btnCycleSend|循环发送|Cycle send
+lang_DataDebug_btnStopSend|停止发送|Stop send
+lang_DataDebug_btnExplanation|右键自定义名称|Right custom name
+lang_DataDebug_btnStop|停止|Stop
+lang_DataDebug_lblRemote|目标IP和端口:|Remote IP, port:
+lang_Hint_DataDebug_UDPStart|UDP已启动！|UDP has started!
+lang_Hint_DataDebug_UDPStop|UDP已停止！|UDP has stopped!
+lang_Hint_DataDebug_ServiceStart|服务已启动，等待连接...|Service has started, waiting for connection ...
+lang_Hint_DataDebug_ServiceStop|服务器已停止。|The server is stopped.
+lang_Hint_DataDebug_ClientConnect|已经监听到客户端 |Client has been monitored 
+lang_Hint_DataDebug_ClientDisconnect|服务器断开与客户端连接。|The server is disconnected from the client.
+lang_Hint_DataDebug_ClientError|客户端的连接发生错误！|An error occurred in the connection of the client!
+lang_Hint_DataDebug_ServerConnect|已经连接到 |Already connected to 
+lang_Hint_DataDebug_ServerDisconnect|已经断开连接 |Has disconnected from 
+lang_Hint_DataDebug_ServerError|与服务器端的连接发生错误！|An error occurred in the connection with the server!
+lang_Hint_DataDebug_IPPort|请输入IP和端口号!|Please enter IP and port!
+lang_Hint_DataDebug_FileNotExist|该文件不存在,请重新选择！|The file does not exist, please choose again!
+lang_Hint_DataDebug_NotConn|请先创建连接！|Please create a connection first.
+lang_FrameCmd_btnSend|发送|Send
+lang_FrameCmd_btnExplanation|右键自定义名称|Right custom name
+lang_Hint_FrameCmd_PopupTitle|请输入指令名称|Please enter the instruction name
+lang_Hint_FrameCmd_PopupText|指令名称为:|The instruction name is:
+lang_DeviceId|请输入20位设备编号！|Please enter a 20-digit Device ID.
+lang_CommCode|请输入8位通讯密码！|Please enter the 8-digit communication Code.

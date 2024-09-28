@@ -1,0 +1,11 @@
+..\..\output\inet.o: ..\..\User\lwip-1.4.1\src\core\ipv4\inet.c
+..\..\output\inet.o: ..\..\User\lwip-1.4.1\src\include\lwip/opt.h
+..\..\output\inet.o: ..\..\User\App\lwipopts.h
+..\..\output\inet.o: ..\..\User\lwip-1.4.1\src\include\lwip/debug.h
+..\..\output\inet.o: ..\..\User\lwip-1.4.1\src\include\lwip/arch.h
+..\..\output\inet.o: ..\..\User\lwip-1.4.1\port\arch/cc.h
+..\..\output\inet.o: ..\..\User\lwip-1.4.1\port\arch/cpu.h
+..\..\output\inet.o: ..\..\User\lwip-1.4.1\src\include\lwip/opt.h
+..\..\output\inet.o: ..\..\User\lwip-1.4.1\src\include\ipv4\lwip/inet.h
+..\..\output\inet.o: ..\..\User\lwip-1.4.1\src\include\lwip/def.h
+..\..\output\inet.o: ..\..\User\lwip-1.4.1\src\include\ipv4\lwip/ip_addr.h
